@@ -491,127 +491,6 @@ a:focus-visible > .l-roll > span {
   gap: 12px;
 }
 
-/* Mosaic of shapes with the badge in the middle, framed by thin lines. */
-.l-mosaic {
-  --tile: 56px;
-  position: relative;
-  width: max-content;
-  margin: 56px auto 0;
-  padding: 28px;
-}
-
-.l-mosaic__grid {
-  display: grid;
-  grid-template-columns: repeat(6, var(--tile));
-  grid-auto-rows: var(--tile);
-}
-
-.l-tile {
-  display: block;
-  position: relative;
-}
-
-.l-tile:nth-child(n + 9):not(.l-tile--badge) {
-  display: none;
-}
-
-.l-tile svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.l-tile--badge {
-  grid-area: 1 / 3 / 3 / 5;
-  display: grid;
-  place-items: center;
-  z-index: 2;
-}
-
-.l-mosaic__badge-in {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-.l-tile--badge .l-badge {
-  --size: calc(var(--tile) * 2);
-}
-
-.l-frame,
-.l-frame__line,
-.l-frame__label {
-  position: absolute;
-}
-
-.l-frame {
-  inset: 0;
-  pointer-events: none;
-}
-
-.l-frame__line {
-  background: rgb(8 26 68 / 0.18);
-}
-
-.l-frame__line--top,
-.l-frame__line--bottom {
-  left: -24px;
-  right: -24px;
-  height: 1px;
-}
-
-.l-frame__line--top {
-  top: 14px;
-}
-
-.l-frame__line--bottom {
-  bottom: 14px;
-}
-
-.l-frame__line--left,
-.l-frame__line--right {
-  top: -12px;
-  bottom: -12px;
-  width: 1px;
-}
-
-.l-frame__line--left {
-  left: 14px;
-}
-
-.l-frame__line--right {
-  right: 14px;
-}
-
-.l-frame__label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: var(--l-ink-soft);
-  line-height: 1;
-}
-
-.l-frame__label--tl {
-  left: 20px;
-  top: -4px;
-}
-
-.l-frame__label--tr {
-  right: 20px;
-  top: -4px;
-}
-
-.l-frame__label--bl {
-  left: 20px;
-  bottom: -4px;
-}
-
-.l-frame__label--br {
-  right: 20px;
-  bottom: -4px;
-}
-
 @media (min-width: 768px) {
   .l-hero {
     padding: 160px 0 96px;
@@ -627,26 +506,6 @@ a:focus-visible > .l-roll > span {
     font-size: 1.25rem;
   }
 
-  .l-mosaic {
-    --tile: 96px;
-    margin-top: 72px;
-  }
-
-  .l-mosaic__grid {
-    grid-template-columns: repeat(11, var(--tile));
-  }
-
-  .l-tile:nth-child(n + 9):not(.l-tile--badge) {
-    display: block;
-  }
-
-  .l-tile--badge {
-    grid-area: 2 / 6;
-  }
-
-  .l-tile--badge .l-badge {
-    --size: var(--tile);
-  }
 }
 
 /* ---------- Step 4: what is the Hub ---------- */
@@ -764,9 +623,33 @@ a:focus-visible > .l-roll > span {
 
 /* ---------- Step 5: dark section "Too many questions" ---------- */
 
+/* Page colour above, the next section's ice blue below: the dark card
+   opens out of the first and shrinks back into the second. */
+.l-q {
+  background: linear-gradient(var(--l-mist) 50%, var(--l-ice) 50%);
+}
+
 .l-q__pin {
   height: 100vh;
   height: 100svh;
+}
+
+/* Blurred student picture under a 55% midnight shade. TODO: confirm with CBE —
+   public/landing/student-blur.jpg is a drawn stand-in; swap in a real photo. */
+.l-q__photo,
+.l-q__shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.l-q__photo {
+  object-fit: cover;
+}
+
+.l-q__shade {
+  background: rgb(8 26 68 / 0.55);
 }
 
 .l-q__panel {
@@ -774,7 +657,6 @@ a:focus-visible > .l-roll > span {
   height: 100%;
   overflow: hidden;
   color: #ffffff;
-  /* TODO: confirm with CBE — photo + 55% midnight overlay replaces this. */
   background:
     radial-gradient(ellipse 30% 45% at 50% 60%, #1c3270, transparent 70%),
     var(--l-midnight);
@@ -982,67 +864,54 @@ a:focus-visible > .l-roll > span {
   }
 }
 
-/* ---------- Step 6: tile reveal ---------- */
+/* ---------- Step 6: "That's why CBE Incubation Hub exists" ---------- */
 
-.l-tiles {
-  background: var(--l-midnight);
-}
-
-.l-tiles__pin {
+/* Ice blue with big, soft tiles that fade in as you scroll (like Loopsii).
+   It fades into the page colour at the bottom. */
+.l-why {
   position: relative;
-  height: 100vh;
-  height: 100svh;
-  min-height: 520px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  isolation: isolate;
+  padding: 22vh 0 48px;
+  background: linear-gradient(var(--l-ice) 80%, var(--l-mist));
 }
 
-.l-tiles__grid {
+.l-why__tiles {
   position: absolute;
   inset: 0;
+  z-index: -1;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(8, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-content: start;
+  -webkit-mask-image: linear-gradient(#000 70%, transparent);
+  mask-image: linear-gradient(#000 70%, transparent);
 }
 
-.l-tiles__tile:nth-child(n + 33) {
-  display: none;
+.l-why__tile {
+  aspect-ratio: 1;
+  opacity: var(--o);
 }
 
-.l-tiles__content {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 28px;
-  padding: 0 var(--l-gutter);
-  text-align: center;
-}
-
-.l-tiles__title {
-  margin: 0;
-  font-size: clamp(3rem, 9vw, 7rem);
+.l-why__title {
+  margin: 0 auto;
+  max-width: 13ch;
+  font-size: clamp(3rem, 8vw, 7rem);
   line-height: 0.95;
   letter-spacing: -0.035em;
+  text-align: center;
   color: var(--l-midnight);
-  max-width: 12ch;
 }
 
 @media (min-width: 768px) {
-  .l-tiles__grid {
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-  }
-
-  .l-tiles__tile:nth-child(n + 33) {
-    display: block;
+  .l-why__tiles {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 
-/* ---------- Step 6b: app preview ---------- */
+/* ---------- Step 6b: app preview (inside the section above) ---------- */
 
 .l-app {
-  padding: 96px 0;
+  padding: 56px 0 48px;
 }
 
 .l-rig {
@@ -1253,7 +1122,7 @@ a:focus-visible > .l-roll > span {
 
 @media (min-width: 900px) {
   .l-app {
-    padding: 128px 0;
+    padding: 80px 0 64px;
   }
 
   .l-rig {
@@ -1308,16 +1177,10 @@ a:focus-visible > .l-roll > span {
   }
 }
 
-/* The 3D rig: desktop with a mouse, motion allowed. */
-@media (min-width: 900px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .l-rig {
-    perspective: 1800px;
-    perspective-origin: 50% 40%;
-  }
-
+/* Floating labels beside the picture: desktop with a mouse only. */
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
   .l-rig__stage {
-    transform-style: preserve-3d;
-    transform: rotateX(var(--rx, 14deg)) rotateY(var(--ry, -10deg)) scale(var(--s, 1));
+    position: relative;
   }
 
   .l-rig__float {
@@ -1329,7 +1192,6 @@ a:focus-visible > .l-roll > span {
     background: #ffffff;
     box-shadow: var(--l-shadow);
     font-weight: 600;
-    transform: translateZ(60px);
   }
 
   .l-rig__float--a {
@@ -1469,15 +1331,13 @@ a:focus-visible > .l-roll > span {
   margin: 14px 0 0;
 }
 
-/* The grid owns the perspective; cards hinge at their top edge. */
+/* Earlier cards sit on top, so later ones can slide out from behind them. */
 .l-feat-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   gap: 16px;
-  perspective: 700px;
-  perspective-origin: 50% 50%;
 }
 
 .l-feat-card {
@@ -1486,8 +1346,14 @@ a:focus-visible > .l-roll > span {
   padding: 26px;
   border-radius: 24px;
   color: var(--l-midnight);
-  transform-origin: 50% 0%;
-  will-change: transform, opacity;
+}
+
+.l-feat-card:nth-child(1) {
+  z-index: 3;
+}
+
+.l-feat-card:nth-child(2) {
+  z-index: 2;
 }
 
 .l-feat-card h4 {
@@ -1529,7 +1395,6 @@ a:focus-visible > .l-roll > span {
 
   .l-feat-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    perspective: 900px;
   }
 
   .l-feat-card {

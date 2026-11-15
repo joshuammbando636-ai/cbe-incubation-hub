@@ -2,7 +2,6 @@ import Lenis from 'lenis'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { useTitle } from '../lib/useTitle.js'
-import { AppPreview } from './landing/AppPreview.jsx'
 import { FinalCta, Footer } from './landing/Closing.jsx'
 import { Faq } from './landing/Faq.jsx'
 import { Features } from './landing/Features.jsx'
@@ -99,7 +98,6 @@ export function Landing({ authPending = false }) {
         <WhatIsHub />
         <Questions />
         <Tiles />
-        <AppPreview />
         <Scattered />
         <Features supportCount={support?.length} />
         <Stack />

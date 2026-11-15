@@ -68,14 +68,36 @@ export function Questions() {
         { scale: 0.01, opacity: 0, duration: 0.3, ease: 'back.out(1.4)', stagger: { each: 0.06, from: 'end' } },
         0.3,
       )
+
+    // As it leaves, the panel shrinks back into a rounded card over the ice blue below.
+    // Made after the pin, so it measures the section with the pin's extra height.
+    gsap.fromTo(
+      panel,
+      { clipPath: 'inset(0% 0% 0% 0% round 0px)' },
+      {
+        clipPath: desktop ? 'inset(0% 3% 0% 3% round 32px)' : 'inset(0% 4% 0% 4% round 24px)',
+        ease: 'none',
+        immediateRender: false,
+        scrollTrigger: { trigger: root, start: 'bottom bottom', end: 'bottom 35%', scrub: 1 },
+      },
+    )
   })
 
   return (
     <section className="l-q" ref={ref} data-dark="true">
       <div className="l-q__pin">
-        {/* TODO: confirm with CBE — blurred student photo (public/landing/student-blur.jpg)
-            with a 55% midnight overlay. Until then: the gradient in landing.css. */}
         <div className="l-q__panel">
+          {/* TODO: confirm with CBE — this blurred picture is a drawn stand-in; swap in a real student photo. */}
+          <img
+            className="l-q__photo"
+            src="/landing/student-blur.jpg"
+            alt=""
+            width="1600"
+            height="1000"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="l-q__shade" aria-hidden="true" />
           <div className="l-q__frame" aria-hidden="true">
             <span className="l-q__line l-q__line--top" />
             <span className="l-q__line l-q__line--bottom" />

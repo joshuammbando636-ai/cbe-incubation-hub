@@ -506,7 +506,6 @@ The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and wh
 - Headline: **Turn your [idea / prototype / side hustle / class project / first sale] into a business.** (screen readers hear "Turn your idea into a business.")
 - Line: Join an innovation hub, get a mentor in your field, and grow your business one stage at a time.
 - Buttons: **Create your account** · Sign in
-- Mosaic corner labels: IDEAS · MENTORS · LESSONS · PROGRESS
 
 **What is the Hub**
 
@@ -518,9 +517,10 @@ The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and wh
 
 - So many questions pulling you away · from building your business
 - Questions: Which hub fits my idea? · Who is my mentor? · Did my mentor see my video? · When is the next meeting? · Where was that lesson link? · What stage am I at? · Is my idea good enough? · Where do I even start? · Lost in the WhatsApp group · Paper forms. Again.
-- Background: a blurred student photo with a dark overlay **[confirm with CBE]**; a dark-blue gradient until then.
+- Background: a blurred student picture under a 55% dark-blue shade. For now it is a drawn stand-in (`public/landing/student-blur.jpg`) **[confirm with CBE]**: swap in a real photo with the same name.
+- As it leaves, the dark card shrinks back into a rounded card over ice blue.
 
-**Tile reveal**: That's why the Hub exists · button **Create your account**
+**That's why CBE Incubation Hub exists**: on ice blue, with big soft tiles that fade in as you scroll; the dashboard picture comes up right under the line. No button here (Josh, 15 Nov: follow Loopsii's pattern, don't overdo it).
 
 **Dashboard picture** (sample, not real data): Good morning, Amina **[confirm with CBE: sample name]** · Your stage (the four stages) · Next meeting: Hub check-in, Wed, 14:00 (draft) · Progress video: Operational, Waiting for review → Verified ✓ · Lessons: Know your customer · Price your product · Pitch in two minutes (draft) · Floating cards: Mentor verified ✓ · Video posted
 

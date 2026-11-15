@@ -13,7 +13,7 @@ import {
   Video,
 } from 'lucide-react'
 import { useRef } from 'react'
-import { gsap, SCRUB, useSectionMotion } from './motion.js'
+import { gsap, useSectionMotion } from './motion.js'
 
 const supportLine = (n) => `Choose from the ${n ? `${n} ` : ''}kinds of support the Hub offers.`
 
@@ -58,24 +58,36 @@ const PHASES = [
 
 const TONES = ['sky', 'ice', 'cornflower', 'white']
 
-// The star effect: each card swings up from a cone (hinged at its top edge) as it scrolls in.
+// Each row plays once as it scrolls in. Desktop: the first card rises, then the
+// other two slide out from behind it. Phone: each card slides out from behind the one above.
 export function Features({ supportCount }) {
   const ref = useRef(null)
 
   useSectionMotion(ref, ({ desktop, q }) => {
-    q('.l-feat-card').forEach((card) => {
-      const c = desktop ? Number(card.dataset.col) : 0
-      gsap.fromTo(
-        card,
-        { rotateX: desktop ? -45 : -20, y: desktop ? 60 : 40, opacity: 0.35 },
-        {
-          rotateX: 0,
-          y: 0,
-          opacity: 1,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: card, start: `top bottom-=${c * 40}`, end: 'top 55%', scrub: SCRUB },
-        },
-      )
+    if (!desktop) {
+      q('.l-feat-card').forEach((card) => {
+        gsap.from(card, {
+          yPercent: -35,
+          scale: 0.94,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'expo.out',
+          scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+        })
+      })
+      return
+    }
+    q('.l-feat-grid').forEach((grid) => {
+      const [first, ...rest] = grid.children
+      gsap
+        .timeline({ scrollTrigger: { trigger: grid, start: 'top 80%', once: true } })
+        .from(first, { y: 60, opacity: 0, duration: 0.7, ease: 'expo.out' })
+        .from(
+          rest,
+          { x: (i, card) => first.offsetLeft - card.offsetLeft, duration: 0.9, ease: 'expo.out', stagger: 0.08 },
+          0.35,
+        )
+        .from(rest, { opacity: 0, duration: 0.01 }, 0.35)
     })
   })
 

@@ -36,7 +36,7 @@ describe('landing page v2', () => {
     const order = [
       'What is the Hub',
       'So many questions pulling you away',
-      'That’s why the Hub exists',
+      'That’s why CBE Incubation Hub exists',
       'Your startup shouldn’t live in six places',
       'Everything you need at every stage',
       'Your Hub at a glance',
