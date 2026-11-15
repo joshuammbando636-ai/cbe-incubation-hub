@@ -62,20 +62,38 @@ export function useSectionMotion(ref, build, deps = []) {
   }, deps)
 }
 
+// Runs `play(el)` once, the first time each element's top passes `line` of the
+// screen (85% = 'top 85%'). An IntersectionObserver, not a ScrollTrigger: one-off
+// entrances then cost no layout work while the page scrolls or re-measures.
+export function onceVisible(targets, play, line = 85) {
+  const els = gsap.utils.toArray(targets).filter(Boolean)
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return
+        io.unobserve(e.target)
+        play(e.target)
+      }),
+    { rootMargin: `0px 0px -${100 - line}% 0px` },
+  )
+  els.forEach((el) => io.observe(el))
+  return () => io.disconnect()
+}
+
 // The one shared entrance: [data-reveal] rises 18px and fades in once;
 // children of [data-reveal-stagger] do the same, 0.06s apart.
 export function revealOnScroll(root) {
-  const from = { y: 18, opacity: 0, duration: 0.9, ease: 'expo.out' }
-  gsap.utils.toArray('[data-reveal]', root).forEach((el) => {
-    gsap.from(el, { ...from, scrollTrigger: { trigger: el, start: 'top 85%', once: true } })
-  })
-  gsap.utils.toArray('[data-reveal-stagger]', root).forEach((el) => {
-    gsap.from(el.children, {
-      ...from,
-      stagger: 0.06,
-      scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-    })
-  })
+  const to = { y: 0, opacity: 1, duration: 0.9, ease: 'expo.out' }
+  const singles = gsap.utils.toArray('[data-reveal]', root)
+  const groups = gsap.utils.toArray('[data-reveal-stagger]', root)
+  gsap.set(singles, { y: 18, opacity: 0 })
+  groups.forEach((g) => gsap.set(g.children, { y: 18, opacity: 0 }))
+  const stopSingles = onceVisible(singles, (el) => gsap.to(el, to))
+  const stopGroups = onceVisible(groups, (g) => gsap.to(g.children, { ...to, stagger: 0.06 }))
+  return () => {
+    stopSingles()
+    stopGroups()
+  }
 }
 
 // Self-running loops pause while their section is off screen.
@@ -86,17 +104,18 @@ export function pauseOffscreen(el, anim) {
   return () => io.disconnect()
 }
 
-// Counts a number up from 0 (the real number is already in the HTML).
-export function countUp(el, to, scrollTrigger) {
+// Counts a number up from 0 once `watch` comes into view (the real number is already in the HTML).
+export function countUp(el, to, watch = el) {
   const n = { v: 0 }
-  return gsap.to(n, {
-    v: to,
-    duration: 1.1,
-    ease: 'power2.out',
-    onUpdate: () => (el.textContent = String(Math.round(n.v))),
-    onComplete: () => (el.textContent = String(to)),
-    scrollTrigger,
-  })
+  return onceVisible(watch, () =>
+    gsap.to(n, {
+      v: to,
+      duration: 1.1,
+      ease: 'power2.out',
+      onUpdate: () => (el.textContent = String(Math.round(n.v))),
+      onComplete: () => (el.textContent = String(to)),
+    }),
+  )
 }
 
 // Lenis lives in Landing.jsx; links to #how, #hubs… scroll through it.

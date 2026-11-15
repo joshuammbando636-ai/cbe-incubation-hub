@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { STAGES } from '../../lib/labels.js'
-import { countUp, gsap, useSectionMotion } from './motion.js'
+import { countUp, gsap, onceVisible, useSectionMotion } from './motion.js'
 
 const CAMPUSES = 3
 
@@ -17,29 +17,16 @@ export function Hubs({ hubs, support }) {
   useSectionMotion(
     ref,
     ({ q }) => {
-      if (hubs?.length) {
-        gsap.from(q('.l-chip'), {
-          opacity: 0,
-          y: 10,
-          duration: 0.6,
-          ease: 'expo.out',
-          stagger: 0.02,
-          scrollTrigger: { trigger: q('.l-chips')[0], start: 'top 85%', once: true },
-        })
+      const stops = []
+      // Fade a group in, a little apart, the first time its box comes into view.
+      const enter = (box, items, vars) => {
+        gsap.set(items, { opacity: 0, y: vars.y })
+        stops.push(onceVisible(box, () => gsap.to(items, { ...vars, y: 0, opacity: 1, ease: 'expo.out' })))
       }
-      if (support?.length) {
-        gsap.from(q('.l-support h3, .l-support__list li'), {
-          y: 18,
-          opacity: 0,
-          duration: 0.9,
-          ease: 'expo.out',
-          stagger: 0.06,
-          scrollTrigger: { trigger: q('.l-support')[0], start: 'top 85%', once: true },
-        })
-      }
-      q('[data-count]').forEach((el) =>
-        countUp(el, Number(el.dataset.count), { trigger: q('.l-numbers')[0], start: 'top 85%', once: true }),
-      )
+      if (hubs?.length) enter(q('.l-chips'), q('.l-chip'), { y: 10, duration: 0.6, stagger: 0.02 })
+      if (support?.length) enter(q('.l-support'), q('.l-support h3, .l-support__list li'), { y: 18, duration: 0.9, stagger: 0.06 })
+      q('[data-count]').forEach((el) => stops.push(countUp(el, Number(el.dataset.count), q('.l-numbers'))))
+      return () => stops.forEach((stop) => stop())
     },
     [hubs, support],
   )

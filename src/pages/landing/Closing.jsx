@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { Link } from 'react-router'
 import { APP_NAME, FOOTER } from '../../lib/text.js'
 import { RollText, SectionLink } from './bits.jsx'
-import { gsap, useSectionMotion } from './motion.js'
+import { gsap, onceVisible, useSectionMotion } from './motion.js'
 import { Badge } from './shapes.jsx'
 
 const CTA = 'Create your account'
@@ -12,13 +12,11 @@ export function FinalCta() {
   const ref = useRef(null)
 
   useSectionMotion(ref, ({ q }) => {
-    gsap.from(q('.l-closing__word'), {
-      y: 90,
-      duration: 0.9,
-      ease: 'expo.out',
-      stagger: 0.12,
-      scrollTrigger: { trigger: q('.l-closing')[0], start: 'top 85%', once: true },
-    })
+    const words = q('.l-closing__word')
+    gsap.set(words, { y: 90 })
+    return onceVisible(q('.l-closing'), () =>
+      gsap.to(words, { y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.12 }),
+    )
   })
 
   return (

@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { countUp, gsap, useSectionMotion } from './motion.js'
+import { countUp, gsap, onceVisible, useSectionMotion } from './motion.js'
 
 // TODO: confirm with CBE — are these the six places students use today?
 const PLACES = {
@@ -19,18 +19,17 @@ export function Scattered() {
   const ref = useRef(null)
 
   useSectionMotion(ref, ({ q }) => {
-    const grid = q('.l-scatter__grid')[0]
-    gsap.from(q('.l-scatter__card'), {
-      y: 36,
-      opacity: 0,
-      duration: 0.9,
-      ease: 'expo.out',
-      stagger: 0.08,
-      scrollTrigger: { trigger: grid, start: 'top 80%', once: true },
-    })
-    q('[data-count]').forEach((el) =>
-      countUp(el, Number(el.dataset.count), { trigger: el, start: 'top 85%', once: true }),
-    )
+    const cards = q('.l-scatter__card')
+    gsap.set(cards, { y: 36, opacity: 0 })
+    const stops = [
+      onceVisible(
+        q('.l-scatter__grid'),
+        () => gsap.to(cards, { y: 0, opacity: 1, duration: 0.9, ease: 'expo.out', stagger: 0.08 }),
+        80,
+      ),
+      ...q('[data-count]').map((el) => countUp(el, Number(el.dataset.count))),
+    ]
+    return () => stops.forEach((stop) => stop())
   })
 
   return (

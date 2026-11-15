@@ -76,14 +76,16 @@ export function Landing({ authPending = false }) {
   useSectionMotion(root, ({ root: el }) => revealOnScroll(el))
 
   // Positions change when the heading font arrives and when the live lists load.
+  // Re-measure once things settle, not once per change: each re-measure lays out the whole page.
+  const [fontsReady, setFontsReady] = useState(false)
   useEffect(() => {
-    document.fonts?.ready.then(() => ScrollTrigger.refresh())
+    document.fonts?.ready.then(() => setFontsReady(true))
   }, [])
   useEffect(() => {
-    if (!hubs && !support) return undefined
-    const id = requestAnimationFrame(() => ScrollTrigger.refresh())
-    return () => cancelAnimationFrame(id)
-  }, [hubs, support])
+    if (!hubs && !support && !fontsReady) return undefined
+    const id = setTimeout(() => ScrollTrigger.refresh(), 200)
+    return () => clearTimeout(id)
+  }, [hubs, support, fontsReady])
 
   return (
     <div className="landing" ref={root}>
