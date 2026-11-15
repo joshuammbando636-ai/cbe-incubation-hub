@@ -2,9 +2,10 @@
    blue surfaces, a deep-blue gradient for the big moments. Amber = waiting,
    red = error. 1px rules, 8px radius. Light theme only. */
 
-/* Heading font chosen by Josh: Some Time Later (SIL Open Font Licence),
-   cut down to Latin letters only (34 KB). It has one weight, so headings
-   never get a fake bold. */
+/* Fonts chosen by Josh:
+   - Plus Jakarta Sans (self-hosted from npm) for all text and headings.
+   - Some Time Later (SIL Open Font Licence, Latin only, 34 KB) only for the big
+     moments: the landing page and the sign-in panel. Those set --serif to it. */
 @font-face {
   font-family: 'Some Time Later';
   src: url('./assets/fonts/some-time-later.woff2') format('woff2');
@@ -31,8 +32,14 @@
   --amber: #9a6200;
   --red: #b3261e;
 
-  --serif: 'Some Time Later', 'Arial Black', Impact, sans-serif;
-  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --display: 'Some Time Later', 'Arial Black', Impact, sans-serif;
+  /* Front page only: a bold formal face for headings, and Office's Aptos for the hero line. */
+  --formal: 'Plus Jakarta Sans Variable', system-ui, 'Segoe UI', Arial, sans-serif;
+  --office: Aptos, Calibri, 'Segoe UI', Arial, sans-serif;
+  /* Heading font. Plain in the app; the landing page and sign-in panel switch it. */
+  --serif: var(--sans);
+  --head-track: -0.02em;
 
   --t14: 0.875rem;
   --t16: 1rem;
@@ -85,9 +92,9 @@ h1,
 h2,
 h3 {
   font-family: var(--serif);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: var(--head-track);
   margin: 0 0 var(--s4);
   text-wrap: balance;
 }
@@ -177,7 +184,7 @@ strong {
 }
 
 .wordmark {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-size: var(--t20);
   font-weight: 600;
   color: var(--ink);
@@ -650,7 +657,7 @@ textarea[aria-invalid='true'] {
   gap: var(--s3);
   min-height: 44px;
   padding: var(--s2) var(--s3) var(--s5);
-  font-family: var(--serif);
+  font-family: var(--display);
   font-size: var(--t20);
   font-weight: 600;
   color: var(--ink);
@@ -1554,7 +1561,7 @@ legend {
   border-radius: var(--radius);
   background: var(--grad);
   color: var(--on-accent);
-  font-family: var(--sans);
+  font-family: var(--display);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -1562,6 +1569,19 @@ legend {
 }
 
 /* ---------- Sign-in: the left panel is the blue gradient ---------- */
+
+/* Front page: headings in a bold, formal face; the hero line in Office's own font. */
+.landing {
+  --serif: var(--formal);
+  --display: var(--formal);
+  --head-track: -0.01em;
+}
+
+/* The sign-in panel keeps the display font. */
+.split-intro {
+  --serif: var(--display);
+  --head-track: 0.01em;
+}
 
 .split-intro {
   background: var(--grad);

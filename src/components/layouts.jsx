@@ -1,9 +1,10 @@
-import { LogOut, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Bell, ChevronRight, LogOut, Megaphone, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../auth/context.js'
-import { ADMIN_MENU, STAFF_MENU, TAB_COUNT } from '../lib/menus.js'
+import { ADMIN_MENU, STAFF_ACTION, STAFF_MENU, STUDENT_ACTION, TAB_COUNT } from '../lib/menus.js'
 import { APP_NAME, FOOTER } from '../lib/text.js'
+import { Avatar } from './Avatar.jsx'
 import { Notifications } from './Notifications.jsx'
 
 export function Footer() {
@@ -78,13 +79,31 @@ function useCollapsed() {
   return [collapsed, toggle]
 }
 
-function initials(name = '') {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts.at(-1)[0] : '')).toUpperCase() || '?'
+// The menu item for this page, for the title in the top bar.
+function pageFor(menu, pathname) {
+  return (
+    menu.find((item) => item.to === pathname) ??
+    menu.filter((item) => !item.end && pathname.startsWith(`${item.to}/`)).sort((a, b) => b.to.length - a.to.length)[0]
+  )
 }
 
-// Signed-in pages: a menu down the left, then the page. On phones the main pages
-// sit in a bar along the bottom and "More" opens the full menu as a drawer.
+const WEEKDAY = new Intl.DateTimeFormat('en-GB', { weekday: 'long' })
+const DAY = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+
+function SideLink({ to, end, label, icon: Icon, collapsed }) {
+  return (
+    <NavLink to={to} end={end} title={collapsed ? label : undefined}>
+      {Icon && <Icon aria-hidden="true" size={20} strokeWidth={1.75} />}
+      <span className="sidebar-label">{label}</span>
+    </NavLink>
+  )
+}
+
+// Signed-in pages (layout from Josh's Pitch.io reference):
+// - left: white sidebar with the logo, one big action button, the menu, a help card
+//   and Sign out. The current page's tab joins the page on its right.
+// - top: page name and today's date, then notices and your name (opens Profile).
+// - phones: the main pages sit in a bar along the bottom; "More" opens the sidebar.
 export function AppShell({ menu = [] }) {
   const { profile, signOut } = useAuth()
   const mainRef = useNewPageFocus()
@@ -98,8 +117,12 @@ export function AppShell({ menu = [] }) {
   const [collapsed, toggleCollapsed] = useCollapsed()
   const name = profile.full_name || profile.email
   const mainItems = menu.filter((item) => !item.foot)
-  const footItems = menu.filter((item) => item.foot)
   const tabs = mainItems.slice(0, TAB_COUNT)
+  const base = profile.role === 'student' ? '/student' : '/staff'
+  const action = profile.role === 'student' ? STUDENT_ACTION : STAFF_ACTION
+  const ActionIcon = action.icon
+  const page = pageFor(menu, pathname)
+  const [now] = useState(() => new Date())
 
   // Escape closes the drawer and puts focus back on the menu button.
   useEffect(() => {
@@ -116,12 +139,6 @@ export function AppShell({ menu = [] }) {
   return (
     <div className={`shell${open ? ' is-open' : ''}${collapsed ? ' is-collapsed' : ''}`}>
       <SkipLink />
-
-      <header className="mobilebar">
-        <Link to="/" className="wordmark">
-          {APP_NAME}
-        </Link>
-      </header>
 
       <div className="scrim" aria-hidden="true" onClick={close} />
 
@@ -149,15 +166,19 @@ export function AppShell({ menu = [] }) {
           </button>
         </div>
 
+        <Link to={action.to} className="side-action" title={collapsed ? action.label : undefined}>
+          <span className="sidebar-label">{action.label}</span>
+          <span className="side-action-icon" aria-hidden="true">
+            <ActionIcon size={20} strokeWidth={2} />
+          </span>
+        </Link>
+
         {mainItems.length > 0 && (
           <nav className="sidenav" aria-label="Main">
             <ul>
-              {mainItems.map(({ to, end, label, icon: Icon }) => (
-                <li key={to}>
-                  <NavLink to={to} end={end} title={collapsed ? label : undefined}>
-                    {Icon && <Icon aria-hidden="true" size={20} strokeWidth={1.75} />}
-                    <span className="sidebar-label">{label}</span>
-                  </NavLink>
+              {mainItems.map((item) => (
+                <li key={item.to}>
+                  <SideLink {...item} collapsed={collapsed} />
                 </li>
               ))}
             </ul>
@@ -165,29 +186,13 @@ export function AppShell({ menu = [] }) {
         )}
 
         <div className="sidebar-foot">
-          <div className="me" title={collapsed ? name : undefined}>
-            <span className="avatar" aria-hidden="true">
-              {initials(profile.full_name)}
+          <div className="help-card sidebar-label">
+            <span className="help-icon" aria-hidden="true">
+              <Megaphone size={22} strokeWidth={1.75} />
             </span>
-            <span className="me-text sidebar-label">
-              <span className="me-name">{name}</span>
-              <span className="me-role">{ROLE_NAME[profile.role] ?? ''}</span>
-            </span>
+            <p>Meetings and news from your hub are in Notices.</p>
+            <Link to={`${base}/notices`}>Open notices</Link>
           </div>
-          {footItems.length > 0 && (
-            <nav className="sidenav" aria-label="Account">
-              <ul>
-                {footItems.map(({ to, end, label, icon: Icon }) => (
-                  <li key={to}>
-                    <NavLink to={to} end={end} title={collapsed ? label : undefined}>
-                      {Icon && <Icon aria-hidden="true" size={20} strokeWidth={1.75} />}
-                      <span className="sidebar-label">{label}</span>
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
           <button type="button" className="signout" onClick={signOut} title={collapsed ? 'Sign out' : undefined}>
             <LogOut aria-hidden="true" size={18} strokeWidth={1.75} />
             <span className="sidebar-label">Sign out</span>
@@ -196,6 +201,34 @@ export function AppShell({ menu = [] }) {
       </aside>
 
       <div className="shell-body">
+        <header className="apptop">
+          <Link to="/" className="apptop-brand brand-mark" aria-label={APP_NAME}>
+            CBE
+          </Link>
+          <div className="apptop-page">
+            <p className="apptop-title">{page?.label ?? ''}</p>
+            <p className="apptop-date">
+              <span>{WEEKDAY.format(now)}</span>, {DAY.format(now)}
+            </p>
+          </div>
+          <Link to={`${base}/notices`} className="icon-button apptop-bell" aria-label="Notices">
+            <Bell aria-hidden="true" size={20} strokeWidth={1.75} />
+          </Link>
+          <Link to={`${base}/profile`} className="apptop-me" aria-label={`Your profile: ${name}`}>
+            <Avatar
+              name={profile.full_name}
+              path={profile.photo_path}
+              avatar={profile.avatar}
+              gender={profile.gender}
+            />
+            <span className="apptop-me-text" aria-hidden="true">
+              <span className="me-name">{name}</span>
+              <span className="me-role">{ROLE_NAME[profile.role] ?? ''}</span>
+            </span>
+            <ChevronRight className="apptop-chevron" aria-hidden="true" size={16} />
+          </Link>
+        </header>
+
         <main id="main" tabIndex={-1} ref={mainRef} className="main">
           <Notifications />
           <Outlet />

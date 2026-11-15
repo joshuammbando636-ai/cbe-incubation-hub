@@ -9,7 +9,6 @@
 
 .shell h1 {
   font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-  letter-spacing: 0.01em;
 }
 
 .shell .lede {
@@ -779,5 +778,1051 @@
 @media (min-width: 960px) and (prefers-reduced-motion: reduce) {
   .shell {
     transition: none;
+  }
+}
+
+/* ======================================================================
+   Pitch.io-style layout (Josh's reference, 16 Nov 2026)
+   White sidebar: logo, one big action, the menu, a help card, Sign out.
+   On computers the current tab joins the page beside it (rounded "tab").
+   ====================================================================== */
+
+.sidebar-foot {
+  border-top: 0;
+}
+
+/* Big action at the top of the sidebar ("Post an update", "Review videos"). */
+.side-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  min-height: 64px;
+  margin: var(--s2) 0 var(--s5);
+  padding: var(--s3) var(--s3) var(--s3) var(--s4);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.side-action-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  transition: transform 200ms var(--ease);
+}
+
+.side-action:hover .side-action-icon {
+  transform: rotate(90deg) scale(1.06);
+}
+
+.side-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Help card at the bottom of the sidebar. */
+.help-card {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: center;
+  font-size: var(--t14);
+}
+
+.help-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.help-card a {
+  font-weight: 600;
+}
+
+.help-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--accent);
+}
+
+/* ---------- Top bar: page name and date, then notices and your name ---------- */
+
+.apptop {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  width: 100%;
+  max-width: 76rem;
+  padding: var(--s3) var(--s4) 0;
+}
+
+.apptop-brand {
+  flex: none;
+  text-decoration: none;
+}
+
+.apptop-page {
+  flex: 1;
+  min-width: 0;
+}
+
+.apptop-title {
+  margin: 0;
+  font-size: var(--t20);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.apptop-date {
+  margin: 0;
+  font-size: var(--t14);
+  color: var(--ink-soft);
+}
+
+.apptop-date span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.apptop-me {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 44px;
+  padding: 4px;
+  border-radius: 999px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.apptop-me:hover {
+  background: var(--paper);
+}
+
+.apptop-me-text {
+  display: none;
+  min-width: 0;
+}
+
+.apptop-chevron {
+  display: none;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 599px) {
+  .apptop-date {
+    display: none;
+  }
+}
+
+@media (min-width: 600px) {
+  .apptop-me {
+    padding-right: var(--s3);
+  }
+
+  .apptop-me-text {
+    display: grid;
+    max-width: 14rem;
+  }
+
+  .apptop-chevron {
+    display: block;
+  }
+}
+
+@media (min-width: 960px) {
+  .apptop {
+    padding: var(--s5) var(--s6) 0;
+  }
+
+  .apptop-brand {
+    display: none;
+  }
+
+  .shell .main {
+    padding-inline: var(--s6);
+  }
+
+  /* The sidebar's right edge has no padding so the current tab can reach the page. */
+  .sidebar {
+    border-right: 0;
+    padding-right: 0;
+  }
+
+  .sidebar-top,
+  .side-action,
+  .sidebar-foot {
+    margin-right: var(--s4);
+  }
+
+  .sidenav a {
+    position: relative;
+    border-radius: 14px 0 0 14px;
+  }
+
+  .sidenav a:not(.active):hover {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  .sidenav a.active {
+    background: var(--surface);
+    color: var(--accent-dark);
+  }
+
+  /* Curved corners above and below the current tab, cut from the page colour. */
+  .sidenav a.active::before,
+  .sidenav a.active::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+  }
+
+  .sidenav a.active::before {
+    top: -16px;
+    border-bottom-right-radius: 16px;
+    box-shadow: 8px 8px 0 8px var(--surface);
+  }
+
+  .sidenav a.active::after {
+    bottom: -16px;
+    border-top-right-radius: 16px;
+    box-shadow: 8px -8px 0 8px var(--surface);
+  }
+
+  .shell.is-collapsed .sidebar {
+    padding-right: 0;
+  }
+
+  .shell.is-collapsed .sidebar-top,
+  .shell.is-collapsed .side-action,
+  .shell.is-collapsed .sidebar-foot {
+    margin-right: var(--s2);
+  }
+
+  .shell.is-collapsed .side-action {
+    justify-content: center;
+    padding: var(--s3) 0;
+    background: none;
+  }
+
+  .shell.is-collapsed .sidenav a {
+    padding-right: var(--s2);
+  }
+}
+
+/* ---------- Student dashboard: banner, overview tiles, rows ---------- */
+
+.hero {
+  position: relative;
+  display: grid;
+  align-items: center;
+  margin: var(--s5) 0 var(--s6);
+  padding: var(--s6) var(--s5);
+  border-radius: 20px;
+  background: var(--accent-soft);
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  margin-bottom: var(--s2);
+}
+
+.hero-text > p {
+  margin: 0;
+  font-size: 1.0625rem;
+  color: var(--ink-soft);
+}
+
+.hero-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: var(--s4) 0 0;
+  padding: 0;
+}
+
+.hero-facts li {
+  padding: var(--s1) var(--s3);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: var(--t14);
+  font-weight: 600;
+}
+
+.hero-facts span {
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-right: var(--s1);
+}
+
+.hero-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s5);
+}
+
+.hero-art {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hero.has-art {
+    grid-template-columns: minmax(0, 1fr) 260px;
+    padding-right: var(--s4);
+  }
+
+  .hero-art {
+    display: block;
+    width: 100%;
+    max-height: 240px;
+    object-fit: contain;
+    margin: calc(-1 * var(--s7)) 0 calc(-1 * var(--s6));
+    align-self: end;
+  }
+}
+
+.overview-title {
+  font-size: var(--t16);
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin: 0 0 var(--s3);
+}
+
+.tiles {
+  list-style: none;
+  margin: 0 0 var(--s6);
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s4);
+  border-radius: 14px;
+  transition: transform 200ms var(--ease);
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+}
+
+.tile-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.22);
+}
+
+.tile-link {
+  display: grid;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The whole tile is the link. */
+.tile-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+}
+
+.tile-link:focus-visible {
+  outline: none;
+}
+
+.tile:has(.tile-link:focus-visible) {
+  outline: 2px solid var(--accent-dark);
+  outline-offset: 2px;
+}
+
+.tile-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-label {
+  font-size: var(--t14);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tile-light {
+  background: #dbe7ff;
+  color: var(--accent-dark);
+}
+
+.tile-light .tile-icon,
+.tile-soft .tile-icon {
+  background: var(--paper);
+  color: var(--accent);
+}
+
+.tile-solid {
+  background: var(--accent-dark);
+  color: #ffffff;
+}
+
+.tile-bright {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.tile-soft {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.tile-soft .tile-icon {
+  background: var(--accent-soft);
+}
+
+@media (min-width: 900px) {
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s4);
+  }
+}
+
+/* Rows: one per area, like the pitch list in the reference. */
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4);
+  border-radius: 14px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  transition: border-color 160ms ease, transform 200ms var(--ease);
+}
+
+.item:hover {
+  border-color: var(--accent);
+  transform: translateX(2px);
+}
+
+.item-thumb {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* The whole row is the link. */
+.item-title::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+}
+
+.item-title:focus-visible {
+  outline: none;
+}
+
+.item:has(.item-title:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.item-text p {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: var(--t14);
+}
+
+.item .status {
+  margin: 0;
+  flex: none;
+  white-space: nowrap;
+}
+
+.item-arrow {
+  flex: none;
+  color: var(--rule-strong);
+}
+
+@media (max-width: 599px) {
+  .item {
+    flex-wrap: wrap;
+  }
+
+  .item-thumb {
+    width: 44px;
+    height: 44px;
+  }
+
+  .item .status {
+    order: 3;
+    margin-left: calc(44px + var(--s4));
+  }
+
+  .item-arrow {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .item,
+  .side-action-icon {
+    transition: none;
+  }
+
+  .tile:hover,
+  .item:hover {
+    transform: none;
+  }
+}
+
+/* ---------- Profile: form in cards on the left, student card on the right ---------- */
+
+.profile-layout {
+  display: grid;
+  gap: var(--s5);
+}
+
+.profile-layout > .form {
+  max-width: none;
+  margin: 0;
+}
+
+/* Each part of the form is a white card. */
+.profile-layout .form-section {
+  padding: var(--s5);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper);
+  gap: var(--s4);
+}
+
+.profile-layout .form-section h2 {
+  font-size: var(--t20);
+}
+
+/* Support you want: the ticks become pills. */
+.profile-layout .choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.profile-layout .choice-group legend {
+  margin-bottom: var(--s3);
+  color: var(--ink-soft);
+}
+
+.profile-layout .choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 44px;
+  padding: var(--s2) var(--s4) var(--s2) var(--s3);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.profile-layout .choice:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+.profile-layout .choice input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.profile-side {
+  display: grid;
+  gap: var(--s4);
+  align-content: start;
+}
+
+/* Smaller screens: the card and ring come first as a summary, the password last. */
+@media (max-width: 1099px) {
+  .profile-side {
+    display: contents;
+  }
+
+  .profile-side > .id-card,
+  .profile-side > .complete {
+    order: -1;
+  }
+
+  .profile-side > .form {
+    order: 1;
+  }
+}
+
+.profile-side > .form {
+  max-width: none;
+  margin: 0;
+}
+
+.profile-side .form-section {
+  padding: var(--s5);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper);
+  gap: var(--s4);
+}
+
+@media (min-width: 768px) {
+  /* Two short fields per row. */
+  .profile-layout > .form .form-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .profile-layout > .form .form-section > h2,
+  .profile-layout > .form .form-section > fieldset,
+  .profile-layout > .form .form-section > .filled-in {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .profile-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+  }
+
+  .profile-side {
+    position: sticky;
+    top: var(--s5);
+  }
+}
+
+/* The student card */
+.id-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: var(--s5);
+  border-radius: 20px;
+  background: var(--grad);
+  color: #ffffff;
+}
+
+.id-card::after {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  z-index: -1;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.1);
+}
+
+.id-card p {
+  margin: 0;
+}
+
+.id-card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-size: var(--t14);
+}
+
+.id-card .brand-mark {
+  background: #ffffff;
+  color: var(--accent-dark);
+}
+
+.id-card-kind {
+  color: rgb(255 255 255 / 0.85);
+}
+
+.id-card-person {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  margin: var(--s5) 0;
+}
+
+.id-card-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 0.18);
+  border: 1px solid rgb(255 255 255 / 0.35);
+  font-size: 1.375rem;
+  font-weight: 800;
+}
+
+.id-card-name {
+  font-size: var(--t20);
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.id-card-reg {
+  margin-top: 2px !important;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: var(--t14);
+  color: rgb(255 255 255 / 0.85);
+  letter-spacing: 0.04em;
+}
+
+.id-card-rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3) var(--s4);
+  margin: 0;
+  padding-top: var(--s4);
+  border-top: 1px solid rgb(255 255 255 / 0.25);
+}
+
+.id-card-rows dt {
+  font-size: 0.75rem;
+  color: rgb(255 255 255 / 0.75);
+}
+
+.id-card-rows dd {
+  margin: 0;
+  font-size: var(--t14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Completeness ring and missing details */
+.side-card {
+  padding: var(--s5);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper);
+}
+
+.complete-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+
+.complete-head p {
+  margin: 0;
+}
+
+.ring {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  transform: rotate(-90deg);
+}
+
+.ring circle {
+  fill: none;
+  stroke-width: 7;
+}
+
+.ring-track {
+  stroke: var(--accent-soft);
+}
+
+.ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 500ms var(--ease);
+}
+
+.complete-count {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.complete-text {
+  color: var(--ink-soft);
+  font-size: var(--t14);
+}
+
+.missing {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: var(--s4) 0 0;
+  padding: 0;
+}
+
+.missing button {
+  min-height: 36px;
+  padding: 0 var(--s3);
+  border: 1px dashed #d99a2b;
+  border-radius: 999px;
+  background: #fff4e0;
+  color: #7a4d00;
+  font: inherit;
+  font-size: var(--t14);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.missing button:hover {
+  border-style: solid;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-fill {
+    transition: none;
+  }
+}
+
+/* ---------- Student card, calmer (Josh: the blue card was too loud) ----------
+   White card, one thin navy band, the photo as the hero. Overrides the rules above. */
+
+.id-card {
+  padding: 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.id-card::after {
+  content: none;
+}
+
+.id-card-top {
+  justify-content: space-between;
+  padding: var(--s3) var(--s5);
+  background: var(--accent-dark);
+  color: rgb(255 255 255 / 0.85);
+  font-size: 0.8125rem;
+}
+
+.id-card-brand {
+  font-family: var(--display);
+  color: #ffffff;
+  font-size: var(--t14);
+}
+
+.id-card-person {
+  margin: 0;
+  padding: var(--s5);
+}
+
+.id-card-photo {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 88px;
+  height: 88px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.id-card-photo img,
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar {
+  overflow: hidden;
+}
+
+.id-card-reg {
+  color: var(--ink-soft);
+}
+
+.id-card-rows {
+  margin: 0 var(--s5);
+  padding: var(--s4) 0 var(--s5);
+  border-top: 1px solid var(--rule);
+}
+
+.id-card-rows dt {
+  color: var(--ink-soft);
+}
+
+/* Photo card: amber and dashed until a photo is added. */
+.photo-card {
+  display: grid;
+  gap: var(--s2);
+  justify-items: start;
+}
+
+.photo-card p {
+  margin: 0;
+}
+
+.photo-card.is-missing {
+  border: 1px dashed #d99a2b;
+  background: #fffaf0;
+}
+
+.photo-card-title {
+  font-weight: 700;
+}
+
+.photo-card-text {
+  font-size: var(--t14);
+  color: var(--ink-soft);
+}
+
+.photo-card .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+/* Default profile pictures: round drawings, the chosen one ringed in blue. */
+.avatar-pick {
+  min-width: 0;
+  margin: var(--s2) 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.avatar-pick-title {
+  padding: 0;
+  font-weight: 700;
+}
+
+.avatar-pick-hint {
+  margin: var(--s1) 0 0;
+  font-size: var(--t14);
+  color: var(--ink-soft);
+}
+
+.avatar-pick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s3);
+}
+
+.avatar-pick-item {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar-pick-item img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface);
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  transition:
+    outline-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.avatar-pick-item:hover img {
+  transform: scale(1.06);
+}
+
+.avatar-pick-item input:checked + img {
+  outline-color: var(--accent);
+}
+
+.avatar-pick-item input:focus-visible + img {
+  outline-color: var(--accent);
+  outline-style: dashed;
+}
+
+.avatar-pick:disabled .avatar-pick-item {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-pick-item img {
+    transition: none;
+  }
+
+  .avatar-pick-item:hover img {
+    transform: none;
+  }
+}
+
+@media (max-width: 1099px) {
+  .profile-side > .photo-card {
+    order: -1;
   }
 }

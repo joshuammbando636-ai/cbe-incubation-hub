@@ -6,6 +6,7 @@ import {
   Lightbulb,
   ListChecks,
   Megaphone,
+  Plus,
   TrendingUp,
   User,
   UserCog,
@@ -14,10 +15,11 @@ import {
 } from 'lucide-react'
 
 // Menu items for the signed-in pages (content.md). The icon sits beside the label.
-// Students: in the order they work. `foot` items sit at the bottom, by Sign out.
+// Students: in the order they work. `foot` items (Profile) are reached from the
+// name in the top bar, so the sidebar leaves them out.
 // On phones the first four show in the bottom bar; the rest are under "More".
 export const STUDENT_MENU = [
-  { to: '/student', label: 'Home', end: true, icon: House },
+  { to: '/student', label: 'Dashboard', short: 'Home', end: true, icon: House },
   { to: '/student/idea', label: 'My idea', short: 'Idea', icon: Lightbulb },
   { to: '/student/progress', label: 'Progress', icon: TrendingUp },
   { to: '/student/lessons', label: 'Lessons', icon: BookOpen },
@@ -26,6 +28,10 @@ export const STUDENT_MENU = [
 ]
 
 export const TAB_COUNT = 4
+
+// The big button at the top of the sidebar: the most common job for each role.
+export const STUDENT_ACTION = { to: '/student/progress', label: 'Post an update', icon: Plus }
+export const STAFF_ACTION = { to: '/staff/reviews', label: 'Review videos', icon: CircleCheck }
 
 export const STAFF_MENU = [
   { to: '/staff', label: 'Overview', end: true, icon: LayoutDashboard },

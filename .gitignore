@@ -30,3 +30,6 @@ data/
 *.xlsx
 
 .vercel
+
+# Full-size originals of images/videos (the site uses the compressed WebP/MP4 in public/)
+design-originals/

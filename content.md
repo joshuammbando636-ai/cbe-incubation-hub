@@ -10,9 +10,9 @@ Made once. Do not change them mid-build.
 
 - **Blue and white** (Josh, 15 Nov 2026; replaces the old paper + green). White pages, light-blue surfaces (`--surface`), navy text, ONE blue accent (`--accent` #1d4ed8). A deep-blue gradient (`--grad`) is kept for the big moments only: the landing hero, the sign-in panel, the final call to action, the logo mark.
 - Two signals besides the accent: amber for "waiting / to confirm", red for errors and "not accepted". Both appear as a small dot or a thin left rule, never as a filled block.
-- Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages use a **left sidebar** with icons (on phones: a bottom bar for the main pages, and "More" opens the full menu as a drawer).
+- Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages follow Josh's Pitch.io reference (16 Nov 2026): a white **left sidebar** (logo, one big action button, menu, help card, Sign out; the current tab joins the page beside it), a top bar with the page name, date, notices bell and your name (opens Profile), and on student Dashboard a soft-blue welcome banner, four blue overview tiles and one row per area. The sidebar has icons (on phones: a bottom bar for the main pages, and "More" opens the full menu as a drawer).
 - Landing-page motion uses **GSAP**: the hero plays once, sections rise in on scroll. Off when the device asks for reduced motion.
-- Two typefaces: **Some Time Later** for every heading (Josh's choice, 15 Nov 2026; SIL Open Font Licence, cut down to 34 KB in `src/assets/fonts`), and the device's own system font for everything else (no download).
+- Two typefaces (16 Nov 2026): **Plus Jakarta Sans** for all text and dashboard headings (self-hosted from npm `@fontsource-variable/plus-jakarta-sans`), and **Some Time Later** (SIL Open Font Licence, 34 KB in `src/assets/fonts`) only for the logo, the landing page and the sign-in panel.
 - Type scale with big jumps: 14 / 16 / 20 / 32 / 56 / 96 px. Headings are large, tight and left-aligned.
 - Everything hangs left. Nothing is centred except the loading spinner.
 - Thin 1px rules and borders, no shadows. One radius everywhere: 8px.
@@ -495,7 +495,9 @@ After saving: Saved.
 
 ## Landing page v2
 
-The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and white, motion inspired by loopsii.com. Fonts unchanged: Some Time Later for headings, the system font for text; the small handwritten notes use the heading font, slanted, in blue. Items marked **[confirm with CBE]** need CBE's answer before going live; **(draft)** means wording Claude wrote because the brief gave none.
+**Front page rebuilt 16 Nov 2026 to the Compass-style prompt** (`src/pages/landing/Journey.jsx`, `Beyond.jsx`, `Dimensions.jsx`, `Why.jsx`, styles in `landing/front.css`). Headings: Plus Jakarta Sans bold. Hero line: Aptos. Colours: blue and white. The copy below is older: the sections it describes (What is the Hub, Questions, Tiles, Scattered) were removed; the wording for Hubs, How it works, Stages, FAQ and the closing panel still applies.
+
+The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and white, motion inspired by loopsii.com. Fonts: Some Time Later for headings, Plus Jakarta Sans for text; the small handwritten notes use the heading font, slanted, in blue. Items marked **[confirm with CBE]** need CBE's answer before going live; **(draft)** means wording Claude wrote because the brief gave none.
 
 **Intro** (once per browser visit, never with reduced motion): blue sheet, thin lines, round CBE badge, slides up.
 
@@ -506,6 +508,14 @@ The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and wh
 - Headline: **Turn your [idea / prototype / side hustle / class project / first sale] into a business.** (screen readers hear "Turn your idea into a business.")
 - Line: Join an innovation hub, get a mentor in your field, and grow your business one stage at a time.
 - Buttons: **Create your account** · Sign in
+
+**Every idea needs a hub** (added 16 Nov 2026; motion borrowed from compasspathways.com's opening)
+
+- Big words around a tall pill with a short muted video (`public/landing/hub-video.mp4`, 14 s, 284 KB, still picture `hub-video.webp`): **Every idea** · **needs a** · **hub.** (screen readers hear "Every idea needs a hub.")
+- Line (draft): Your hub brings together students with ideas in the same field, and a mentor who knows it.
+- Round button on the pill: Pause video / Play video. The video plays only while on screen; never by itself with reduced motion or Data Saver.
+- Computers: tied to the scroll, the pill rises, the video zooms out and the words slide in from the sides. Phones: each part rises in once.
+- The video and the drawings in `public/dashboard` are downloads from Pinterest/stock sites **[confirm licence or swap before going live]**.
 
 **What is the Hub**
 

@@ -48,11 +48,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!userId) return
     let stale = false
-    supabase
-      .from('profiles')
-      .select('id, role, full_name, email')
-      .eq('id', userId)
-      .single()
+    const load = (cols) => supabase.from('profiles').select(cols).eq('id', userId).single()
+    // photo_path arrives with migration 005 and avatar with 006; until they are
+    // run, load without them.
+    const base = 'id, role, full_name, email, gender'
+    load(`${base}, photo_path, avatar`)
+      .then((r) => (r.error?.code === '42703' ? load(`${base}, photo_path`) : r))
+      .then((r) => (r.error?.code === '42703' ? load(base) : r))
       .then(({ data, error }) => {
         if (stale) return
         setFailed(Boolean(error))

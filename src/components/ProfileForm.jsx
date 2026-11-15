@@ -26,7 +26,8 @@ const toOptions = (rows) => rows.map((r) => ({ value: r.id, label: r.name }))
 // The student's details. Used by the student (mode 'student': can choose the
 // hub, ticks support) and by staff (mode 'staff': hub is fixed here, because
 // only an admin moves students, from a separate control).
-export function ProfileForm({ mode = 'student', profile, lists, support = [], isMentor, onSaved, onCancel }) {
+// `side(form)` (optional) fills a column on the right that follows what is typed.
+export function ProfileForm({ mode = 'student', profile, lists, support = [], isMentor, onSaved, onCancel, side }) {
   const staff = mode === 'staff'
   const H = staff ? 'h3' : 'h2'
   const [form, setForm] = useState(() =>
@@ -130,15 +131,15 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
     }
   }
 
-  return (
+  const body = (
     <form onSubmit={submit} noValidate className="form">
       <section className="form-section">
         <H>About you</H>
-        <Field id="full_name" label="Full name" hint="Real first and last name, as on the CBE registration." autoComplete={staff ? 'off' : 'name'} {...bind('full_name')} />
+        <Field id="full_name" label="Full name" hint="As on your CBE registration." autoComplete={staff ? 'off' : 'name'} {...bind('full_name')} />
         <Field
           id="reg_number"
           label="Registration number"
-          hint="As on your student ID, like 03.12345.01.01.2026."
+          hint="Like 03.12345.01.01.2026"
           inputMode="decimal"
           {...bind('reg_number')}
         />
@@ -146,7 +147,6 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
         <Field
           id="phone"
           label="Phone number"
-          hint="A number we can reach you on."
           type="tel"
           autoComplete={staff ? 'off' : 'tel'}
           {...bind('phone')}
@@ -154,7 +154,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
         <Field
           id="email"
           label="Email"
-          hint="You cannot change your email here."
+          hint="Can't be changed here."
           value={profile.email}
           readOnly
           className="read-only"
@@ -167,7 +167,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
         <SearchSelect
           id="programme_id"
           label="Programme (course)"
-          hint="Type part of the name, like accounting or logistics. Not on the list? Leave it empty."
+          hint="Type to search. Not listed? Leave it empty."
           options={programmeOptions}
           {...bind('programme_id')}
         />
@@ -179,7 +179,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
           <SelectField
             id="department_id"
             label="Department"
-            hint="Only needed when your programme is not on the list."
+            hint="Only if your programme isn't listed."
             options={toOptions(lists.departments)}
             {...bind('department_id')}
           />
@@ -198,7 +198,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
               ? isMentor
                 ? 'Only an admin can move a student to another hub.'
                 : undefined
-              : 'Type part of the name, like tourism or AI. Choose one hub; your mentor comes from it.'
+              : 'Type to search. Your mentor comes from your hub.'
           }
           options={hubOptions}
           disabled={staff}
@@ -210,7 +210,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
         <section className="form-section">
           <H>Support you want</H>
           <fieldset className="choice-group">
-            <legend>Tick everything that would help you.</legend>
+            <legend>Pick all that would help.</legend>
             {lists.supportTypes.map((t) => (
               <Checkbox key={t.id} label={t.name} checked={ticked.has(t.id)} onChange={(on) => tick(t.id, on)} />
             ))}
@@ -230,5 +230,13 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
         )}
       </div>
     </form>
+  )
+
+  if (!side) return body
+  return (
+    <div className="profile-layout">
+      {body}
+      <aside className="profile-side">{side(form)}</aside>
+    </div>
   )
 }

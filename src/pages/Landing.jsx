@@ -3,17 +3,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { useTitle } from '../lib/useTitle.js'
 import { FinalCta, Footer } from './landing/Closing.jsx'
+import { Beyond } from './landing/Beyond.jsx'
+import { Dimensions } from './landing/Dimensions.jsx'
 import { Faq } from './landing/Faq.jsx'
 import { Features } from './landing/Features.jsx'
 import { Header } from './landing/Header.jsx'
-import { Hero } from './landing/Hero.jsx'
 import { Hubs } from './landing/Hubs.jsx'
 import { Intro } from './landing/Intro.jsx'
-import { Questions } from './landing/Questions.jsx'
-import { Scattered } from './landing/Scattered.jsx'
+import { Journey, JourneyCard } from './landing/Journey.jsx'
 import { Stack } from './landing/Stack.jsx'
-import { Tiles } from './landing/Tiles.jsx'
-import { WhatIsHub } from './landing/WhatIsHub.jsx'
+import { Why } from './landing/Why.jsx'
 import {
   gsap,
   MQ,
@@ -25,6 +24,7 @@ import {
   useSectionMotion,
 } from './landing/motion.js'
 import './landing.css'
+import './landing/front.css'
 
 // Hubs and support types come from the database, so an admin's edits show here too.
 function useList(table) {
@@ -108,11 +108,11 @@ export function Landing({ authPending = false }) {
       <Header />
 
       <main id="main" tabIndex={-1}>
-        <Hero ready={ready} />
-        <WhatIsHub />
-        <Questions />
-        <Tiles />
-        <Scattered />
+        <Journey ready={ready} />
+        <JourneyCard />
+        <Beyond />
+        <Dimensions />
+        <Why />
         <Features supportCount={support?.length} />
         <Stack />
         <Hubs hubs={hubs} support={support} />

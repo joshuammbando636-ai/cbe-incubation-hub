@@ -34,10 +34,10 @@ describe('landing page v2', () => {
   it('shows every section in order', () => {
     const html = render()
     const order = [
-      'What is the Hub',
-      'So many questions pulling you away',
-      'That’s why CBE Incubation Hub exists',
-      'Your startup shouldn’t live in six places',
+      'Every idea needs a hub.',
+      'Beyond the idea',
+      'Open new doors for your business.',
+      'We all have a why.',
       'Everything you need at every stage',
       'Your Hub at a glance',
       'Find the hub that fits your idea',

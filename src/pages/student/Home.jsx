@@ -1,10 +1,11 @@
-import { ArrowRight, BookOpen, Lightbulb, Megaphone, TrendingUp, User } from 'lucide-react'
+import { ArrowRight, BookOpen, ChevronRight, Lightbulb, Megaphone, TrendingUp, User } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/context.js'
 import { LoadError, Notice, Spinner } from '../../components/ui.jsx'
 import { loadLists, must, nameOf, useLoad } from '../../lib/data.js'
 import { STAGES, VIDEO_STATUS, firstName, formatDate, stageIndex, stageLabel } from '../../lib/labels.js'
-import { countDone, missingDetails, missingLabel, nextStep } from '../../lib/student.js'
+import { PROFILE_DETAILS, countDone, missingDetails, missingLabel, nextStep } from '../../lib/student.js'
 import { countNew, formatDateTime, readSeen } from '../../lib/notices.js'
 import { loadMyLessons, loadMyNotices } from '../../lib/studentData.js'
 import { supabase } from '../../lib/supabase.js'
@@ -33,12 +34,20 @@ async function loadHome(userId) {
   return { lists, profile, idea, latest, mentor, lessons, news }
 }
 
-const short = (text, max = 90) => (text.length > max ? `${text.slice(0, max).trimEnd()}…` : text)
+const short = (text, max = 110) => (text.length > max ? `${text.slice(0, max).trimEnd()}…` : text)
 
+// Banner drawing (Josh's pick, converted to WebP on 16 Nov). Other drawings in
+// public/dashboard: idea-bulb, idea-carry, thinking, planning, spark. If the
+// file is missing the banner simply has no picture.
+const HERO_ART = '/dashboard/vision.webp'
+
+// Student dashboard (Pitch.io layout): a welcome banner with the next step,
+// four overview tiles, then one row per area.
 export function StudentHome() {
-  useTitle('Home')
+  useTitle('Dashboard')
   const { profile: me } = useAuth()
   const page = useLoad(() => loadHome(me.id), [me.id], `home:${me.id}`)
+  const [art, setArt] = useState(true)
 
   if (page.loading) return <Spinner />
   if (page.error) return <LoadError error={page.error} onRetry={page.reload} />
@@ -46,14 +55,16 @@ export function StudentHome() {
   const { lists, profile, idea, latest, mentor, lessons, news } = page.data
   const missing = missingDetails(profile)
   const name = firstName(profile.full_name)
+  const total = lessons.lessons.length
   const done = countDone(lessons.lessons, lessons.done)
-
+  const fresh = countNew(news.notices, readSeen(me.id))
   const stageAt = idea ? stageIndex(idea.stage) : -1
+  const complete = Math.round(((PROFILE_DETAILS.length - missing) / PROFILE_DETAILS.length) * 100)
   const next = nextStep({
     missing,
     idea,
     latest,
-    lessonsLeft: lessons.lessons.length - done,
+    lessonsLeft: total - done,
     lastStage: stageAt === STAGES.length - 1,
   })
 
@@ -71,157 +82,138 @@ export function StudentHome() {
         </Notice>
       )}
 
-      <section className="welcome">
-        <h1>{name ? `Hello, ${name}.` : 'Hello.'}</h1>
-        <p>Here is where you stand.</p>
-        <dl className="welcome-facts">
-          <div>
-            <dt>Hub</dt>
-            <dd>{nameOf(lists.hubs, profile.hub_id) || 'Not chosen yet'}</dd>
-          </div>
-          <div>
-            <dt>Mentor</dt>
-            <dd>{mentor || 'Not assigned yet'}</dd>
-          </div>
-        </dl>
-        <ol className="stagebar" aria-label="Business stage">
-          {STAGES.map((s, i) => (
-            <li
-              key={s.value}
-              className={i < stageAt ? 'is-done' : i === stageAt ? 'is-now' : undefined}
-              aria-current={i === stageAt ? 'step' : undefined}
-            >
-              {s.label}
+      <section className={`hero${art ? ' has-art' : ''}`}>
+        <div className="hero-text">
+          <h1>{name ? `Hi, ${name}` : 'Hi there'}</h1>
+          <p>{next ? `Next step: ${next.title.toLowerCase()}.` : 'You are up to date. Nothing is waiting on you.'}</p>
+          <ul className="hero-facts">
+            <li>
+              <span>Hub</span> {nameOf(lists.hubs, profile.hub_id) || 'Not chosen yet'}
             </li>
-          ))}
-        </ol>
+            <li>
+              <span>Mentor</span> {mentor || 'Not assigned yet'}
+            </li>
+          </ul>
+          {next && (
+            <Link to={next.to} className="btn btn-primary hero-button">
+              {next.action} <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+          )}
+        </div>
+        {art && <img className="hero-art" src={HERO_ART} alt="" onError={() => setArt(false)} />}
       </section>
 
-      {next ? (
-        <section className="next" aria-labelledby="next-title">
-          <div>
-            <p className="next-label">Next step</p>
-            <h2 id="next-title">{next.title}</h2>
-            <p className="next-line">{next.line}</p>
-          </div>
-          <Link to={next.to} className="btn btn-primary">
-            {next.action} <ArrowRight aria-hidden="true" size={18} />
-          </Link>
-        </section>
-      ) : (
-        <section className="next is-clear">
-          <div>
-            <p className="next-label">Next step</p>
-            <h2>You are up to date</h2>
-            <p className="next-line">Nothing is waiting on you right now.</p>
-          </div>
-        </section>
-      )}
-
-      <ol className="tasks">
-        <Step
-          icon={User}
-          title="Your profile"
-          status={missing === 0 ? 'Complete' : missingLabel(missing)}
-          tone={missing === 0 ? 'ok' : 'wait'}
-          link={missing === 0 ? ['/student/profile', 'View profile'] : ['/student/profile', 'Complete your profile']}
+      <h2 className="overview-title">Overview</h2>
+      <ul className="tiles">
+        <Tile
+          tone="light"
+          icon={TrendingUp}
+          value={idea ? `${stageAt + 1} of ${STAGES.length}` : '–'}
+          label={idea ? stageLabel(idea.stage) : 'Stage'}
+          to="/student/progress"
         />
+        <Tile tone="solid" icon={User} value={`${complete}%`} label="Profile complete" to="/student/profile" />
+        <Tile
+          tone="bright"
+          icon={BookOpen}
+          value={total ? `${done}/${total}` : '0'}
+          label="Lessons done"
+          to="/student/lessons"
+        />
+        <Tile tone="soft" icon={Megaphone} value={String(fresh)} label="New notices" to="/student/notices" />
+      </ul>
 
-        {idea ? (
-          <Step
-            icon={Lightbulb}
-            title="Your business idea"
-            status={stageLabel(idea.stage)}
-            tone="ok"
-            line={idea.business_name || short(idea.description)}
-            link={['/student/idea', 'View idea']}
-          />
-        ) : (
-          <Step
-            icon={Lightbulb}
-            title="Your business idea"
-            status="Not added yet"
-            line="No idea yet? Add it when you have one."
-            link={['/student/idea', 'Add your idea']}
-          />
-        )}
-
-        <ProgressStep idea={idea} latest={latest} />
-
-        <Step
+      <ul className="items">
+        <Row
+          icon={Lightbulb}
+          title="Your business idea"
+          to="/student/idea"
+          line={idea ? idea.business_name || short(idea.description) : 'No idea yet? Add it when you have one.'}
+          status={idea ? stageLabel(idea.stage) : 'Not added yet'}
+          tone={idea ? 'ok' : undefined}
+        />
+        <ProgressRow idea={idea} latest={latest} />
+        <Row
           icon={BookOpen}
           title="Lessons"
-          status={lessons.lessons.length ? `${done} of ${lessons.lessons.length} done` : 'No lessons yet'}
-          tone={lessons.lessons.length && done === lessons.lessons.length ? 'ok' : undefined}
-          link={lessons.lessons.length ? ['/student/lessons', 'Open lessons'] : null}
+          to="/student/lessons"
+          line={total ? `${done} of ${total} lessons done.` : 'Your mentor has not posted lessons yet.'}
+          status={total && done === total ? 'All done' : null}
+          tone="ok"
         />
-
-        <NoticesStep news={news} userId={me.id} />
-      </ol>
+        <Row
+          icon={Megaphone}
+          title="Meetings and notices"
+          to="/student/notices"
+          line={
+            news.meetings[0]
+              ? `Next meeting: ${news.meetings[0].title}, ${formatDateTime(news.meetings[0].starts_at)}.`
+              : 'No meetings coming up.'
+          }
+          status={fresh ? `${fresh} new` : null}
+          tone="wait"
+        />
+        <Row
+          icon={User}
+          title="Your profile"
+          to="/student/profile"
+          line={missing === 0 ? 'All your details are filled in.' : 'CBE needs these details for the register.'}
+          status={missing === 0 ? 'Complete' : missingLabel(missing)}
+          tone={missing === 0 ? 'ok' : 'wait'}
+        />
+      </ul>
     </>
   )
 }
 
-function NoticesStep({ news, userId }) {
-  const fresh = countNew(news.notices, readSeen(userId))
-  const next = news.meetings[0]
-  return (
-    <Step
-      icon={Megaphone}
-      title="Meetings and notices"
-      status={fresh ? `${fresh} new` : null}
-      tone={fresh ? 'wait' : undefined}
-      line={next ? `Next meeting: ${next.title}, ${formatDateTime(next.starts_at)}.` : 'No meetings coming up.'}
-      link={['/student/notices', 'Open notices']}
-    />
-  )
-}
-
-function ProgressStep({ idea, latest }) {
-  const title = 'Your progress'
-  const icon = TrendingUp
-  if (!idea) return <Step icon={icon} title={title} status="Add your idea first" />
-  const link = ['/student/progress', 'Open progress']
-  if (!latest) return <Step icon={icon} title={title} line="Post a short video to move up a stage." link={['/student/progress', 'Post a video']} />
-  if (latest.status === 'pending') {
-    return <Step icon={icon} title={title} status={VIDEO_STATUS.pending} tone="wait" line="A mentor will watch your video." link={link} />
-  }
+function ProgressRow({ idea, latest }) {
+  const base = { icon: TrendingUp, title: 'Your progress', to: '/student/progress' }
+  if (!idea) return <Row {...base} line="Add your idea first, then post short videos." />
+  if (!latest) return <Row {...base} line="Post a short video to move up a stage." />
+  if (latest.status === 'pending') return <Row {...base} line="A mentor will watch your video." status={VIDEO_STATUS.pending} tone="wait" />
   if (latest.status === 'verified') {
     return (
-      <Step
-        icon={icon}
-        title={title}
+      <Row
+        {...base}
+        line={`Last video verified on ${formatDate(latest.reviewed_at)}.`}
         status={VIDEO_STATUS.verified}
         tone="ok"
-        line={`Last video verified on ${formatDate(latest.reviewed_at)}.`}
-        link={link}
       />
     )
   }
+  return <Row {...base} line="Read the feedback and try again." status={VIDEO_STATUS.rejected} tone="error" />
+}
+
+// tone: light | solid | bright | soft → shades of the CBE blue.
+function Tile({ tone, icon: Icon, value, label, to }) {
   return (
-    <Step icon={icon} title={title} status={VIDEO_STATUS.rejected} tone="error" line="Read the feedback and try again." link={link} />
+    <li className={`tile tile-${tone}`}>
+      <span className="tile-icon" aria-hidden="true">
+        <Icon size={22} strokeWidth={1.75} />
+      </span>
+      <Link to={to} className="tile-link">
+        <span className="tile-value">{value}</span>
+        <span className="tile-label">{label}</span>
+      </Link>
+    </li>
   )
 }
 
-// tone: 'ok' | 'wait' | 'error' → a coloured pill for the status.
-function Step({ icon: Icon, title, status, tone, line, link }) {
+// One area of the student's work. The whole row is the link.
+function Row({ icon: Icon, title, to, line, status, tone }) {
   return (
-    <li className="task">
-      <span className="task-icon" aria-hidden="true">
-        <Icon size={22} strokeWidth={1.75} />
+    <li className="item">
+      <span className="item-thumb" aria-hidden="true">
+        <Icon size={26} strokeWidth={1.75} />
       </span>
-      <div className="task-head">
-        <h2>{title}</h2>
-        {status && <p className={`status${tone ? ` status-${tone}` : ''}`}>{status}</p>}
+      <div className="item-text">
+        <Link to={to} className="item-title">
+          {title}
+        </Link>
+        <p>{line}</p>
       </div>
-      {line && <p className="task-line">{line}</p>}
-      {link && (
-        <p className="task-link">
-          <Link to={link[0]}>
-            {link[1]} <ArrowRight aria-hidden="true" size={16} />
-          </Link>
-        </p>
-      )}
+      {status && <p className={`status${tone ? ` status-${tone}` : ''}`}>{status}</p>}
+      <ChevronRight className="item-arrow" aria-hidden="true" size={20} />
     </li>
   )
 }

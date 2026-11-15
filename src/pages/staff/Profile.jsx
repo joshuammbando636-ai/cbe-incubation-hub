@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/context.js'
+import { AvatarPicker } from '../../components/AvatarPicker.jsx'
 import { PasswordForm } from '../../components/PasswordForm.jsx'
 import { Button, Field, LoadError, Notice, SelectField, Spinner } from '../../components/ui.jsx'
 import { must, useLoad } from '../../lib/data.js'
@@ -24,6 +25,9 @@ export function StaffProfile() {
     <div className="narrow-content">
       <h1>Your profile</h1>
       <p className="lede">Students see your name as their mentor. Keep it correct.</p>
+      <section className="form-section">
+        <AvatarPicker title="Profile picture" hint="Shown next to your name. Pick the one you like." />
+      </section>
       <DetailsForm key={page.data.id} profile={page.data} />
       <PasswordForm />
     </div>
@@ -66,7 +70,7 @@ function DetailsForm({ profile }) {
       if (error) throw error
       if (!data.length) throw { code: '42501' }
       setForm({ full_name: patch.full_name, gender: patch.gender ?? '', phone: patch.phone ?? '' })
-      updateProfile({ full_name: patch.full_name })
+      updateProfile({ full_name: patch.full_name, gender: patch.gender })
       setResult({ kind: 'ok', text: 'Profile saved.' })
     } catch (error) {
       setResult({ kind: 'error', text: errorMessage(error) })

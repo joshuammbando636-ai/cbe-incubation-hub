@@ -2,8 +2,10 @@ import { useRef } from 'react'
 import { Link } from 'react-router'
 import { APP_NAME, FOOTER } from '../../lib/text.js'
 import { RollText, SectionLink } from './bits.jsx'
-import { gsap, onceVisible, useSectionMotion } from './motion.js'
+import { gsap, onceVisible, SCRUB, useSectionMotion } from './motion.js'
 import { Badge } from './shapes.jsx'
+import { DashRing } from './DashRing.jsx'
+import { DASHES } from './dashes.js'
 
 const CTA = 'Create your account'
 // Contact number for questions (Josh, 15 Nov 2026).
@@ -13,18 +15,31 @@ const CLOSING = ['Idea.', 'Prototype.', 'Running.', 'Earning.']
 export function FinalCta() {
   const ref = useRef(null)
 
-  useSectionMotion(ref, ({ q }) => {
+  useSectionMotion(ref, ({ desktop, q }) => {
     const words = q('.l-closing__word')
     gsap.set(words, { y: 90 })
-    return onceVisible(q('.l-closing'), () =>
+    const stop = onceVisible(q('.l-closing'), () =>
       gsap.to(words, { y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.12 }),
     )
+    if (desktop) {
+      gsap.fromTo(
+        q('.f-dash > span'),
+        { rotation: (i) => DASHES[i].steep },
+        {
+          rotation: (i) => DASHES[i].flat,
+          ease: 'none',
+          scrollTrigger: { trigger: q('.l-cta__panel')[0], start: 'top bottom', end: 'bottom 35%', scrub: SCRUB },
+        },
+      )
+    }
+    return stop
   })
 
   return (
     <section className="l-section l-cta" ref={ref}>
       <div className="l-wrap">
         <div className="l-cta__panel" data-reveal>
+          <DashRing className="f-dash--panel" />
           <h2>Ready to start your business?</h2>
           <p>It takes one minute to create your account.</p>
           {/* Letters wiggle on hover (desktop); the link is still named "Create your account". */}

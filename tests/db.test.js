@@ -20,6 +20,15 @@ const AUTH_STUB = `
     select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
   $$;
   grant usage on schema public, auth to anon, authenticated;
+  -- Supabase Storage, just the parts the photo rules use.
+  create schema storage;
+  create table storage.buckets (
+    id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]
+  );
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
+  alter table storage.objects enable row level security;
+  grant usage on schema storage to authenticated;
+  grant select, insert, update, delete on storage.objects to authenticated;
 `
 
 const ids = {
@@ -564,5 +573,37 @@ describe('hub clusters and filled-in details', () => {
     await db.exec(readFileSync(new URL('../supabase/migrations/004_hub_clusters.sql', import.meta.url), 'utf8'))
     const { rows } = await db.query(`select count(*)::int as n from hubs where cluster_id is not null`)
     expect(rows[0].n).toBe(22)
+  })
+})
+
+describe('profile photos', () => {
+  const put = (user, owner) =>
+    as(user, `insert into storage.objects (bucket_id, name) values ('photos', $1)`, [`${owner}/p.jpg`])
+
+  it('you upload only into your own folder', async () => {
+    await put(ids.student, ids.student)
+    await expect(put(ids.student, ids.other)).rejects.toThrow()
+  })
+
+  it('a mentor sees their hub student photo; another student does not', async () => {
+    const see = async (user) =>
+      (await as(user, `select name from storage.objects where name = $1`, [`${ids.student}/p.jpg`])).rows.length
+    expect(await see(ids.mentor)).toBe(1)
+    expect(await see(ids.student)).toBe(1)
+    expect(await see(ids.other)).toBe(0)
+  })
+
+  it('you pick a default picture for yourself, only from the known names', async () => {
+    await as(ids.student, `update profiles set avatar = 'female-2' where id = $1`, [ids.student])
+    await expect(as(ids.student, `update profiles set avatar = '../x' where id = $1`, [ids.student])).rejects.toThrow()
+    const { rows } = await as(ids.other, `update profiles set avatar = 'male-1' where id = $1 returning id`, [ids.student])
+    expect(rows.length).toBe(0)
+  })
+
+  it('a profile can only point at a photo in its own folder', async () => {
+    await as(ids.student, `update profiles set photo_path = $1 where id = $2`, [`${ids.student}/p.jpg`, ids.student])
+    await expect(
+      as(ids.student, `update profiles set photo_path = $1 where id = $2`, [`${ids.other}/p.jpg`, ids.student]),
+    ).rejects.toThrow()
   })
 })
