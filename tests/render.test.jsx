@@ -35,7 +35,7 @@ describe('signed-out screens', () => {
   it('create account', () => {
     const html = render(<Signup />)
     expect(html).toContain('Create your account')
-    expect(html).toContain('As it appears on your CBE registration.')
+    expect(html).toContain('Your real first and last name, as on your CBE registration.')
   })
 
   it('not found', () => {

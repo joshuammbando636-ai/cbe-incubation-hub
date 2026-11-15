@@ -8,8 +8,10 @@ Voice: plain English, short sentences, "you". Many students read this on a small
 
 Made once. Do not change them mid-build.
 
-- Background is warm paper. Text is near-black ink. There is ONE accent, a deep green. It is used only for the main button on a screen, links, focus rings, text selection and the "verified / done" mark.
+- **Blue and white** (Josh, 15 Nov 2026; replaces the old paper + green). White pages, light-blue surfaces (`--surface`), navy text, ONE blue accent (`--accent` #1d4ed8). A deep-blue gradient (`--grad`) is kept for the big moments only: the landing hero, the sign-in panel, the final call to action, the logo mark.
 - Two signals besides the accent: amber for "waiting / to confirm", red for errors and "not accepted". Both appear as a small dot or a thin left rule, never as a filled block.
+- Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages use a **left sidebar** with icons (a slide-out drawer on phones).
+- Landing-page motion uses **GSAP**: the hero plays once, sections rise in on scroll. Off when the device asks for reduced motion.
 - Two typefaces: Fraunces for headings, and the device's own system font for everything else (no download).
 - Type scale with big jumps: 14 / 16 / 20 / 32 / 56 / 96 px. Headings are large, tight and left-aligned.
 - Everything hangs left. Nothing is centred except the loading spinner.
@@ -106,7 +108,8 @@ Messages:
 
 - Title: **Create your account**
 - Line: It takes one minute. You fill in your details after you confirm your email.
-- Full name. Hint: As it appears on your CBE registration.
+- Full name. Hint: Your real first and last name, as on your CBE registration. Mentors use it to find you.
+  Error: Enter your real first and last name, as on your CBE registration. Letters only, no nicknames.
 - Email. Hint: Already registered with CBE's incubation programme? Use the same email and we will fill in your details for you.
 - Password. Hint: At least 8 characters.
 - Confirm password

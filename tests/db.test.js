@@ -493,3 +493,37 @@ describe('meetings and notices', () => {
     expect(await titles(ids.other, 'notices')).toEqual(['For everyone'])
   })
 })
+
+describe('notifications', () => {
+  const mine = async (who) =>
+    (await as(who, `select user_id, title from notifications order by created_at, title`)).rows
+
+  it('setup already told the mentor about their role and hub', async () => {
+    const titles = (await mine(ids.mentor)).map((n) => n.title)
+    expect(titles.slice(0, 2)).toEqual(['You are now a mentor', 'New hub: Smart Logistics Hub'])
+  })
+
+  it('an admin making someone a mentor tells only that person', async () => {
+    await as(ids.admin, `update profiles set role = 'mentor' where id = $1`, [ids.other])
+    expect((await mine(ids.other)).map((n) => n.title)).toEqual(['You are now a mentor'])
+    expect(await mine(ids.student)).toEqual([])
+    // Even an admin reads only their own.
+    expect((await mine(ids.admin)).every((n) => n.user_id === ids.admin)).toBe(true)
+  })
+
+  it('a person can dismiss their own, not create or dismiss others', async () => {
+    const other = await as(ids.student, `delete from notifications where user_id = $1`, [ids.other])
+    expect(other.affectedRows).toBe(0)
+    await expect(
+      as(ids.student, `insert into notifications (user_id, title, body) values ($1, 'Fake', 'x')`, [ids.student]),
+    ).rejects.toThrow(/permission denied/)
+    const own = await as(ids.other, `delete from notifications where user_id = $1`, [ids.other])
+    expect(own.affectedRows).toBe(1)
+    await as(ids.admin, `update profiles set role = 'student' where id = $1`, [ids.other])
+  })
+
+  it('the 003 migration runs on an existing database', async () => {
+    await db.exec(readFileSync(new URL('../supabase/migrations/003_notifications.sql', import.meta.url), 'utf8'))
+    expect((await mine(ids.other)).map((n) => n.title)).toEqual(['You are now a student'])
+  })
+})

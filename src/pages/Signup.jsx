@@ -5,7 +5,7 @@ import { Button, Field, Notice } from '../components/ui.jsx'
 import { authRedirect, supabase } from '../lib/supabase.js'
 import { MSG, errorMessage } from '../lib/text.js'
 import { useTitle } from '../lib/useTitle.js'
-import { checkEmail, checkNewPassword, checkRequired, checkSamePassword, cleanEmail, firstError } from '../lib/validate.js'
+import { checkEmail, checkFullName, checkNewPassword, checkSamePassword, cleanEmail, firstError } from '../lib/validate.js'
 
 const TAKEN = 'taken'
 
@@ -22,7 +22,7 @@ export function Signup() {
   async function submit(e) {
     e.preventDefault()
     const next = {
-      fullName: checkRequired(form.fullName, 'full name'),
+      fullName: checkFullName(form.fullName),
       email: checkEmail(form.email),
       password: checkNewPassword(form.password),
       confirm: checkSamePassword(form.password, form.confirm),
@@ -77,7 +77,7 @@ export function Signup() {
         <Field
           id="fullName"
           label="Full name"
-          hint="As it appears on your CBE registration."
+          hint="Your real first and last name, as on your CBE registration. Mentors use it to find you."
           autoComplete="name"
           value={form.fullName}
           onChange={set('fullName')}

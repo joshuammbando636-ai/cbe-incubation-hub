@@ -1,24 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../auth/context.js'
 import { Button, Checkbox, LoadError, Notice, Spinner } from '../../components/ui.jsx'
-import { ROLES, cleanSearch, diff, roleQuestion } from '../../lib/admin.js'
-import { loadLists, must, useLoad } from '../../lib/data.js'
+import { ROLES, diff, filterPeople, roleQuestion } from '../../lib/admin.js'
+import { loadLists, must, nameOf, useLoad } from '../../lib/data.js'
 import { supabase } from '../../lib/supabase.js'
 import { MSG, errorMessage } from '../../lib/text.js'
 import { useTitle } from '../../lib/useTitle.js'
 
 async function loadPeople() {
-  const [lists, staff, assignments] = await Promise.all([
+  const [lists, people, assignments] = await Promise.all([
     loadLists(),
-    supabase
-      .from('profiles')
-      .select('id, full_name, email, role')
-      .in('role', ['mentor', 'admin'])
-      .order('full_name')
-      .then(must),
+    supabase.from('profiles').select('id, full_name, email, role, hub_id').order('full_name').then(must),
     supabase.from('mentor_hubs').select('mentor_id, hub_id').then(must),
   ])
-  return { hubs: lists.hubs, staff, assignments }
+  return { hubs: lists.hubs, people: people.sort(byName), assignments }
 }
 
 export function People() {
@@ -31,45 +26,98 @@ export function People() {
 
 const byName = (a, b) => (a.full_name || a.email).localeCompare(b.full_name || b.email)
 
-function PeopleBody({ hubs, staff: initialStaff, assignments }) {
-  const { profile: me } = useAuth()
-  const [staff, setStaff] = useState(initialStaff)
+const SHOW = [
+  { value: 'all', label: 'Everyone' },
+  { value: 'student', label: 'Students' },
+  { value: 'mentor', label: 'Mentors' },
+  { value: 'admin', label: 'Admins' },
+]
+const PAGE = 50 // rows shown at once; "Show more" adds the next lot
 
-  // Keep the "Mentors and admins" list in step when a role changes anywhere.
+function PeopleBody({ hubs, people: initialPeople, assignments }) {
+  const { profile: me } = useAuth()
+  const [people, setPeople] = useState(initialPeople)
+  const [show, setShow] = useState('all')
+  const [text, setText] = useState('')
+  const [limit, setLimit] = useState(PAGE)
+
+  // Keep the list in step when a role changes (the person may move to another tab).
   function roleChanged(person, role) {
-    setStaff((list) => {
-      const rest = list.filter((p) => p.id !== person.id)
-      return role === 'student' ? rest : [...rest, { ...person, role }].sort(byName)
-    })
+    setPeople((list) => list.map((p) => (p.id === person.id ? { ...p, role } : p)))
   }
 
   const hubsOf = (id) => assignments.filter((a) => a.mentor_id === id).map((a) => a.hub_id)
+  const count = (role) => (role === 'all' ? people.length : people.filter((p) => p.role === role).length)
+  const shown = filterPeople(people, show, text)
 
   return (
     <div className="narrow-content">
       <h1>People and roles</h1>
       <p className="lede">
-        Make someone a mentor, then choose the hubs they look after. A mentor with no hubs sees no students.
+        Everyone with an account starts as a student. Pick a person, make them a mentor, then choose the hubs they look
+        after. A mentor with no hubs sees no students. They get a message on the site when you do this.
       </p>
 
-      <section className="section">
-        <h2>Mentors and admins</h2>
+      <div className="tabs tabs-wrap" role="group" aria-label="Show">
+        {SHOW.map((t) => (
+          <button
+            key={t.value}
+            type="button"
+            aria-pressed={show === t.value}
+            onClick={() => {
+              setShow(t.value)
+              setLimit(PAGE)
+            }}
+          >
+            {t.label} ({count(t.value)})
+          </button>
+        ))}
+      </div>
+
+      <div className="field">
+        <label htmlFor="find">Filter</label>
+        <input
+          id="find"
+          type="search"
+          placeholder="Type part of a name or email"
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value)
+            setLimit(PAGE)
+          }}
+        />
+      </div>
+
+      <p className="hint" aria-live="polite">
+        {shown.length === 1 ? '1 person' : `${shown.length} people`}
+      </p>
+      {shown.length === 0 ? (
+        <p className="section-gap">No one matches.</p>
+      ) : (
         <ul className="rows">
-          {staff.map((p) => (
+          {shown.slice(0, limit).map((p) => (
             <li key={`${p.id}-${p.role}`} className="row">
-              <PersonRole person={p} isMe={p.id === me.id} onChanged={roleChanged} />
+              <PersonRole
+                person={p}
+                hubName={p.role === 'student' ? nameOf(hubs, p.hub_id) : ''}
+                isMe={p.id === me.id}
+                onChanged={roleChanged}
+              />
               {p.role === 'mentor' && <MentorHubs mentorId={p.id} hubs={hubs} initial={hubsOf(p.id)} />}
             </li>
           ))}
         </ul>
-      </section>
-
-      <FindPerson meId={me.id} onChanged={roleChanged} />
+      )}
+      {shown.length > limit && (
+        <Button type="button" variant="secondary" onClick={() => setLimit((n) => n + PAGE)}>
+          Show more ({shown.length - limit} left)
+        </Button>
+      )}
     </div>
   )
 }
 
-function PersonRole({ person, isMe, onChanged }) {
+function PersonRole({ person, hubName, isMe, onChanged }) {
   const [role, setRole] = useState(person.role)
   const [result, setResult] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -94,6 +142,8 @@ function PersonRole({ person, isMe, onChanged }) {
       <div className="person-who">
         <p className="row-title">{name}</p>
         <p className="row-meta break">{person.email}</p>
+        {hubName && <p className="row-meta">{hubName}</p>}
+        {!person.full_name && <p className="row-meta">No name yet</p>}
       </div>
       <div className="person-role">
         <label htmlFor={id} className="visually-hidden">
@@ -161,55 +211,5 @@ function MentorHubs({ mentorId, hubs, initial }) {
         Save hubs
       </Button>
     </details>
-  )
-}
-
-function FindPerson({ meId, onChanged }) {
-  const [q, setQ] = useState('')
-  const [state, setState] = useState({ results: null, error: null })
-
-  useEffect(() => {
-    const term = cleanSearch(q)
-    if (!term) return
-    let stale = false
-    const timer = setTimeout(async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, role')
-        .or(`full_name.ilike.%${term}%,email.ilike.%${term}%`)
-        .order('full_name')
-        .limit(20)
-      if (!stale) setState({ results: data, error })
-    }, 300)
-    return () => {
-      stale = true
-      clearTimeout(timer)
-    }
-  }, [q])
-
-  const searching = Boolean(cleanSearch(q))
-
-  return (
-    <section className="section">
-      <h2>Find a person</h2>
-      <div className="field">
-        <label htmlFor="find">Search</label>
-        <input id="find" type="search" placeholder="Name or email" value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
-      {searching && state.error && <Notice kind="error">{errorMessage(state.error)}</Notice>}
-      {searching && state.results && (
-        state.results.length === 0 ? (
-          <p className="section-gap">No one matches.</p>
-        ) : (
-          <ul className="rows section-gap">
-            {state.results.map((p) => (
-              <li key={p.id} className="row">
-                <PersonRole person={p} isMe={p.id === meId} onChanged={onChanged} />
-              </li>
-            ))}
-          </ul>
-        )
-      )}
-    </section>
   )
 }

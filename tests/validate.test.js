@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MSG, errorMessage } from '../src/lib/text.js'
-import { checkEmail, checkNewPassword, checkRequired, checkSamePassword, cleanEmail, firstError } from '../src/lib/validate.js'
+import { checkEmail, checkFullName, checkNewPassword, checkRequired, checkSamePassword, cleanEmail, firstError } from '../src/lib/validate.js'
 
 describe('form checks use the wording from content.md', () => {
   it('email', () => {
@@ -41,5 +41,20 @@ describe('errorMessage', () => {
     expect(errorMessage({ code: '42501', message: 'new row violates row-level security policy' })).toBe(MSG.notAllowed)
     expect(errorMessage({ code: 'P0001', message: 'Only an admin can change roles' })).toBe(MSG.notAllowed)
     expect(errorMessage({ code: 'something_new', message: 'odd' })).toBe(MSG.generic)
+  })
+})
+
+describe('checkFullName', () => {
+  it('accepts real first and last names', () => {
+    for (const ok of ['Amina Juma', 'Baraka  Mushi', "Neema O'Brien", 'Jean-Paul Mwakyusa', 'Asha Said Ally', 'Zoë Müller', 'Dr. Juma Ally']) {
+      expect(checkFullName(ok)).toBe('')
+    }
+  })
+
+  it('rejects empty, one-word, nickname and number names', () => {
+    expect(checkFullName('  ')).toBe('Enter your full name.')
+    for (const bad of ['Amina', 'Kingboy254', 'Dj Kim 254', 'Amina 😎', 'A B', 'x_x Juma']) {
+      expect(checkFullName(bad)).toBe(MSG.badName)
+    }
   })
 })

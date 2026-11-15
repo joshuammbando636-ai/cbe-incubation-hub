@@ -3,7 +3,7 @@ import { GENDERS } from '../lib/labels.js'
 import { checkGradYear, checkPhone, checkRegNumber, cleanPhone, cleanRegNumber } from '../lib/student.js'
 import { supabase } from '../lib/supabase.js'
 import { MSG, errorMessage } from '../lib/text.js'
-import { checkRequired, firstError } from '../lib/validate.js'
+import { checkFullName, firstError } from '../lib/validate.js'
 import { Button, Checkbox, Field, Notice, SelectField } from './ui.jsx'
 
 const FIELDS = [
@@ -65,7 +65,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
   async function submit(e) {
     e.preventDefault()
     const next = {
-      full_name: checkRequired(form.full_name, 'full name'),
+      full_name: checkFullName(form.full_name),
       reg_number: checkRegNumber(form.reg_number),
       phone: checkPhone(form.phone),
       grad_year: checkGradYear(form.grad_year),
@@ -129,7 +129,7 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
     <form onSubmit={submit} noValidate className="form">
       <section className="form-section">
         <H>About you</H>
-        <Field id="full_name" label="Full name" autoComplete={staff ? 'off' : 'name'} {...bind('full_name')} />
+        <Field id="full_name" label="Full name" hint="Real first and last name, as on the CBE registration." autoComplete={staff ? 'off' : 'name'} {...bind('full_name')} />
         <Field
           id="reg_number"
           label="Registration number"

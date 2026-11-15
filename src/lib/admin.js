@@ -13,8 +13,16 @@ export function roleQuestion(name, role) {
   return `Change ${name} back to student? They will lose access to student records.`
 }
 
-// Characters that would break a PostgREST "or" filter or act as wildcards.
-export const cleanSearch = (q) => q.replace(/[,()%*\\]/g, ' ').trim().replace(/\s+/g, ' ')
+// People shown on the People page: one role ('all' for everyone), then the
+// typed words matched against name and email, ignoring capitals and order.
+export function filterPeople(people, role, text) {
+  const words = text.toLowerCase().split(/\s+/).filter(Boolean)
+  return people.filter((p) => {
+    if (role !== 'all' && p.role !== role) return false
+    const hay = `${p.full_name || ''} ${p.email}`.toLowerCase()
+    return words.every((w) => hay.includes(w))
+  })
+}
 
 // What to add and remove to turn `saved` into `wanted`.
 export function diff(saved, wanted) {

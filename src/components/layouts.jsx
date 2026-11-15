@@ -1,8 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { LogOut, Menu, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../auth/context.js'
 import { ADMIN_MENU, STAFF_MENU } from '../lib/menus.js'
 import { APP_NAME, FOOTER } from '../lib/text.js'
+import { Notifications } from './Notifications.jsx'
 
 export function Footer() {
   return <footer className="footer">{FOOTER}</footer>
@@ -52,42 +54,108 @@ export function SimplePage({ children }) {
   )
 }
 
-// Signed-in pages: wordmark, account area, menu, then the page.
+const ROLE_NAME = { student: 'Student', mentor: 'Mentor', admin: 'Admin' }
+
+function initials(name = '') {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts.at(-1)[0] : '')).toUpperCase() || '?'
+}
+
+// Signed-in pages: a menu down the left (a slide-out drawer on phones), then the page.
 export function AppShell({ menu = [] }) {
   const { profile, signOut } = useAuth()
   const mainRef = useNewPageFocus()
+  const { pathname } = useLocation()
+  // The drawer remembers the page it was opened on, so choosing another page closes it.
+  const [openOn, setOpenOn] = useState(null)
+  const open = openOn === pathname
+  const toggle = () => setOpenOn(open ? null : pathname)
+  const close = () => setOpenOn(null)
+  const menuButton = useRef(null)
+  const name = profile.full_name || profile.email
+
+  // Escape closes the drawer and puts focus back on the menu button.
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return
+      setOpenOn(null)
+      menuButton.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+
   return (
-    <div className="page">
+    <div className={`shell${open ? ' is-open' : ''}`}>
       <SkipLink />
-      <header className="topbar">
+
+      <header className="mobilebar">
+        <button
+          ref={menuButton}
+          type="button"
+          className="icon-button"
+          aria-expanded={open}
+          aria-controls="sidebar"
+          onClick={toggle}
+        >
+          {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          <span className="visually-hidden">Menu</span>
+        </button>
         <Link to="/" className="wordmark">
           {APP_NAME}
         </Link>
-        <div className="account">
-          <span className="account-name">{profile.full_name || profile.email}</span>
-          <span aria-hidden="true"> · </span>
-          <button type="button" className="link-button" onClick={signOut}>
+      </header>
+
+      <div className="scrim" aria-hidden="true" onClick={close} />
+
+      <aside id="sidebar" className="sidebar">
+        <Link to="/" className="sidebar-brand">
+          <span className="brand-mark" aria-hidden="true">
+            CBE
+          </span>
+          <span>Incubation Hub</span>
+        </Link>
+
+        {menu.length > 0 && (
+          <nav className="sidenav" aria-label="Main">
+            <ul>
+              {menu.map(({ to, end, label, icon: Icon }) => (
+                <li key={to}>
+                  <NavLink to={to} end={end}>
+                    {Icon && <Icon aria-hidden="true" size={20} strokeWidth={1.75} />}
+                    <span>{label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        <div className="sidebar-foot">
+          <div className="me">
+            <span className="avatar" aria-hidden="true">
+              {initials(profile.full_name)}
+            </span>
+            <span className="me-text">
+              <span className="me-name">{name}</span>
+              <span className="me-role">{ROLE_NAME[profile.role] ?? ''}</span>
+            </span>
+          </div>
+          <button type="button" className="signout" onClick={signOut}>
+            <LogOut aria-hidden="true" size={18} strokeWidth={1.75} />
             Sign out
           </button>
         </div>
-      </header>
-      {menu.length > 0 && (
-        <nav className="menu" aria-label="Main">
-          <ul>
-            {menu.map((item) => (
-              <li key={item.to}>
-                <NavLink to={item.to} end={item.end}>
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
-      <main id="main" tabIndex={-1} ref={mainRef} className="main">
-        <Outlet />
-      </main>
-      <Footer />
+      </aside>
+
+      <div className="shell-body">
+        <main id="main" tabIndex={-1} ref={mainRef} className="main">
+          <Notifications />
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
   )
 }

@@ -1,16 +1,21 @@
-/* Design decisions live in content.md. One accent (green), amber = waiting,
-   red = error. 1px rules, 8px radius, no shadows. Light theme only. */
+/* Design decisions live in content.md. Blue and white: one blue accent, light
+   blue surfaces, a deep-blue gradient for the big moments. Amber = waiting,
+   red = error. 1px rules, 8px radius. Light theme only. */
 
 :root {
-  --paper: #f5f1e8;
-  --field: #fbf9f4;
-  --ink: #1c1b18;
-  --ink-soft: #57524a;
-  --rule: #d8d0c0;
-  --rule-strong: #8a8376;
-  --accent: #1f5a3c;
-  --accent-dark: #164430;
+  --paper: #ffffff;
+  --surface: #f4f7fe;
+  --field: #ffffff;
+  --ink: #0b1a33;
+  --ink-soft: #4a5873;
+  --rule: #dbe3f1;
+  --rule-strong: #8492ad;
+  --accent: #1d4ed8;
+  --accent-dark: #1e3a8a;
+  --accent-soft: #e6eeff;
   --on-accent: #ffffff;
+  --grad: linear-gradient(135deg, #0a2463 0%, #1d4ed8 55%, #3b82f6 100%);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --amber: #9a6200;
   --red: #b3261e;
 
@@ -533,38 +538,233 @@ textarea[aria-invalid='true'] {
 
 /* ---------- Signed-in pages ---------- */
 
-.menu {
-  border-bottom: 1px solid var(--rule);
-  padding: 0 var(--s4);
+/* Sidebar on computers (sticky, left); a slide-out drawer on phones. */
+
+.shell {
+  min-height: 100dvh;
+  background: var(--surface);
 }
 
-.menu ul {
+.shell-body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shell .main {
+  max-width: 76rem;
+}
+
+.shell .footer {
+  background: transparent;
+}
+
+.mobilebar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: var(--accent-soft);
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  width: min(280px, 85vw);
+  display: flex;
+  flex-direction: column;
+  padding: var(--s4) var(--s3);
+  background: var(--paper);
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform 280ms var(--ease),
+    visibility 0s linear 280ms;
+}
+
+.shell.is-open .sidebar {
+  transform: none;
+  visibility: visible;
+  transition: transform 280ms var(--ease);
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgb(11 26 51 / 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.shell.is-open .scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 44px;
+  padding: var(--s2) var(--s3) var(--s5);
+  font-family: var(--serif);
+  font-size: var(--t20);
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.sidenav ul {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: var(--s1);
+}
+
+.sidenav a {
   display: flex;
-  flex-wrap: wrap;
-  column-gap: var(--s5);
-}
-
-.menu a {
-  display: inline-flex;
   align-items: center;
+  gap: var(--s3);
   min-height: 44px;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--radius);
   color: var(--ink-soft);
+  font-weight: 500;
   text-decoration: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
-.menu a:hover {
+.sidenav a:hover {
+  background: var(--surface);
   color: var(--ink);
 }
 
-.menu a.active {
-  color: var(--ink);
+.sidenav a.active {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
   font-weight: 600;
-  border-bottom-color: var(--accent);
+}
+
+.sidenav a.active svg {
+  color: var(--accent);
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  padding-top: var(--s5);
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: var(--s2);
+}
+
+.me {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3) 0;
+  min-width: 0;
+}
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: var(--t14);
+  font-weight: 700;
+  flex: none;
+}
+
+.me-text {
+  display: grid;
+  min-width: 0;
+}
+
+.me-name {
+  font-weight: 600;
+  font-size: var(--t14);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.me-role {
+  font-size: var(--t14);
+  color: var(--ink-soft);
+}
+
+.signout {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 44px;
+  padding: var(--s2) var(--s3);
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  cursor: pointer;
+}
+
+.signout:hover {
+  background: #fdecea;
+  color: var(--red);
+}
+
+@media (min-width: 960px) {
+  .shell {
+    display: grid;
+    grid-template-columns: 264px minmax(0, 1fr);
+  }
+
+  .mobilebar,
+  .scrim {
+    display: none;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    width: auto;
+    transform: none;
+    visibility: visible;
+    transition: none;
+  }
 }
 
 .narrow-content {
@@ -1287,4 +1487,88 @@ legend {
 
 .glance .facts {
   margin: var(--s4) 0 0;
+}
+
+.notifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  margin-bottom: var(--s5);
+}
+
+.notifications .btn {
+  margin-top: var(--s3);
+}
+
+/* ---------- Buttons on blue ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  text-decoration: none;
+}
+
+.btn-white {
+  background: #ffffff;
+  color: var(--accent-dark);
+}
+
+.btn-white:hover {
+  background: var(--accent-soft);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 0.55);
+}
+
+.btn-ghost:hover {
+  background: rgb(255 255 255 / 0.12);
+  border-color: #ffffff;
+}
+
+.brand-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--grad);
+  color: var(--on-accent);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex: none;
+}
+
+/* ---------- Sign-in: the left panel is the blue gradient ---------- */
+
+.split-intro {
+  background: var(--grad);
+  color: #ffffff;
+  border: 0;
+}
+
+.split-intro .wordmark,
+.split-intro .steps li::before {
+  color: #ffffff;
+}
+
+.split-intro .lede,
+.split-intro .steps {
+  color: rgb(255 255 255 / 0.85);
+}
+
+.split-intro :focus-visible {
+  outline-color: #ffffff;
+}
+
+@media (min-width: 900px) {
+  .split-intro {
+    border-right: 0;
+  }
 }

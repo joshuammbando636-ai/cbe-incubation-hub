@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cleanSearch, diff, roleQuestion } from '../src/lib/admin.js'
+import { diff, filterPeople, roleQuestion } from '../src/lib/admin.js'
 
 describe('admin helpers', () => {
   it('asks the content.md questions before a role change', () => {
@@ -10,11 +10,18 @@ describe('admin helpers', () => {
     )
   })
 
-  it('cleans search text so it cannot break the filter', () => {
-    expect(cleanSearch('  amina  ')).toBe('amina')
-    expect(cleanSearch('a,b),email.eq.x')).toBe('a b email.eq.x')
-    expect(cleanSearch('100%*')).toBe('100')
-    expect(cleanSearch('amina@cbe.ac.tz')).toBe('amina@cbe.ac.tz')
+  it('filters people by role and by words in name or email', () => {
+    const people = [
+      { full_name: 'Amina Juma', email: 'amina@cbe.ac.tz', role: 'student' },
+      { full_name: 'Baraka Mushi', email: 'b.mushi@gmail.com', role: 'mentor' },
+      { full_name: '', email: 'new@gmail.com', role: 'student' },
+    ]
+    const emails = (list) => list.map((p) => p.email)
+    expect(emails(filterPeople(people, 'all', ''))).toEqual(['amina@cbe.ac.tz', 'b.mushi@gmail.com', 'new@gmail.com'])
+    expect(emails(filterPeople(people, 'student', ''))).toEqual(['amina@cbe.ac.tz', 'new@gmail.com'])
+    expect(emails(filterPeople(people, 'all', 'juma AMINA'))).toEqual(['amina@cbe.ac.tz'])
+    expect(emails(filterPeople(people, 'all', 'gmail'))).toEqual(['b.mushi@gmail.com', 'new@gmail.com'])
+    expect(emails(filterPeople(people, 'mentor', 'amina'))).toEqual([])
   })
 
   it('works out which hubs to add and remove', () => {

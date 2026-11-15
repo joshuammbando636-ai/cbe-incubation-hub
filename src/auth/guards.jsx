@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Outlet } from 'react-router'
 import { Spinner } from '../components/ui.jsx'
 import { AccountError } from '../pages/AccountError.jsx'
@@ -6,10 +7,18 @@ import { isStaffRole, useAuth } from './context.js'
 // These only decide which screen to show. The database (RLS) decides what
 // data each person gets, so a wrong screen never leaks anything.
 
+// The landing page (and its animation library) loads only for visitors who are signed out.
+const Landing = lazy(() => import('../pages/Landing.jsx').then((m) => ({ default: m.Landing })))
+
 export function Home() {
   const { status, profile } = useAuth()
   if (status === 'loading') return <Spinner />
-  if (status === 'signed-out') return <Navigate to="/login" replace />
+  if (status === 'signed-out')
+    return (
+      <Suspense fallback={<Spinner />}>
+        <Landing />
+      </Suspense>
+    )
   if (status === 'error') return <AccountError />
   return <Navigate to={isStaffRole(profile.role) ? '/staff' : '/student'} replace />
 }

@@ -13,6 +13,7 @@ export const MSG = {
   tooManyEmails: 'Too many emails sent. Wait a few minutes and try again.',
   sent: 'Sent. Check your inbox.',
   badRegNumber: 'Use the format on your student ID, like 03.12345.01.01.2026.',
+  badName: 'Enter your real first and last name, as on your CBE registration. Letters only, no nicknames.',
   badPhone: 'Enter a phone number, like 0712 345 678.',
   badYear: 'Enter a year, like 2027.',
   badYoutube: 'Paste a YouTube link, like https://youtu.be/abc123.',

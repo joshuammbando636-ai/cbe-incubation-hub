@@ -16,11 +16,23 @@ Read this first when you come back. Then tell Claude: "read PROGRESS.md and let'
 - Supabase URL Configuration points at the live site; emails go out through Gmail SMTP (cbeincubationhub@gmail.com), rate limit 100/hour
 - joshuammbando636@gmail.com is admin
 - Password boxes have a Show/Hide button
+- People page lists everyone (Everyone / Students / Mentors / Admins + filter box). New accounts are always students; only an admin changes roles
+- Notifications: a person sees "You are now a mentor/admin/student" and "New hub: …" at the top of the site until they press OK (migration `003`)
+- Sign-up and profile insist on a real first and last name (letters only, no nicknames)
+- Mentor hub-scoping checked by Josh on the live site with real accounts: mentors see only their hubs' students
+- **New look (15 Nov evening):** blue and white everywhere; a landing page at `/` for visitors (hero, numbers, how it works, stages, who it is for, live hub list, about, call to action) with GSAP animations; signed-in pages have a left sidebar with icons (slide-out menu on phones), user name + role + Sign out at the bottom
+- Josh will send fonts, a prompt and reference images for a second design pass
 
 ## To do (in this order)
 
-### 1. Claude: email copies of notices and meetings
-Plan: a small Supabase function that emails the students a notice or meeting is for.
+### 0. You: run migration 003 in Supabase, then deploy
+1. Open https://supabase.com/dashboard/project/qyuleunnfckmudkilcul/sql/new, paste all of `supabase/migrations/003_notifications.sql`, click Run.
+2. Deploy: in PowerShell `cd "C:\CBE Incubation Hub"` then `vercel --prod`. Or connect Git once at https://vercel.com/joshuammbando636-5988s-projects/cbe-incubation-hub/settings/git so every push deploys.
+
+See it locally any time: `npm run dev`, then open http://localhost:5173 (signed out = landing page).
+
+### 1. Claude: email copies of notices, meetings and role changes
+Plan: a small Supabase function that emails the students a notice or meeting is for, and emails a person when they become a mentor or admin.
 
 ### 2. You: check registration numbers
 Look at CBE's register. If every number looks like `03.12345.01.01.2026`, tell Claude to make the check strict.
