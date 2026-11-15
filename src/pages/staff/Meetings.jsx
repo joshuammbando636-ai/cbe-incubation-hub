@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/context.js'
+import { RowDelete } from '../../components/RowDelete.jsx'
 import { Button, Field, LoadError, Notice, SelectField, Spinner } from '../../components/ui.jsx'
 import { must, useLoad } from '../../lib/data.js'
 import {
@@ -31,13 +32,14 @@ export function Meetings() {
   const page = useLoad(() => loadPage(profile), [profile.id])
   if (page.loading) return <Spinner />
   if (page.error) return <LoadError error={page.error} onRetry={page.reload} />
-  return <MeetingsBody data={page.data} />
+  return <MeetingsBody data={page.data} userId={profile.id} />
 }
 
-function MeetingsBody({ data }) {
+function MeetingsBody({ data, userId }) {
   const [meetings, setMeetings] = useState(data.meetings)
   const [editing, setEditing] = useState(null) // null | 'new' | meeting row
   const [message, setMessage] = useState('')
+  const [problem, setProblem] = useState('')
   const students = data.students.map((s) => ({ ...s, full_name: s.full_name || s.email }))
   const allHubs = data.lists.hubs
 
@@ -86,6 +88,23 @@ function MeetingsBody({ data }) {
       >
         Edit<span className="visually-hidden"> {m.title}</span>
       </button>
+      {(data.isAdmin || m.created_by === userId) && (
+        <RowDelete
+          table="meetings"
+          id={m.id}
+          name={m.title}
+          confirmText={`Delete "${m.title}"? Students will no longer see it.`}
+          onError={(text) => {
+            setMessage('')
+            setProblem(text)
+          }}
+          onDone={(id) => {
+            setMeetings((ms) => ms.filter((x) => x.id !== id))
+            setProblem('')
+            setMessage('Meeting deleted.')
+          }}
+        />
+      )}
     </li>
   )
 
@@ -94,6 +113,7 @@ function MeetingsBody({ data }) {
       <h1>Meetings</h1>
       <p className="lede">Plan an online class or call. Students see it on their Notices page.</p>
       {message && <Notice kind="ok">{message}</Notice>}
+      {problem && <Notice kind="error">{problem}</Notice>}
       <p>
         <Button
           type="button"

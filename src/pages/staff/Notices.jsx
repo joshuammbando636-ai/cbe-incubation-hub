@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/context.js'
+import { RowDelete } from '../../components/RowDelete.jsx'
 import { Button, Field, LoadError, Notice, SelectField, Spinner } from '../../components/ui.jsx'
 import { must, useLoad } from '../../lib/data.js'
 import { formatDate } from '../../lib/labels.js'
@@ -24,13 +25,14 @@ export function StaffNotices() {
   const page = useLoad(() => loadPage(profile), [profile.id])
   if (page.loading) return <Spinner />
   if (page.error) return <LoadError error={page.error} onRetry={page.reload} />
-  return <NoticesBody data={page.data} />
+  return <NoticesBody data={page.data} userId={profile.id} />
 }
 
-function NoticesBody({ data }) {
+function NoticesBody({ data, userId }) {
   const [notices, setNotices] = useState(data.notices)
   const [editing, setEditing] = useState(null) // null | 'new' | notice row
   const [message, setMessage] = useState('')
+  const [problem, setProblem] = useState('')
   const { lists } = data
 
   if (editing) {
@@ -61,6 +63,7 @@ function NoticesBody({ data }) {
       <h1>Notices</h1>
       <p className="lede">Tell a group of students something: a new lesson, a deadline, an event.</p>
       {message && <Notice kind="ok">{message}</Notice>}
+      {problem && <Notice kind="error">{problem}</Notice>}
       <p>
         <Button
           type="button"
@@ -98,6 +101,23 @@ function NoticesBody({ data }) {
               >
                 Edit<span className="visually-hidden"> {n.title}</span>
               </button>
+              {(data.isAdmin || n.created_by === userId) && (
+                <RowDelete
+                  table="notices"
+                  id={n.id}
+                  name={n.title}
+                  confirmText={`Delete "${n.title}"? Students will no longer see it.`}
+                  onError={(text) => {
+                    setMessage('')
+                    setProblem(text)
+                  }}
+                  onDone={(id) => {
+                    setNotices((ns) => ns.filter((x) => x.id !== id))
+                    setProblem('')
+                    setMessage('Notice deleted.')
+                  }}
+                />
+              )}
             </li>
           ))}
         </ul>

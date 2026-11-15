@@ -479,11 +479,13 @@ textarea[aria-invalid='true'] {
   gap: var(--s3);
 }
 
-/* ---------- Notices: a thin left rule, never a filled block ---------- */
+/* ---------- Notices: a soft tinted card with a left rule ---------- */
 
 .notice {
-  border-left: 2px solid var(--accent);
-  padding: var(--s1) 0 var(--s1) var(--s4);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  padding: var(--s3) var(--s4);
   margin: 0 0 var(--s5);
   max-width: var(--measure);
 }
@@ -498,10 +500,12 @@ textarea[aria-invalid='true'] {
 
 .notice-wait {
   border-left-color: var(--amber);
+  background: #fff4e0;
 }
 
 .notice-error {
   border-left-color: var(--red);
+  background: #fdecea;
 }
 
 .notice-title {

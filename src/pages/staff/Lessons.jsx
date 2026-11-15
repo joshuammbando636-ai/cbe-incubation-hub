@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../auth/context.js'
+import { RowDelete } from '../../components/RowDelete.jsx'
 import { Button, Checkbox, Field, LoadError, Notice, SelectField, Spinner } from '../../components/ui.jsx'
 import { must, nameOf, useLoad } from '../../lib/data.js'
 import { loadScope } from '../../lib/staffData.js'
@@ -33,6 +34,7 @@ function LessonsBody({ data, userId }) {
   const [lessons, setLessons] = useState(data.lessons)
   const [editing, setEditing] = useState(null) // null | 'new' | lesson row
   const [message, setMessage] = useState('')
+  const [problem, setProblem] = useState('')
   const allHubs = data.lists.hubs
 
   if (editing) {
@@ -67,6 +69,7 @@ function LessonsBody({ data, userId }) {
     <>
       <h1>Lessons</h1>
       {message && <Notice kind="ok">{message}</Notice>}
+      {problem && <Notice kind="error">{problem}</Notice>}
       <p>
         <Button
           type="button"
@@ -106,8 +109,23 @@ function LessonsBody({ data, userId }) {
                   setEditing(l)
                 }}
               >
-                Edit
+                Edit<span className="visually-hidden"> {l.title}</span>
               </button>
+              <RowDelete
+                table="lessons"
+                id={l.id}
+                name={l.title}
+                confirmText={`Delete "${l.title}"? Students' ticks for it are deleted too.`}
+                onError={(text) => {
+                  setMessage('')
+                  setProblem(text)
+                }}
+                onDone={(id) => {
+                  setLessons((ls) => ls.filter((x) => x.id !== id))
+                  setProblem('')
+                  setMessage('Lesson deleted.')
+                }}
+              />
             </li>
           ))}
         </ul>
