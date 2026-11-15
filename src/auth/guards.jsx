@@ -12,7 +12,15 @@ const Landing = lazy(() => import('../pages/Landing.jsx').then((m) => ({ default
 
 export function Home() {
   const { status, profile } = useAuth()
-  if (status === 'loading') return <Spinner />
+  // While we check who this is, draw the landing page under its intro sheet
+  // instead of a spinner. Same element as the signed-out branch, so it stays
+  // mounted; a signed-in person is sent on below before the sheet lifts.
+  if (status === 'loading')
+    return (
+      <Suspense fallback={<Spinner />}>
+        <Landing authPending />
+      </Suspense>
+    )
   if (status === 'signed-out')
     return (
       <Suspense fallback={<Spinner />}>

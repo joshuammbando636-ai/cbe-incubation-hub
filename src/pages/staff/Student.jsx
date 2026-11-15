@@ -3,12 +3,14 @@ import { Link, useLocation, useParams } from 'react-router'
 import { useAuth } from '../../auth/context.js'
 import { ProfileForm } from '../../components/ProfileForm.jsx'
 import { ReviewControls } from '../../components/ReviewControls.jsx'
+import { RoleSection } from '../../components/RoleControls.jsx'
 import {
   Button,
   Checkbox,
   Field,
   LoadError,
   Notice,
+  SearchSelect,
   SelectField,
   Spinner,
   StageTracker,
@@ -42,19 +44,26 @@ export function Student() {
   const back = useLocation().state?.search ?? ''
   const page = useLoad(() => loadPage(me, id), [me.id, id])
 
+  const isAdmin = me.role === 'admin'
+  const person = page.data?.profile
+  // Mentors and admins have a page here too, but only an admin may open it.
+  const staffPage = person && person.role !== 'student'
+
   return (
     <div className="narrow-content">
       <p>
-        <Link to={`/staff/students${back}`}>All students</Link>
+        <Link to={`/staff/students${back}`}>{isAdmin ? 'All people' : 'All students'}</Link>
       </p>
       {page.loading ? (
         <Spinner />
       ) : page.error ? (
         <LoadError error={page.error} onRetry={page.reload} />
-      ) : !page.data.profile ? (
+      ) : !person || (staffPage && !isAdmin) ? (
         <Missing />
+      ) : staffPage ? (
+        <StaffBody key={id} data={page.data} isMe={person.id === me.id} />
       ) : (
-        <StudentBody key={id} data={page.data} />
+        <StudentBody key={id} data={page.data} meId={me.id} />
       )}
     </div>
   )
@@ -97,7 +106,20 @@ function Glance({ profile, idea, videos, lessonCount }) {
   )
 }
 
-function StudentBody({ data }) {
+// An admin looking at a mentor or admin: who they are, their role and their hubs.
+function StaffBody({ data, isMe }) {
+  const { profile, lists, hubIds } = data
+  useTitle(profile.full_name || profile.email)
+  return (
+    <>
+      <h1>{profile.full_name || profile.email}</h1>
+      <p className="lede break">{profile.email}</p>
+      <RoleSection person={profile} isMe={isMe} hubs={lists.hubs} initialHubs={hubIds} />
+    </>
+  )
+}
+
+function StudentBody({ data, meId }) {
   const { lists, isAdmin, mentors, support } = data
   const [profile, setProfile] = useState(data.profile)
   const [idea, setIdea] = useState(data.idea)
@@ -195,6 +217,8 @@ function StudentBody({ data }) {
       <ConfirmBlock profile={profile} setProfile={setProfile} />
 
       {isAdmin && <MoveBlock profile={profile} setProfile={setProfile} hubs={lists.hubs} />}
+
+      {isAdmin && <RoleSection person={profile} isMe={profile.id === meId} hubs={lists.hubs} initialHubs={[]} />}
     </>
   )
 }
@@ -369,7 +393,7 @@ function MoveBlock({ profile, setProfile, hubs }) {
     <section className="section">
       <h2>Innovation hub</h2>
       <div className="inline-form">
-        <SelectField
+        <SearchSelect
           id="move-hub"
           label="Innovation hub"
           options={hubs.map((h) => ({ value: h.id, label: h.name }))}

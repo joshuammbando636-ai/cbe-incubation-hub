@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Button, LoadError, Notice, Spinner } from '../../components/ui.jsx'
+import { Button, LoadError, Notice, SelectField, Spinner } from '../../components/ui.jsx'
 import { forgetLists, loadLists, useLoad } from '../../lib/data.js'
 import { supabase } from '../../lib/supabase.js'
 import { MSG, errorMessage, required, requiredChoice } from '../../lib/text.js'
@@ -82,7 +82,10 @@ export function Lists() {
       ) : page.error ? (
         <LoadError error={page.error} onRetry={page.reload} />
       ) : (
-        <ListEditor key={tab.key} tab={tab} initial={page.data[tab.key]} departments={page.data.departments} />
+        <>
+          <ListEditor key={tab.key} tab={tab} initial={page.data[tab.key]} departments={page.data.departments} />
+          {tab.key === 'hubs' && <HubClusters hubs={page.data.hubs} clusters={page.data.clusters} />}
+        </>
       )}
     </>
   )
@@ -262,5 +265,50 @@ function ListRow({ tab, row, departments, onSaved, onDeleted }) {
       </div>
       {result && <Notice kind={result.kind}>{result.text}</Notice>}
     </form>
+  )
+}
+
+// Which cluster each hub sits in. Students no longer pick a cluster: it comes from their hub.
+// The first links were a guess, so CBE should check them here.
+function HubClusters({ hubs, clusters }) {
+  const [rows, setRows] = useState(() => [...hubs].sort((a, b) => a.name.localeCompare(b.name)))
+  const [result, setResult] = useState(null) // { id, kind, text }
+
+  async function change(hub, clusterId) {
+    setResult(null)
+    const { data, error } = await supabase
+      .from('hubs')
+      .update({ cluster_id: clusterId || null })
+      .eq('id', hub.id)
+      .select('id')
+    if (error || !data.length) return setResult({ id: hub.id, kind: 'error', text: error ? listError(error) : MSG.notAllowed })
+    forgetLists()
+    setRows((list) => list.map((h) => (h.id === hub.id ? { ...h, cluster_id: clusterId || null } : h)))
+    setResult({ id: hub.id, kind: 'ok', text: 'Saved.' })
+  }
+
+  return (
+    <section className="section">
+      <h2>Which cluster each hub is in</h2>
+      <p className="hint">
+        Students do not choose a cluster any more: it comes from their hub. These were filled in as a first guess.
+        Please check them with CBE. A new hub appears here after you reload the page.
+      </p>
+      <ul className="rows">
+        {rows.map((h) => (
+          <li key={h.id} className="row">
+            <SelectField
+              id={`cluster-${h.id}`}
+              label={h.name}
+              placeholder="No cluster"
+              options={clusters.map((c) => ({ value: c.id, label: c.name }))}
+              value={h.cluster_id ?? ''}
+              onChange={(e) => change(h, e.target.value)}
+            />
+            {result?.id === h.id && <Notice kind={result.kind}>{result.text}</Notice>}
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/context.js'
-import { Button, Field, LoadError, Notice, RadioGroup, SelectField, Spinner } from '../../components/ui.jsx'
+import { Button, Field, LoadError, Notice, RadioGroup, SearchSelect, Spinner } from '../../components/ui.jsx'
 import { loadLists, must, useLoad } from '../../lib/data.js'
 import { STAGES, stageLabel } from '../../lib/labels.js'
 import { supabase } from '../../lib/supabase.js'
@@ -121,7 +121,7 @@ function IdeaForm({ ownerId, lists, initial, onConflict }) {
           value={form.business_name}
           onChange={(e) => set('business_name', e.target.value)}
         />
-        <SelectField
+        <SearchSelect
           id="sector_id"
           label="Business sector"
           options={lists.sectors.map((s) => ({ value: s.id, label: s.name }))}

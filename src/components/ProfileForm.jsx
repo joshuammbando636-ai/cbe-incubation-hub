@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { nameOf } from '../lib/data.js'
 import { GENDERS } from '../lib/labels.js'
 import { checkGradYear, checkPhone, checkRegNumber, cleanPhone, cleanRegNumber } from '../lib/student.js'
 import { supabase } from '../lib/supabase.js'
 import { MSG, errorMessage } from '../lib/text.js'
 import { checkFullName, firstError } from '../lib/validate.js'
-import { Button, Checkbox, Field, Notice, SelectField } from './ui.jsx'
+import { Button, Checkbox, Field, Notice, SearchSelect, SelectField } from './ui.jsx'
 
 const FIELDS = [
   'full_name',
@@ -16,9 +17,9 @@ const FIELDS = [
   'programme_id',
   'level_id',
   'grad_year',
-  'cluster_id',
   'hub_id',
 ]
+// Not asked: the cluster comes from the hub, in the database (fill_profile_links).
 
 const toOptions = (rows) => rows.map((r) => ({ value: r.id, label: r.name }))
 
@@ -37,15 +38,19 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
   const [result, setResult] = useState(null) // { kind, text }
   const [busy, setBusy] = useState(false)
 
-  const programmes = lists.programmes.filter((p) => p.department_id === form.department_id)
+  // Every programme, with its department beside it, so one search finds it.
+  const programmeOptions = lists.programmes
+    .map((p) => ({ value: p.id, label: p.name, meta: nameOf(lists.departments, p.department_id) }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+  const hubOptions = lists.hubs.map((h) => ({ value: h.id, label: h.name, meta: nameOf(lists.clusters, h.cluster_id) }))
 
   function set(key, value) {
     setResult(null)
     setForm((f) => {
       const next = { ...f, [key]: value }
-      // A programme only fits its own department.
-      if (key === 'department_id' && !lists.programmes.some((p) => p.id === f.programme_id && p.department_id === value)) {
-        next.programme_id = ''
+      // The programme decides the department.
+      if (key === 'programme_id' && value) {
+        next.department_id = lists.programmes.find((p) => p.id === value)?.department_id ?? f.department_id
       }
       return next
     })
@@ -159,24 +164,33 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
       <section className="form-section">
         <H>Your studies</H>
         <SelectField id="campus_id" label="Campus" options={toOptions(lists.campuses)} {...bind('campus_id')} />
-        <SelectField id="department_id" label="Department" options={toOptions(lists.departments)} {...bind('department_id')} />
-        <SelectField
+        <SearchSelect
           id="programme_id"
-          label="Programme"
-          hint="Not on the list? Leave it empty and tell your mentor."
-          options={toOptions(programmes)}
-          placeholder={form.department_id ? 'Choose…' : 'Choose a department first'}
-          disabled={!form.department_id}
+          label="Programme (course)"
+          hint="Type part of the name, like accounting or logistics. Not on the list? Leave it empty."
+          options={programmeOptions}
           {...bind('programme_id')}
         />
+        {form.programme_id ? (
+          <p className="filled-in">
+            <span className="filled-in-label">Department</span> {nameOf(lists.departments, form.department_id)}
+          </p>
+        ) : (
+          <SelectField
+            id="department_id"
+            label="Department"
+            hint="Only needed when your programme is not on the list."
+            options={toOptions(lists.departments)}
+            {...bind('department_id')}
+          />
+        )}
         <SelectField id="level_id" label="Level of study" options={toOptions(lists.levels)} {...bind('level_id')} />
         <Field id="grad_year" label="Expected graduation year" inputMode="numeric" maxLength={4} {...bind('grad_year')} />
       </section>
 
       <section className="form-section">
         <H>Your hub</H>
-        <SelectField id="cluster_id" label="Cluster" options={toOptions(lists.clusters)} {...bind('cluster_id')} />
-        <SelectField
+        <SearchSelect
           id="hub_id"
           label="Innovation hub"
           hint={
@@ -184,9 +198,9 @@ export function ProfileForm({ mode = 'student', profile, lists, support = [], is
               ? isMentor
                 ? 'Only an admin can move a student to another hub.'
                 : undefined
-              : 'Choose one hub. Your mentor comes from this hub.'
+              : 'Type part of the name, like tourism or AI. Choose one hub; your mentor comes from it.'
           }
-          options={toOptions(lists.hubs)}
+          options={hubOptions}
           disabled={staff}
           {...bind('hub_id')}
         />

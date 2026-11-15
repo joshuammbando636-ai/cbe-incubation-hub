@@ -164,18 +164,19 @@ describe('student pages (what the browser is allowed to do)', () => {
     )
   })
 
-  it('a programme must belong to the chosen department', async () => {
+  it("a programme's own department is saved, whatever department was sent", async () => {
     const { rows } = await db.query(
-      `select d.id as dept, p.id as prog from departments d, programmes p
+      `select d.id as dept, p.id as prog, p.department_id as real from departments d, programmes p
        where d.code = 'ICT' and p.department_id <> d.id limit 1`,
     )
-    await expect(
-      as(ids.student, `update profiles set department_id = $1, programme_id = $2 where id = $3`, [
-        rows[0].dept,
-        rows[0].prog,
-        ids.student,
-      ]),
-    ).rejects.toThrow(/foreign key/)
+    await as(ids.student, `update profiles set department_id = $1, programme_id = $2 where id = $3`, [
+      rows[0].dept,
+      rows[0].prog,
+      ids.student,
+    ])
+    const saved = (await db.query(`select department_id from profiles where id = $1`, [ids.student])).rows[0]
+    expect(saved.department_id).toBe(rows[0].real)
+    await db.query(`update profiles set programme_id = null, department_id = null where id = $1`, [ids.student])
   })
 
   it('a registration number can only be used once', async () => {
@@ -525,5 +526,43 @@ describe('notifications', () => {
   it('the 003 migration runs on an existing database', async () => {
     await db.exec(readFileSync(new URL('../supabase/migrations/003_notifications.sql', import.meta.url), 'utf8'))
     expect((await mine(ids.other)).map((n) => n.title)).toEqual(['You are now a student'])
+  })
+})
+
+describe('hub clusters and filled-in details', () => {
+  const pick = async (id) =>
+    (await db.query(`select department_id, cluster_id from profiles where id = $1`, [id])).rows[0]
+
+  it('every hub has a cluster after setup', async () => {
+    const { rows } = await db.query(`select name from hubs where cluster_id is null`)
+    expect(rows).toEqual([])
+  })
+
+  it("choosing a programme fills its department; choosing a hub fills its cluster", async () => {
+    const prog = (await db.query(`select id, department_id from programmes order by name limit 1`)).rows[0]
+    const hub = (await db.query(`select id, cluster_id from hubs where name = 'Agribusiness Innovation Hub'`)).rows[0]
+    await as(ids.other, `update profiles set programme_id = $1, hub_id = $2 where id = $3`, [prog.id, hub.id, ids.other])
+    expect(await pick(ids.other)).toEqual({ department_id: prog.department_id, cluster_id: hub.cluster_id })
+  })
+
+  it('taking a hub from a mentor tells them; deleting an account does not fail', async () => {
+    const ai = await hubId('Artificial Intelligence Hub')
+    await as(ids.admin, `insert into mentor_hubs values ($1, $2)`, [ids.mentor, ai])
+    const removed = await as(ids.admin, `delete from mentor_hubs where mentor_id = $1 and hub_id = $2`, [ids.mentor, ai])
+    expect(removed.affectedRows).toBe(1)
+    const titles = (await as(ids.mentor, `select title from notifications order by created_at`)).rows.map((r) => r.title)
+    expect(titles).toContain('Removed from hub: Artificial Intelligence Hub')
+
+    const temp = '00000000-0000-0000-0000-000000000099'
+    await signUp(temp, 'temp@example.com', 'Temp Person')
+    await db.query(`insert into mentor_hubs values ($1, $2)`, [temp, ai])
+    await db.query(`delete from auth.users where id = $1`, [temp])
+    expect((await db.query(`select count(*)::int as n from notifications where user_id = $1`, [temp])).rows[0].n).toBe(0)
+  })
+
+  it('the 004 migration runs on an existing database', async () => {
+    await db.exec(readFileSync(new URL('../supabase/migrations/004_hub_clusters.sql', import.meta.url), 'utf8'))
+    const { rows } = await db.query(`select count(*)::int as n from hubs where cluster_id is not null`)
+    expect(rows[0].n).toBe(22)
   })
 })

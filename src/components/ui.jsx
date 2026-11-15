@@ -102,6 +102,110 @@ export function SelectField({ id, label, hint, error, options, value, onChange, 
   )
 }
 
+// Words typed in a search box: every word must appear somewhere in the text.
+function matchesWords(text, query) {
+  const hay = text.toLowerCase()
+  return query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w))
+}
+
+// A dropdown you can type into, for long lists (programmes, hubs, sectors).
+// options: [{ value, label, meta? }]. onChange gets { target: { value } }, like a <select>.
+export function SearchSelect({ id, label, hint, error, options, value, onChange, placeholder = 'Type to search…', disabled }) {
+  const d = describe(id, hint, error)
+  const chosen = options.find((o) => o.value === value)
+  const [query, setQuery] = useState(null) // null = not typing; show the chosen label
+  const [active, setActive] = useState(0)
+  const open = query !== null
+  const matches = open ? options.filter((o) => matchesWords(`${o.label} ${o.meta ?? ''}`, query)) : []
+  const listId = `${id}-list`
+
+  function pick(o) {
+    onChange({ target: { value: o ? o.value : '' } })
+    setQuery(null)
+  }
+
+  function onKeyDown(e) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (!open) setQuery('')
+      setActive((i) => Math.min(i + 1, Math.max(matches.length - 1, 0)))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActive((i) => Math.max(i - 1, 0))
+    } else if (e.key === 'Enter' && open) {
+      e.preventDefault()
+      if (matches[active]) pick(matches[active])
+    } else if (e.key === 'Escape' && open) {
+      e.preventDefault()
+      setQuery(null)
+    }
+  }
+
+  return (
+    <FieldText id={id} label={label} hint={hint} error={error} {...d}>
+      <div className="search-select">
+        <input
+          id={id}
+          name={id}
+          type="text"
+          role="combobox"
+          autoComplete="off"
+          aria-expanded={open}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={open && matches[active] ? `${id}-opt-${active}` : undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={d.describedBy}
+          placeholder={chosen ? undefined : placeholder}
+          disabled={disabled}
+          value={open ? query : (chosen?.label ?? '')}
+          onFocus={(e) => {
+            setQuery('')
+            setActive(0)
+            e.target.select()
+          }}
+          onBlur={() => setQuery(null)}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setActive(0)
+          }}
+          onKeyDown={onKeyDown}
+        />
+        {chosen && !disabled && !open && (
+          <button type="button" className="link-button search-clear" aria-label={`Clear ${label.toLowerCase()}`} onClick={() => pick(null)}>
+            ×
+          </button>
+        )}
+        {open && (
+          <ul id={listId} role="listbox" className="search-list" aria-label={label}>
+            {matches.length === 0 ? (
+              <li className="search-none">No match. Try fewer letters.</li>
+            ) : (
+              matches.map((o, i) => (
+                <li
+                  key={o.value}
+                  id={`${id}-opt-${i}`}
+                  role="option"
+                  aria-selected={o.value === value}
+                  className={i === active ? 'is-active' : undefined}
+                  // mousedown, not click: it fires before the input loses focus
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    pick(o)
+                  }}
+                >
+                  <span>{o.label}</span>
+                  {o.meta && <span className="search-meta">{o.meta}</span>}
+                </li>
+              ))
+            )}
+          </ul>
+        )}
+      </div>
+    </FieldText>
+  )
+}
+
 // Radio buttons in a fieldset. options: [{ value, label, meaning? }]
 export function RadioGroup({ name, legend, hint, error, options, value, onChange }) {
   const d = describe(name, hint, error)

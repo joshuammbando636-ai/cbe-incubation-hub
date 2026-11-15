@@ -1,4 +1,5 @@
 import { useAuth } from '../../auth/context.js'
+import { PasswordForm } from '../../components/PasswordForm.jsx'
 import { ProfileForm } from '../../components/ProfileForm.jsx'
 import { LoadError, Spinner } from '../../components/ui.jsx'
 import { loadLists, must, useLoad } from '../../lib/data.js'
@@ -30,6 +31,7 @@ export function Profile() {
         {...page.data}
         onSaved={(patch) => updateProfile({ full_name: patch.full_name })}
       />
+      <PasswordForm />
     </div>
   )
 }

@@ -10,7 +10,7 @@ Made once. Do not change them mid-build.
 
 - **Blue and white** (Josh, 15 Nov 2026; replaces the old paper + green). White pages, light-blue surfaces (`--surface`), navy text, ONE blue accent (`--accent` #1d4ed8). A deep-blue gradient (`--grad`) is kept for the big moments only: the landing hero, the sign-in panel, the final call to action, the logo mark.
 - Two signals besides the accent: amber for "waiting / to confirm", red for errors and "not accepted". Both appear as a small dot or a thin left rule, never as a filled block.
-- Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages use a **left sidebar** with icons (a slide-out drawer on phones).
+- Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages use a **left sidebar** with icons (on phones: a bottom bar for the main pages, and "More" opens the full menu as a drawer).
 - Landing-page motion uses **GSAP**: the hero plays once, sections rise in on scroll. Off when the device asks for reduced motion.
 - Two typefaces: **Some Time Later** for every heading (Josh's choice, 15 Nov 2026; SIL Open Font Licence, cut down to 34 KB in `src/assets/fonts`), and the device's own system font for everything else (no download).
 - Type scale with big jumps: 14 / 16 / 20 / 32 / 56 / 96 px. Headings are large, tight and left-aligned.
@@ -490,3 +490,79 @@ After saving: Saved.
 - Tab names use the hub's short name.
 - Plain black and white: bold header row, thin borders, no colours.
 - Columns, in this order: No. · Full Name · Registration Number · Gender · Campus · Department · Programme · Level of Study · Expected Graduation Year · Phone Number · Email · Cluster · Innovation Hub · Business Idea / Project · Business Sector · Business Name · Owns a Business · Business Stage · Support Requested · Mentor
+
+---
+
+## Landing page v2
+
+The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and white, motion inspired by loopsii.com. Fonts unchanged: Some Time Later for headings, the system font for text; the small handwritten notes use the heading font, slanted, in blue. Items marked **[confirm with CBE]** need CBE's answer before going live; **(draft)** means wording Claude wrote because the brief gave none.
+
+**Intro** (once per browser visit, never with reduced motion): blue sheet, thin lines, round CBE badge, slides up.
+
+**Header**: logo · How it works · Stages · Hubs · FAQ · Sign in · **Join**
+
+**Hero**
+
+- Headline: **Turn your [idea / prototype / side hustle / class project / first sale] into a business.** (screen readers hear "Turn your idea into a business.")
+- Line: Join an innovation hub, get a mentor in your field, and grow your business one stage at a time.
+- Buttons: **Create your account** · Sign in
+
+**What is the Hub**
+
+- Note: What is the Hub
+- The CBE Incubation Hub helps students turn ideas into real businesses, with a mentor, short lessons and a clear path from idea to income.
+- Every business grows in loops: try, learn, show your progress, get feedback. The Hub keeps the loop going, so you always know what to do next.
+
+**Dark section**
+
+- So many questions pulling you away · from building your business
+- Questions: Which hub fits my idea? · Who is my mentor? · Did my mentor see my video? · When is the next meeting? · Where was that lesson link? · What stage am I at? · Is my idea good enough? · Where do I even start? · Lost in the WhatsApp group · Paper forms. Again.
+- Background: a blurred student picture under a 55% dark-blue shade. For now it is a drawn stand-in (`public/landing/student-blur.jpg`) **[confirm with CBE]**: swap in a real photo with the same name.
+- As it leaves, the dark card shrinks back into a rounded card over ice blue.
+
+**That's why CBE Incubation Hub exists**: on ice blue, with big soft tiles that fade in as you scroll; the dashboard picture comes up right under the line. No button here (Josh, 15 Nov: follow Loopsii's pattern, don't overdo it).
+
+**Dashboard picture** (sample, not real data): Good morning, Amina **[confirm with CBE: sample name]** · Your stage (the four stages) · Next meeting: Hub check-in, Wed, 14:00 (draft) · Progress video: Operational, Waiting for review → Verified ✓ · Lessons: Know your customer · Price your product · Pitch in two minutes (draft) · Floating cards: Mentor verified ✓ · Video posted
+
+**Where your startup lives today**
+
+- Note: the scattered problem
+- Title: Your startup shouldn't live in six places
+- WhatsApp groups (Lost messages) · Paper forms (Filled in again and again) · Email threads (Hard to find later) · Notebooks (Easy to lose) · Video links (Shared, then forgotten) · Excel files (Out of date) **[confirm with CBE]**
+- Numbers: 6 places · 1 hub
+
+**Everything you need at every stage** (`#how`)
+
+- START · Get set up in a day: Create your account (Sign up with your email. Takes a minute.) · Your details filled in (Registered with CBE? We fill them in for you.) · Pick your hub (Choose the innovation hub that fits your idea.)
+- BUILD · Shape your idea: Describe your idea (Your business, its sector and its stage.) · Video lessons (Short lessons you can watch on your phone.) · Meetings and notices (Everything from your hub in one place.)
+- PROVE · Show your progress: Post a progress video (A short video when you move forward.) · Mentor review (Your mentor watches it and gives feedback.) · Move up a stage (Approved? You move to the next stage.)
+- GROW · Get the help you need: A mentor in your field (Someone who knows your industry.) · Ask for support (Choose from the {n} kinds of support the Hub offers. n comes from the Support types list) · Your record (A clear history of how far you've come.)
+
+**Your Hub at a glance** (`#stages`) — one-liners and ticks are drafts **[confirm with CBE]**
+
+1. See where you stand: Your stage, your hub and your mentor, on one screen. Ticks: Four clear stages · Your hub and your mentor · What to do next · Only a mentor moves your stage
+2. Show your progress: Post a short video. Your mentor watches it and replies. Ticks: Upload to YouTube as Unlisted · Paste the link · Feedback from your mentor · Move up when it is approved
+3. Learn on your phone: Short video lessons from your mentors. Ticks: Works on any phone · For your hub or for everyone · Tick each one when you finish · See how many you have done
+4. Never miss a meeting: Meetings and news from your hub, in one place. Ticks: Your next meeting and its link · Notices from your mentors · New ones are marked · Nothing lost in a group chat
+
+**Hubs** (`#hubs`, live from the database)
+
+- Find the hub that fits your idea (one chip per hub)
+- Support you can ask for (one line per support type)
+- Numbers: Innovation hubs (count) · Campuses 3 · Business stages 4 · Kinds of support (count)
+
+**FAQ** (`#faq`, title "FAQ" is a draft)
+
+- Who can join? Students of the College of Business Education with a business idea, at any stage. **[confirm with CBE]**
+- Does it cost anything? **[confirm with CBE]** — hidden on the page until CBE answers.
+- Do I need a laptop? No. The site works on any phone. Lessons are short videos.
+- How do I choose a hub? Pick the innovation hub closest to your idea when you complete your profile. Each hub has its own mentors.
+- Who can see my idea? Only the mentors of your hub and the Hub's admins.
+- How do I move up a stage? Post a short video showing your progress. Your mentor checks it and moves you up.
+- I'm already registered with CBE. Do I fill everything in again? No. When you confirm your email, we fill in the details CBE already has.
+
+**Final call**: Ready to start your business? · It takes one minute to create your account. · **Create your account**
+
+**Closing line**: Idea. Prototype. Running. Earning.
+
+**Footer**: CBE Incubation Hub · How it works · Hubs · FAQ · Sign in · Questions? Call 0777 561 651 (tap to call; Josh's number, 15 Nov 2026) · College of Business Education · Incubation Hub

@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/context.js'
 import { LoadError, Notice, Spinner } from '../../components/ui.jsx'
 import { loadLists, must, nameOf, useLoad } from '../../lib/data.js'
 import { STAGES, VIDEO_STATUS, firstName, formatDate, stageIndex, stageLabel } from '../../lib/labels.js'
-import { countDone, missingDetails, missingLabel } from '../../lib/student.js'
+import { countDone, missingDetails, missingLabel, nextStep } from '../../lib/student.js'
 import { countNew, formatDateTime, readSeen } from '../../lib/notices.js'
 import { loadMyLessons, loadMyNotices } from '../../lib/studentData.js'
 import { supabase } from '../../lib/supabase.js'
@@ -49,6 +49,13 @@ export function StudentHome() {
   const done = countDone(lessons.lessons, lessons.done)
 
   const stageAt = idea ? stageIndex(idea.stage) : -1
+  const next = nextStep({
+    missing,
+    idea,
+    latest,
+    lessonsLeft: lessons.lessons.length - done,
+    lastStage: stageAt === STAGES.length - 1,
+  })
 
   return (
     <>
@@ -89,6 +96,27 @@ export function StudentHome() {
           ))}
         </ol>
       </section>
+
+      {next ? (
+        <section className="next" aria-labelledby="next-title">
+          <div>
+            <p className="next-label">Next step</p>
+            <h2 id="next-title">{next.title}</h2>
+            <p className="next-line">{next.line}</p>
+          </div>
+          <Link to={next.to} className="btn btn-primary">
+            {next.action} <ArrowRight aria-hidden="true" size={18} />
+          </Link>
+        </section>
+      ) : (
+        <section className="next is-clear">
+          <div>
+            <p className="next-label">Next step</p>
+            <h2>You are up to date</h2>
+            <p className="next-line">Nothing is waiting on you right now.</p>
+          </div>
+        </section>
+      )}
 
       <ol className="tasks">
         <Step

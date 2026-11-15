@@ -17,8 +17,21 @@ export async function loadScope(profile) {
 // The Overview and Students pages load the same thing, so they share a cache key.
 export const staffPageKey = (profile) => `staff:${profile.id}`
 export async function loadStaffPage(profile) {
-  const [scope, rows] = await Promise.all([loadScope(profile), loadStudentRows()])
-  return { ...scope, rows }
+  const [scope, rows, staff] = await Promise.all([
+    loadScope(profile),
+    loadStudentRows(),
+    profile.role === 'admin' ? loadStaffRows() : [],
+  ])
+  return { ...scope, rows, staff }
+}
+
+// Admin only: mentors and admins, each with the hubs they look after.
+export async function loadStaffRows() {
+  const [people, assignments] = await Promise.all([
+    supabase.from('profiles').select('id, full_name, email, role').in('role', ['mentor', 'admin']).order('full_name').then(must),
+    supabase.from('mentor_hubs').select('mentor_id, hub_id').then(must),
+  ])
+  return people.map((p) => ({ ...p, hubIds: assignments.filter((a) => a.mentor_id === p.id).map((a) => a.hub_id) }))
 }
 
 // One row per visible student, with their idea stage and waiting videos.
@@ -68,10 +81,10 @@ export async function loadMentors() {
   )
 }
 
-// Everything on the one-student page.
+// Everything on the one-person page (a student, or for an admin, a mentor or admin).
 export async function loadStudent(id) {
   const [profile, idea, support, lessons, ticks] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', id).eq('role', 'student').maybeSingle().then(must),
+    supabase.from('profiles').select('*').eq('id', id).maybeSingle().then(must),
     supabase.from('startup_ideas').select('*').eq('owner_id', id).maybeSingle().then(must),
     supabase.from('student_support').select('support_type_id').eq('student_id', id).then(must),
     supabase.from('lessons').select('id, hub_id').eq('is_published', true).then(must),
@@ -90,7 +103,12 @@ export async function loadStudent(id) {
           .order('created_at', { ascending: false }),
       )
     : []
-  return { profile, idea, support: support.map((s) => s.support_type_id), videos, lessonCount }
+  // A mentor's hubs, for the admin's Role section.
+  const hubIds =
+    profile && profile.role !== 'student'
+      ? must(await supabase.from('mentor_hubs').select('hub_id').eq('mentor_id', id)).map((r) => r.hub_id)
+      : []
+  return { profile, idea, support: support.map((s) => s.support_type_id), videos, lessonCount, hubIds }
 }
 
 // Videos with the student and idea they belong to, newest first.

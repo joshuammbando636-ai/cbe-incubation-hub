@@ -9,6 +9,7 @@ import {
   countDone,
   missingDetails,
   missingLabel,
+  nextStep,
 } from '../src/lib/student.js'
 import { MSG } from '../src/lib/text.js'
 import { isYoutubeLink, linkKind, youtubeId } from '../src/lib/youtube.js'
@@ -63,7 +64,7 @@ describe('profile checks', () => {
   })
 
   it('counts missing details, ignoring programme', () => {
-    expect(missingDetails({ full_name: 'A', programme_id: null })).toBe(9)
+    expect(missingDetails({ full_name: 'A', programme_id: null })).toBe(8)
     const full = {
       full_name: 'A',
       reg_number: '1.2.3',
@@ -112,4 +113,24 @@ describe('YouTube links', () => {
 it('counts finished lessons among the ones shown', () => {
   const lessons = [{ id: 'a' }, { id: 'b' }]
   expect(countDone(lessons, new Set(['a', 'zzz']))).toBe(1)
+})
+
+describe('nextStep', () => {
+  const base = { missing: 0, idea: { id: 1 }, latest: { status: 'pending' }, lessonsLeft: 0, lastStage: false }
+  it('asks for the profile first', () => {
+    expect(nextStep({ ...base, missing: 2 }).to).toBe('/student/profile')
+  })
+  it('then the idea, then a video', () => {
+    expect(nextStep({ ...base, idea: null, latest: null }).to).toBe('/student/idea')
+    expect(nextStep({ ...base, latest: null }).to).toBe('/student/progress')
+    expect(nextStep({ ...base, latest: { status: 'rejected' } }).to).toBe('/student/progress')
+  })
+  it('points to lessons while a video waits', () => {
+    expect(nextStep({ ...base, lessonsLeft: 1 }).line).toBe('1 lesson left.')
+  })
+  it('is empty when nothing is waiting', () => {
+    expect(nextStep(base)).toBe(null)
+    expect(nextStep({ ...base, latest: { status: 'verified' }, lastStage: true })).toBe(null)
+    expect(nextStep({ ...base, latest: { status: 'verified' } }).to).toBe('/student/progress')
+  })
 })

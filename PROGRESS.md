@@ -16,18 +16,24 @@ Read this first when you come back. Then tell Claude: "read PROGRESS.md and let'
 - Supabase URL Configuration points at the live site; emails go out through Gmail SMTP (cbeincubationhub@gmail.com), rate limit 100/hour
 - joshuammbando636@gmail.com is admin
 - Password boxes have a Show/Hide button
-- People page lists everyone (Everyone / Students / Mentors / Admins + filter box). New accounts are always students; only an admin changes roles
-- Notifications: a person sees "You are now a mentor/admin/student" and "New hub: …" at the top of the site until they press OK (migration `003`)
+- Admin menu: "Students" is called **People** for admins, with two tabs: Students / Mentors and admins. The old People page is gone (`/admin/people` redirects). Open a person → **Role** section (admin only) → for a mentor, hubs as chips (× removes) plus a search box to add one; each change saves at once
+- New accounts are always students; only an admin changes roles
+- Notifications: a person sees "You are now a mentor/admin/student", "New hub: …" and "Removed from hub: …" at the top of the site until they press OK (migrations `003`, `004`)
+- Type-to-search dropdowns (programme, hub, sector, Students filters)
+- Student profile asks Programme + Hub only: department fills in from the programme, cluster from the hub. Hub → cluster links are a **first guess**, editable under Lists → Hubs
 - Sign-up and profile insist on a real first and last name (letters only, no nicknames)
 - Mentor hub-scoping checked by Josh on the live site with real accounts: mentors see only their hubs' students
 - **New look (15 Nov evening):** blue and white everywhere; a landing page at `/` for visitors (hero, numbers, how it works, stages, who it is for, live hub list, about, call to action) with GSAP animations; signed-in pages have a left sidebar with icons (slide-out menu on phones), user name + role + Sign out at the bottom
+- Dashboards restyled: white cards on light blue (`src/dashboard.css`), status pills; Overview has a welcome banner, stat cards with icons and stage bars; student Home has a blue banner with hub, mentor and a 4-stage track, then task cards; sign-in page has no footer
 - Josh will send fonts, a prompt and reference images for a second design pass
 
 ## To do (in this order)
 
-### 0. You: run migration 003 in Supabase, then deploy
-1. Open https://supabase.com/dashboard/project/qyuleunnfckmudkilcul/sql/new, paste all of `supabase/migrations/003_notifications.sql`, click Run.
+### 0. You: run migrations 003 and 004 in Supabase, then deploy
+1. Open https://supabase.com/dashboard/project/qyuleunnfckmudkilcul/sql/new, paste all of `supabase/migrations/003_notifications.sql`, click Run. Then the same with `004_hub_clusters.sql` (003 first).
 2. Deploy: in PowerShell `cd "C:\CBE Incubation Hub"` then `vercel --prod`. Or connect Git once at https://vercel.com/joshuammbando636-5988s-projects/cbe-incubation-hub/settings/git so every push deploys.
+
+3. Ask your brother to check Lists → Hubs → "Which cluster each hub is in".
 
 See it locally any time: `npm run dev`, then open http://localhost:5173 (signed out = landing page).
 
@@ -43,6 +49,8 @@ Look at CBE's register. If every number looks like `03.12345.01.01.2026`, tell C
 - One student: summary at the top (stage, profile, videos waiting, lessons)
 - Mentor: plan a meeting and post a notice; a student in that hub sees it, a student in another hub does not
 - Computer: press Tab on any page, "Skip to content" appears
+- New on 16 Nov (not checked signed-in yet): bottom bar on phones (Home, Idea, Progress, Lessons, More), Profile moved down next to Sign out, blue "Next step" card on student Home
+- New on 16 Nov (not checked signed-in yet): sidebar minimize button on computers (top of the sidebar, shrinks to icons, remembered per browser); Profile page for mentors/admins (`/staff/profile`: name, gender, phone, change password); Change password also on the student Profile page
 
 ### 4. Emails landing in Spam
 Gmail SMTP works but some emails go to Spam. Proper fix before real students: a domain (ask CBE for one like `hub.cbe.ac.tz`, or buy one), then send through Brevo or Resend with that domain.
@@ -62,5 +70,5 @@ The report says 343 students; the register only has details for 155. 3 emails ar
 
 ## Checks
 
-- `npm test` (86 tests), `npm run lint`, `npm run build`
+- `npm test` (105 tests), `npm run lint`, `npm run build`
 - Real speed: `npm run build` then `npm run preview` (dev mode is slower)

@@ -1588,3 +1588,106 @@ legend {
     border-right: 0;
   }
 }
+
+/* Type-to-search dropdown (SearchSelect) */
+.search-select {
+  position: relative;
+}
+
+.search-select input {
+  padding-right: 44px;
+}
+
+.search-clear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  font-size: var(--t20);
+  text-decoration: none;
+}
+
+.search-list {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + var(--s1));
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--s1) 0;
+  list-style: none;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(11 26 51 / 0.12);
+}
+
+.search-list li {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--s2) var(--s3);
+  cursor: pointer;
+}
+
+.search-list li.is-active,
+.search-list li:hover {
+  background: var(--accent-soft);
+}
+
+.search-list li[aria-selected='true'] {
+  font-weight: 600;
+}
+
+.search-list .search-none {
+  color: var(--ink-soft);
+  cursor: default;
+}
+
+.search-meta {
+  font-size: var(--t14);
+  color: var(--ink-soft);
+}
+
+/* Chosen hubs on a mentor's page */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: 0 0 var(--s4);
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding-left: var(--s3);
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+
+.chip button {
+  min-width: 36px;
+  min-height: 36px;
+  font-size: var(--t20);
+  text-decoration: none;
+}
+
+/* A detail the form fills in by itself (department from programme) */
+.filled-in {
+  margin: 0;
+  padding: var(--s2) var(--s3);
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+
+.filled-in-label {
+  font-weight: 600;
+  margin-right: var(--s2);
+}
