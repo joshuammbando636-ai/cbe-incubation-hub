@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Button, Field, Notice } from '../components/ui.jsx'
-import { Footer } from '../components/layouts.jsx'
 import { authRedirect, supabase } from '../lib/supabase.js'
 import { APP_NAME, MSG, errorMessage, required } from '../lib/text.js'
 import { useTitle } from '../lib/useTitle.js'
@@ -115,7 +114,6 @@ export function Login() {
           </p>
         </section>
       </main>
-      <Footer />
     </div>
   )
 }
