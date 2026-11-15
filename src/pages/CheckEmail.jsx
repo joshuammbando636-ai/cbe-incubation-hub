@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router'
+import { useAuth } from '../auth/context.js'
 import { SimplePage } from '../components/layouts.jsx'
 import { Button, Notice } from '../components/ui.jsx'
 import { authRedirect, supabase } from '../lib/supabase.js'
@@ -10,7 +11,11 @@ export function CheckEmail() {
   useTitle('Check your email')
   const email = useLocation().state?.email
   const [resend, setResend] = useState('idle') // idle | busy | sent | message
+  const { status } = useAuth()
 
+  // The email link opens in a new tab and signs the person in there. Supabase
+  // tells this tab too, so move on instead of still saying "check your email".
+  if (status === 'ready') return <Navigate to="/" replace />
   if (!email) return <Navigate to="/login" replace />
 
   async function sendAgain() {
