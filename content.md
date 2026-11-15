@@ -12,7 +12,7 @@ Made once. Do not change them mid-build.
 - Two signals besides the accent: amber for "waiting / to confirm", red for errors and "not accepted". Both appear as a small dot or a thin left rule, never as a filled block.
 - Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages use a **left sidebar** with icons (a slide-out drawer on phones).
 - Landing-page motion uses **GSAP**: the hero plays once, sections rise in on scroll. Off when the device asks for reduced motion.
-- Two typefaces: Fraunces for headings, and the device's own system font for everything else (no download).
+- Two typefaces: **Some Time Later** for every heading (Josh's choice, 15 Nov 2026; SIL Open Font Licence, cut down to 34 KB in `src/assets/fonts`), and the device's own system font for everything else (no download).
 - Type scale with big jumps: 14 / 16 / 20 / 32 / 56 / 96 px. Headings are large, tight and left-aligned.
 - Everything hangs left. Nothing is centred except the loading spinner.
 - Thin 1px rules and borders, no shadows. One radius everywhere: 8px.

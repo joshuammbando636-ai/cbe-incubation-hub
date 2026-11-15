@@ -2,7 +2,19 @@
    blue surfaces, a deep-blue gradient for the big moments. Amber = waiting,
    red = error. 1px rules, 8px radius. Light theme only. */
 
+/* Heading font chosen by Josh: Some Time Later (SIL Open Font Licence),
+   cut down to Latin letters only (34 KB). It has one weight, so headings
+   never get a fake bold. */
+@font-face {
+  font-family: 'Some Time Later';
+  src: url('./assets/fonts/some-time-later.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  font-synthesis-weight: none;
   --paper: #ffffff;
   --surface: #f4f7fe;
   --field: #ffffff;
@@ -19,7 +31,7 @@
   --amber: #9a6200;
   --red: #b3261e;
 
-  --serif: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --serif: 'Some Time Later', 'Arial Black', Impact, sans-serif;
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   --t14: 0.875rem;
@@ -75,7 +87,7 @@ h3 {
   font-family: var(--serif);
   font-weight: 600;
   line-height: 1.1;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   margin: 0 0 var(--s4);
   text-wrap: balance;
 }
@@ -246,7 +258,7 @@ strong {
 .display {
   font-size: var(--t56);
   line-height: 0.98;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.01em;
   font-weight: 600;
   margin-bottom: var(--s5);
   max-width: 12ch;
