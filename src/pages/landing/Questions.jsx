@@ -1,0 +1,114 @@
+import { useRef } from 'react'
+import { gsap, SCRUB, useSectionMotion } from './motion.js'
+
+// [question, left %, top %, turn°] — positions are for desktop; phones stack them.
+const PILLS = [
+  ['Which hub fits my idea?', 4, 2, -4],
+  ['Who is my mentor?', 54, 0, 3],
+  ['Did my mentor see my video?', 22, 17, -2],
+  ['When is the next meeting?', 62, 22, 4],
+  ['Where was that lesson link?', 0, 38, 3],
+  ['What stage am I at?', 38, 43, -5],
+  ['Is my idea good enough?', 66, 50, -3],
+  ['Where do I even start?', 10, 64, 5],
+  ['Lost in the WhatsApp group', 38, 73, -3],
+  ['Paper forms. Again.', 66, 86, 4],
+]
+
+export function Questions() {
+  const ref = useRef(null)
+
+  useSectionMotion(ref, ({ desktop, root, q }) => {
+    const panel = q('.l-q__panel')[0]
+    const W = () => panel.offsetWidth
+    const H = () => panel.offsetHeight
+    const near = desktop ? 1 : 0.35
+
+    // The panel opens out to full bleed as it arrives (the page's only clip-path animation).
+    gsap.fromTo(
+      panel,
+      { clipPath: 'inset(0% 8% 0% 8% round 32px)' },
+      {
+        clipPath: 'inset(0% 0% 0% 0% round 0px)',
+        ease: 'none',
+        scrollTrigger: { trigger: root, start: 'top bottom', end: 'top top', scrub: SCRUB },
+      },
+    )
+
+    // Pinned and scrubbed: the frame grows, the headings slide to the corners,
+    // the brackets move apart and the questions pop in.
+    const tl = gsap.timeline({
+      defaults: { ease: 'power2.out' },
+      scrollTrigger: {
+        trigger: root,
+        start: 'top top',
+        end: desktop ? '+=220%' : '+=120%',
+        pin: q('.l-q__pin')[0],
+        scrub: SCRUB,
+        invalidateOnRefresh: true,
+      },
+    })
+    // Frame: box inset 27% 16% → 13% 2.5% (lines start nearer the middle).
+    const dy = () => H() * 0.14 * (desktop ? 1 : 0.6)
+    const dx = () => W() * 0.135 * (desktop ? 1 : 0.6)
+    tl.from(q('.l-q__line--top'), { y: dy, duration: 0.45 }, 0)
+      .from(q('.l-q__line--bottom'), { y: () => -dy(), duration: 0.45 }, 0)
+      .from(q('.l-q__line--left'), { x: dx, duration: 0.45 }, 0)
+      .from(q('.l-q__line--right'), { x: () => -dx(), duration: 0.45 }, 0)
+      .from(q('.l-q__dot--tl'), { x: dx, y: dy, duration: 0.45 }, 0)
+      .from(q('.l-q__dot--tr'), { x: () => -dx(), y: dy, duration: 0.45 }, 0)
+      .from(q('.l-q__dot--bl'), { x: dx, y: () => -dy(), duration: 0.45 }, 0)
+      .from(q('.l-q__dot--br'), { x: () => -dx(), y: () => -dy(), duration: 0.45 }, 0)
+      .from(q('.l-q__tl'), { x: 230 * near, y: 130 * near, duration: 0.5 }, 0)
+      .from(q('.l-q__br'), { x: -230 * near, y: -130 * near, duration: 0.5 }, 0)
+      .from(q('.l-q__bracket--l'), { x: () => W() * 0.3 * near, duration: 0.5 }, 0)
+      .from(q('.l-q__bracket--r'), { x: () => -W() * 0.3 * near, duration: 0.5 }, 0)
+      .from(
+        q('.l-q__pill'),
+        { scale: 0.01, opacity: 0, duration: 0.3, ease: 'back.out(1.4)', stagger: { each: 0.06, from: 'end' } },
+        0.3,
+      )
+  })
+
+  return (
+    <section className="l-q" ref={ref} data-dark="true">
+      <div className="l-q__pin">
+        {/* TODO: confirm with CBE — blurred student photo (public/landing/student-blur.jpg)
+            with a 55% midnight overlay. Until then: the gradient in landing.css. */}
+        <div className="l-q__panel">
+          <div className="l-q__frame" aria-hidden="true">
+            <span className="l-q__line l-q__line--top" />
+            <span className="l-q__line l-q__line--bottom" />
+            <span className="l-q__line l-q__line--left" />
+            <span className="l-q__line l-q__line--right" />
+            <span className="l-q__dot l-q__dot--tl" />
+            <span className="l-q__dot l-q__dot--tr" />
+            <span className="l-q__dot l-q__dot--bl" />
+            <span className="l-q__dot l-q__dot--br" />
+          </div>
+          <span className="l-q__bracket l-q__bracket--l" aria-hidden="true">
+            (
+          </span>
+          <span className="l-q__bracket l-q__bracket--r" aria-hidden="true">
+            )
+          </span>
+          <h2 className="l-q__title">
+            <span className="l-q__tl">So many questions pulling you away</span>{' '}
+            <span className="l-q__br">from building your business</span>
+          </h2>
+          <ul className="l-q__pills">
+            {PILLS.map(([text, left, top, turn]) => (
+              <li
+                key={text}
+                className="l-q__pill"
+                style={{ '--left': `${left}%`, '--top': `${top}%`, '--r': `${turn}deg` }}
+              >
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  )
+}
