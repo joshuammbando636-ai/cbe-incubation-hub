@@ -1,0 +1,410 @@
+/* Signed-in pages (inside .shell): white cards on a light-blue surface.
+   Tokens come from index.css. Kept apart from index.css so page work and
+   look-and-feel work do not collide. */
+
+.sidebar-brand {
+  font-size: 1.125rem;
+  white-space: nowrap;
+}
+
+.shell h1 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+
+.shell .lede {
+  font-size: 1.125rem;
+  margin-bottom: var(--s6);
+}
+
+.shell .section {
+  margin-top: var(--s7);
+}
+
+/* ---------- Cards: lists, tables, filters ---------- */
+
+.shell .rows,
+.shell .table-wrap,
+.shell .filters {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+}
+
+.shell .rows {
+  border-top: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.shell .row {
+  padding: var(--s4) var(--s5);
+}
+
+.shell .row:last-child {
+  border-bottom: 0;
+}
+
+.shell .row-link {
+  margin: calc(-1 * var(--s4)) calc(-1 * var(--s5));
+  padding: var(--s4) var(--s5);
+  transition: background-color 160ms ease;
+}
+
+.shell .row-link:hover {
+  background: var(--surface);
+}
+
+.shell .table-wrap {
+  padding: var(--s2) var(--s5);
+}
+
+.shell .table th,
+.shell .table td {
+  padding: var(--s3) var(--s3) var(--s3) 0;
+}
+
+.shell .table tbody tr:last-child th,
+.shell .table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.shell .table thead th {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom-color: var(--rule);
+}
+
+.shell .filters {
+  padding: var(--s5);
+}
+
+/* ---------- Status pills ---------- */
+
+.shell .status {
+  padding: 2px var(--s3) 2px var(--s2);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.shell .status-ok,
+.shell .status-verified {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+
+.shell .status-wait,
+.shell .status-pending {
+  background: #fff4e0;
+  color: #7a4d00;
+}
+
+.shell .status-error,
+.shell .status-rejected {
+  background: #fdecea;
+  color: #8c1d18;
+}
+
+/* ---------- Stat cards (Overview) ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+  margin: 0;
+}
+
+.stat {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--s1);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: var(--s5);
+  padding-top: calc(var(--s5) + 44px + var(--s3));
+  transition:
+    border-color 160ms ease,
+    transform 200ms var(--ease);
+}
+
+.stat:has(a):hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  position: absolute;
+  top: var(--s5);
+  left: var(--s5);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.stat-alert .stat-icon {
+  background: #fff4e0;
+  color: var(--amber);
+}
+
+.stat dt {
+  font-size: var(--t14);
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.stat dd {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat dd a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* The whole card is the link. */
+.stat dd a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s4);
+  }
+}
+
+/* Stage bars on the Overview */
+
+.bar-cell {
+  width: 55%;
+}
+
+.bar {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left;
+  animation: grow 700ms var(--ease) both;
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* ---------- Welcome banner (student Home, Overview) ---------- */
+
+.welcome {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--grad);
+  color: #ffffff;
+  border-radius: 20px;
+  padding: var(--s6) var(--s5);
+  margin-bottom: var(--s6);
+}
+
+.welcome::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at 85% 30%, #000 0%, transparent 70%);
+}
+
+.welcome h1 {
+  color: #ffffff;
+  margin-bottom: var(--s2);
+}
+
+.welcome p {
+  color: rgb(255 255 255 / 0.85);
+  margin: 0;
+}
+
+.welcome a {
+  color: #ffffff;
+}
+
+.welcome :focus-visible {
+  outline-color: #ffffff;
+}
+
+.welcome-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: var(--s5) 0 0;
+}
+
+.welcome-facts div {
+  display: flex;
+  gap: var(--s2);
+  padding: var(--s1) var(--s3);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  font-size: var(--t14);
+}
+
+.welcome-facts dt {
+  color: rgb(255 255 255 / 0.75);
+}
+
+.welcome-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Four-stage track inside the welcome banner. */
+.stagebar {
+  list-style: none;
+  margin: var(--s6) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s2);
+}
+
+.stagebar li {
+  font-size: 0.8125rem;
+  color: rgb(255 255 255 / 0.7);
+}
+
+.stagebar li::before {
+  content: '';
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.22);
+  margin-bottom: var(--s2);
+}
+
+.stagebar li.is-done::before,
+.stagebar li.is-now::before {
+  background: #ffffff;
+}
+
+.stagebar li.is-now {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* ---------- Task cards (student Home) ---------- */
+
+.tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+}
+
+.task {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--s1) var(--s4);
+  align-content: start;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: var(--s5);
+  transition: border-color 160ms ease;
+}
+
+.task:has(a):hover {
+  border-color: var(--accent);
+}
+
+.task-icon {
+  grid-row: span 3;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.task-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+
+.task h2 {
+  font-size: var(--t20);
+  margin: 0;
+}
+
+.task-line {
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.task-link {
+  margin: var(--s2) 0 0;
+}
+
+.task-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 44px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.task-link a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .welcome {
+    padding: var(--s7) var(--s6);
+  }
+
+  .tasks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar > span {
+    animation: none;
+  }
+}

@@ -1,7 +1,9 @@
+import { ClipboardCheck, Lightbulb, Users, Video } from 'lucide-react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/context.js'
 import { LoadError, Spinner } from '../../components/ui.jsx'
 import { useLoad } from '../../lib/data.js'
+import { firstName } from '../../lib/labels.js'
 import { summarize } from '../../lib/staff.js'
 import { loadStaffPage, staffPageKey } from '../../lib/staffData.js'
 import { useTitle } from '../../lib/useTitle.js'
@@ -34,16 +36,26 @@ export function Overview() {
   }
 
   const s = summarize(rows, hubs, lists.campuses)
+  const most = Math.max(1, ...s.byStage.map((g) => g.students))
+  const name = firstName(profile.full_name)
   return (
     <>
-      <h1>Overview</h1>
-      <p className="lede">{isAdmin ? 'All hubs.' : `Your hubs: ${hubs.map((h) => h.name).join(', ')}.`}</p>
+      <section className="welcome">
+        <h1>{name ? `Welcome back, ${name}.` : 'Overview'}</h1>
+        <p>{isAdmin ? 'You are seeing every hub.' : `Your hubs: ${hubs.map((h) => h.name).join(', ')}.`}</p>
+      </section>
 
-      <dl className="numbers">
-        <Stat label="Students" value={s.students} to="/staff/students" />
-        <Stat label="With an idea" value={s.withIdea} />
-        <Stat label="Videos waiting" value={s.waiting} to="/staff/reviews" />
-        <Stat label="Records to confirm" value={s.toConfirm} to="/staff/students?confirm=1" />
+      <dl className="stats">
+        <Stat icon={Users} label="Students" value={s.students} to="/staff/students" />
+        <Stat icon={Lightbulb} label="With an idea" value={s.withIdea} />
+        <Stat icon={Video} label="Videos waiting" value={s.waiting} to="/staff/reviews" alert={s.waiting > 0} />
+        <Stat
+          icon={ClipboardCheck}
+          label="Records to confirm"
+          value={s.toConfirm}
+          to="/staff/students?confirm=1"
+          alert={s.toConfirm > 0}
+        />
       </dl>
 
       <section className="section">
@@ -53,6 +65,9 @@ export function Overview() {
             <thead>
               <tr>
                 <th scope="col">Stage</th>
+                <th scope="col" className="bar-cell">
+                  <span className="visually-hidden">Share of students</span>
+                </th>
                 <th scope="col" className="num">
                   Students
                 </th>
@@ -64,6 +79,11 @@ export function Overview() {
                   <th scope="row">
                     {g.students > 0 ? <Link to={`/staff/students?stage=${g.value}`}>{g.label}</Link> : g.label}
                   </th>
+                  <td className="bar-cell" aria-hidden="true">
+                    <span className="bar">
+                      <span style={{ width: `${(g.students / most) * 100}%` }} />
+                    </span>
+                  </td>
                   <td className="num">{g.students}</td>
                 </tr>
               ))}
@@ -116,9 +136,12 @@ function CountTable({ title, label, groups, filter }) {
   )
 }
 
-function Stat({ label, value, to }) {
+function Stat({ icon: Icon, label, value, to, alert }) {
   return (
-    <div className="number">
+    <div className={`stat${alert ? ' stat-alert' : ''}`}>
+      <span className="stat-icon" aria-hidden="true">
+        <Icon size={22} strokeWidth={1.75} />
+      </span>
       <dt>{label}</dt>
       <dd>{to && value > 0 ? <Link to={to}>{value}</Link> : value}</dd>
     </div>
