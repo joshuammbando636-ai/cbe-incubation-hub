@@ -41,16 +41,38 @@ function FieldText({ id, hint, error, hintId, errorId, children, label, labelFor
 export function Field({ id, label, hint, error, multiline, ...inputProps }) {
   const d = describe(id, hint, error)
   const Tag = multiline ? 'textarea' : 'input'
+  const isPassword = inputProps.type === 'password'
+  const [shown, setShown] = useState(false)
+  const input = (
+    <Tag
+      id={id}
+      name={id}
+      aria-invalid={error ? true : undefined}
+      aria-describedby={d.describedBy}
+      rows={multiline ? 4 : undefined}
+      {...inputProps}
+      type={isPassword && shown ? 'text' : inputProps.type}
+    />
+  )
   return (
     <FieldText id={id} label={label} hint={hint} error={error} {...d}>
-      <Tag
-        id={id}
-        name={id}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={d.describedBy}
-        rows={multiline ? 4 : undefined}
-        {...inputProps}
-      />
+      {isPassword ? (
+        <div className="password-wrap">
+          {input}
+          <button
+            type="button"
+            className="link-button password-toggle"
+            aria-controls={id}
+            aria-pressed={shown}
+            aria-label={`Show ${label.toLowerCase()}`}
+            onClick={() => setShown((s) => !s)}
+          >
+            {shown ? 'Hide' : 'Show'}
+          </button>
+        </div>
+      ) : (
+        input
+      )}
     </FieldText>
   )
 }

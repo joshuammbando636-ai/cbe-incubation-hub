@@ -370,6 +370,21 @@ textarea:focus-visible {
   border-color: var(--accent);
 }
 
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap input {
+  padding-right: 72px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 0;
+  right: var(--s2);
+  height: 100%;
+}
+
 input[aria-invalid='true'],
 select[aria-invalid='true'],
 textarea[aria-invalid='true'] {
