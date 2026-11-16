@@ -1,11 +1,12 @@
-import { ClipboardCheck, Lightbulb, Users, Video } from 'lucide-react'
+import { CalendarDays, CircleCheck, ClipboardCheck, LayoutGrid } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/context.js'
+import { Avatar } from '../../components/Avatar.jsx'
 import { LoadError, Spinner } from '../../components/ui.jsx'
 import { useLoad } from '../../lib/data.js'
 import { ROLE_TITLE, staffGreeting } from '../../lib/greeting.js'
-import { summarize } from '../../lib/staff.js'
+import { NO_IDEA, studentCount, summarize } from '../../lib/staff.js'
 import { loadStaffPage, staffPageKey } from '../../lib/staffData.js'
 import { useTitle } from '../../lib/useTitle.js'
 
@@ -39,26 +40,90 @@ export function Overview() {
 
   const s = summarize(rows, hubs, lists.campuses)
   const most = Math.max(1, ...s.byStage.map((g) => g.students))
+  const waitingRows = rows.filter((r) => r.waiting > 0)
   return (
     <>
-      <section className="welcome">
-        <p className="welcome-role">{ROLE_TITLE[profile.role]} · CBE Incubation Hub</p>
-        <h1>{staffGreeting(profile, now)}</h1>
-        <p>{isAdmin ? 'You are seeing every hub.' : `Your hubs: ${hubs.map((h) => h.name).join(', ')}.`}</p>
-      </section>
+      <div className="drive-head">
+        <div className="drive-head-text">
+          <p className="drive-head-kicker">
+            {ROLE_TITLE[profile.role]} · {isAdmin ? 'All hubs' : hubs.map((h) => h.name).join(', ')}
+          </p>
+          <h1>{staffGreeting(profile, now)}</h1>
+        </div>
+        <Link to="/staff/reviews" className="square-btn" aria-label="Review videos" title="Review videos">
+          <CircleCheck aria-hidden="true" size={20} strokeWidth={2} />
+        </Link>
+        <div className="drive-head-end">
+          <Link to="/staff/students" className="square-btn square-btn--light" aria-label="All students" title="All students">
+            <LayoutGrid aria-hidden="true" size={19} strokeWidth={1.75} />
+          </Link>
+          <Link to="/staff/meetings" className="square-btn square-btn--light" aria-label="Meetings" title="Meetings">
+            <CalendarDays aria-hidden="true" size={19} strokeWidth={1.75} />
+          </Link>
+        </div>
+      </div>
 
-      <dl className="stats">
-        <Stat icon={Users} label="Students" value={s.students} to="/staff/students" />
-        <Stat icon={Lightbulb} label="With an idea" value={s.withIdea} />
-        <Stat icon={Video} label="Videos waiting" value={s.waiting} to="/staff/reviews" alert={s.waiting > 0} />
-        <Stat
-          icon={ClipboardCheck}
-          label="Records to confirm"
-          value={s.toConfirm}
-          to="/staff/students?confirm=1"
-          alert={s.toConfirm > 0}
-        />
-      </dl>
+      <h2 className="drive-h2">Quick access</h2>
+      <ul className="quick">
+        <li className="folder is-main">
+          <p className="folder-label">{isAdmin ? 'Every student' : 'Your students'}</p>
+          <People rows={rows} total={s.students} />
+          <div className="folder-foot">
+            <p className="folder-kind">Students</p>
+            <Link to="/staff/students" className="folder-name">
+              {studentCount(s.students)}
+            </Link>
+          </div>
+        </li>
+
+        <li className="folder">
+          <p className="folder-label">Videos waiting</p>
+          <People rows={waitingRows} total={waitingRows.length} />
+          <div className="folder-foot">
+            <p className="folder-kind">Reviews</p>
+            <Link to="/staff/reviews" className="folder-name">
+              {s.waiting === 0 ? 'Nothing to review' : s.waiting === 1 ? '1 video to review' : `${s.waiting} videos to review`}
+            </Link>
+          </div>
+        </li>
+
+        <li className="folder">
+          <p className="folder-label">With an idea</p>
+          <ul className="folder-dots">
+            {s.byStage
+              .filter((g) => g.value !== NO_IDEA)
+              .map((g) => (
+                <li key={g.value} className={`folder-dot${g.students ? '' : ' is-off'}`} title={g.label}>
+                  <span aria-hidden="true">{g.students}</span>
+                  <span className="visually-hidden">
+                    {g.label}: {g.students}
+                  </span>
+                </li>
+              ))}
+          </ul>
+          <div className="folder-foot">
+            <p className="folder-kind">Ideas</p>
+            <Link to="/staff/students" className="folder-name">
+              {s.withIdea} of {studentCount(s.students)}
+            </Link>
+          </div>
+        </li>
+
+        <li className="folder is-note">
+          <div className="note-head">
+            <div className="note-title">
+              <ClipboardCheck aria-hidden="true" size={18} strokeWidth={1.75} />
+              <Link to="/staff/students?confirm=1" className="folder-name">
+                Student records to confirm
+              </Link>
+            </div>
+          </div>
+          <div className="folder-foot">
+            <p className="folder-kind">To confirm</p>
+            <p className="note-when">{s.toConfirm === 0 ? 'None' : studentCount(s.toConfirm)}</p>
+          </div>
+        </li>
+      </ul>
 
       <section className="section">
         <h2>By stage</h2>
@@ -138,14 +203,22 @@ function CountTable({ title, label, groups, filter }) {
   )
 }
 
-function Stat({ icon: Icon, label, value, to, alert }) {
+// Up to four students as round initials, the rest as "+N".
+function People({ rows, total }) {
+  if (total === 0) return null
+  const shown = rows.slice(0, total > 4 ? 3 : 4)
   return (
-    <div className={`stat${alert ? ' stat-alert' : ''}`}>
-      <span className="stat-icon" aria-hidden="true">
-        <Icon size={22} strokeWidth={1.75} />
-      </span>
-      <dt>{label}</dt>
-      <dd>{to && value > 0 ? <Link to={to}>{value}</Link> : value}</dd>
-    </div>
+    <ul className="folder-dots" aria-hidden="true">
+      {shown.map((r) => (
+        <li key={r.id} title={r.full_name}>
+          <Avatar name={r.full_name} className="folder-dot" />
+        </li>
+      ))}
+      {total > shown.length && (
+        <li>
+          <span className="folder-dot">+{total - shown.length}</span>
+        </li>
+      )}
+    </ul>
   )
 }

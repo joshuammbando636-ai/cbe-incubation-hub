@@ -77,3 +77,35 @@ describe('shared pieces', () => {
     expect(html).toMatch(/<select[^>]*><option value=""[^>]*>Choose…<\/option>/)
   })
 })
+
+describe('signed-in frame (Drive layout)', () => {
+  const shell = async (profile, path) => {
+    const { AppShell, StaffShell } = await import('../src/components/layouts.jsx')
+    const { STUDENT_MENU } = await import('../src/lib/menus.js')
+    return renderToString(
+      <AuthContext.Provider value={{ status: 'ready', profile, signOut() {} }}>
+        <MemoryRouter initialEntries={[path]}>
+          {profile.role === 'student' ? <AppShell menu={STUDENT_MENU} /> : <StaffShell />}
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    )
+  }
+
+  it('student: skip link first, white action button, today in the top row, no search', async () => {
+    const html = await shell({ id: 'u1', role: 'student', full_name: 'Amina Hassan', email: 'a@example.com' }, '/student')
+    expect(html).toMatch(/^<div class="shell"><a class="skip-link" href="#main">/)
+    expect(html).toContain('class="side-action"')
+    expect(html).toContain('Post an update')
+    expect(html).toContain('class="top-date"')
+    expect(html).not.toContain('Search students')
+    expect(html).toContain('Sign out')
+  })
+
+  it('staff: the top search finds students', async () => {
+    const html = await shell({ id: 'u2', role: 'mentor', full_name: 'Grace Mushi', email: 'g@example.com' }, '/staff')
+    expect(html).toContain('role="search"')
+    expect(html).toContain('Search students')
+    expect(html).toContain('Review videos')
+    expect(html).not.toContain('class="top-date"')
+  })
+})
