@@ -1,4 +1,3 @@
-import '@fontsource-variable/funnel-display'
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
 import gsap from 'gsap'

@@ -653,6 +653,8 @@
   font-family: var(--display);
   color: #ffffff;
   font-size: var(--t14);
+  font-weight: 800;
+  letter-spacing: var(--display-track);
 }
 
 .id-card-person {

@@ -7,15 +7,10 @@
    - Inter Tight (self-hosted from npm) for all text and headings: a tight,
      Helvetica-like grotesk with no loose letter spacing (Josh's butter.video
      reference, 16 Nov 2026). Big lines get extra negative tracking.
-   - Some Time Later (SIL Open Font Licence, Latin only, 34 KB) only for the
-     logo and the big line on the sign-in / sign-up picture. */
-@font-face {
-  font-family: 'Some Time Later';
-  src: url('./assets/fonts/some-time-later.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+   - Funnel Display (SIL Open Font Licence, self-hosted from npm, loaded in
+     main.jsx) for the logo everywhere and the big line on the sign-in /
+     sign-up picture: the same font as the giant "Incubation Hub" on the front
+     page (Josh, 16 Nov 2026; replaces Some Time Later). ExtraBold, tight. */
 
 :root {
   font-synthesis-weight: none;
@@ -37,7 +32,8 @@
   --red: #b3261e;
 
   --sans: 'Inter Tight Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --display: 'Some Time Later', 'Arial Black', Impact, sans-serif;
+  --display: 'Funnel Display Variable', 'Arial Black', Impact, sans-serif;
+  --display-track: -0.03em;
   /* Heading font: the same grotesk, tighter. */
   --serif: var(--sans);
   --head-track: -0.03em;
@@ -257,7 +253,8 @@ strong {
 .wordmark {
   font-family: var(--display);
   font-size: var(--t20);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: var(--display-track);
   color: var(--ink);
   text-decoration: none;
   margin: 0;
@@ -1332,8 +1329,8 @@ legend {
   color: var(--on-accent);
   font-family: var(--display);
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.02em;
   flex: none;
 }
 
@@ -1363,6 +1360,8 @@ legend {
   color: var(--ink);
   font-family: var(--display);
   font-size: var(--t20);
+  font-weight: 800;
+  letter-spacing: var(--display-track);
   text-decoration: none;
 }
 
@@ -1501,7 +1500,9 @@ legend {
 .auth-art-line {
   font-family: var(--display);
   font-size: 2.25rem;
-  line-height: 1;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
   max-width: 11ch;
   margin: 0;
 }

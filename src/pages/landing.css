@@ -1216,10 +1216,11 @@ html.dc-root {
   outline-offset: 3px;
 }
 
+/* Logo name in Funnel Display like the giant name below (Josh, 16 Nov 2026). */
 .b-nav__name {
   font-family: var(--display);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 800;
+  letter-spacing: var(--display-track);
 }
 
 .b-nav__join {
@@ -1318,7 +1319,8 @@ html.dc-root {
   color: var(--h-off);
   font-family: var(--display);
   font-size: 12.8px;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .b-nav__links {
