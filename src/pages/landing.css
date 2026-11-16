@@ -441,11 +441,6 @@ html.dc-root {
   transform: scaleY(0);
 }
 
-/* Below How it works, the bars only fill the last part of the section. */
-.dc-steps > .dc-shutter {
-  top: auto;
-  height: 60svh;
-}
 
 /* ---------- 2. Statements: dark fading to cream, a dot grid, lines that swallow each other ---------- */
 

@@ -22,9 +22,8 @@ import './landing.css'
 // 2. Hero: Josh's blue-and-white FlowGradient (flows with the cursor), words right of centre,
 //    the giant name at the bottom.
 //    Dark bars grow over it as you scroll into…
-// 3. Three statements on a dark-to-cream gradient with a dot grid; each one swallows the last.
+// 3. Three statements on a deep-blue-to-white gradient with a dot grid; each one swallows the last.
 // 4. How it works: four rows, picture left, words right. Hover: a blue panel wipes up, an arrow slides in.
-//    Dark bars again into…
 // 5. The four stages: a big list; the picture on the left follows the stage you point at.
 // 6. Questions: one answer open at a time, then a number to call.
 // 7. Footer: three columns and the giant name again.
@@ -577,7 +576,7 @@ function Step({ step, index }) {
 
 function Steps() {
   return (
-    <section id="how" className="dc-steps" aria-labelledby="how-title" data-shutter data-shutter-start="top 80%">
+    <section id="how" className="dc-steps" aria-labelledby="how-title">
       <div className="dc-container">
         <Label id="how-title">How it works</Label>
         <div className="dc-steps__list">
