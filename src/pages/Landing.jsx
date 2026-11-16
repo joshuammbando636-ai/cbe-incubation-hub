@@ -940,7 +940,9 @@ function useMotion(root, withLoader, lenisRef) {
         mm.add(
           { desk: '(min-width: 992px)', tab: '(min-width: 768px) and (max-width: 991px)', phone: '(max-width: 767px)' },
           (c) => {
-            const count = c.conditions.desk ? 16 : c.conditions.tab ? 10 : 6
+            // Phones get as many bars as computers (16): with 6 each bar was too thick on a
+            // tall phone screen (Josh, 17 Nov 2026). Computers and tablets unchanged.
+            const count = c.conditions.tab ? 10 : 16
             const panels = gsap.utils.toArray('[data-shutter]').map((section) => {
               const panel = document.createElement('div')
               panel.className = 'dc-shutter'
