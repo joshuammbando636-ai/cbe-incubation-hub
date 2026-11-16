@@ -1,4 +1,4 @@
-# Where we are (last updated 16 Nov 2026)
+# Where we are (last updated 16 Nov 2026, evening)
 
 Read this first when you come back. Then tell Claude: "read PROGRESS.md and let's continue".
 
@@ -39,6 +39,17 @@ Read this first when you come back. Then tell Claude: "read PROGRESS.md and let'
 - **See it on your phone (same Wi-Fi as the computer):** in PowerShell `cd "C:\CBE Incubation Hub"` then `npm run dev -- --host --port 5175`, and open the "Network" address it prints on your phone (16 Nov it was http://192.168.1.197:5175). If the phone can't open it, Windows Firewall is blocking Node: allow it on private networks when Windows asks.
 
 ## To do (in this order)
+
+### NEXT: Show CBE the new front page (rebuilt 16 Nov 2026, evening)
+CBE turned down the old design. Josh sent a new layout (davidecarusio.it spec + Lorem capture `D:\Lorem\Inspections\davidecarusio.it 2026-11-16 2125` + his FlowGradient shader) and the **front page was rebuilt** to it: loader, moving cream gradient hero with the giant "Incubation Hub", dark bars, three statements over a dot grid, How it works rows (mouse-over: a blue panel wipes up behind the drawing and an arrow slides in; no videos), the four stages list, questions, footer. **Blue and white** (Josh, 16 Nov): white #F7F9FD, navy words, deep blue #0A2463 dark sections, bright blue #1D4ED8 tags/hovers; the hero gradient is blue and white and follows the cursor. Geist fonts. Words: content.md → "Front page (v3)". Checked at 1440 px and on a 375 px phone; 123 tests, lint and build pass.
+- **16 Nov (late):** navbar pills now white like the page; hero words rise in on arrival; big name in Funnel Display fades up and its words drift apart on scroll; questions rows get a hover band + slide; How it works pictures half the size; campus names removed from the front page.
+- **Kept as Josh asked:** his two-pill navbar (unchanged; only the 4th link now says FAQ) and the sign-in / sign-up pages (untouched).
+- **Not done yet:** dashboards still have the old navy look. Ask Josh whether they should follow the new front page.
+- The loader plays once per browser session. To see it again, open the site in a new private window.
+- Not committed yet.
+
+### 0. After the pitch: dashboard in the front-page style (Josh decided 16 Nov)
+The dashboard already uses navy + off-white in the code. Still to do: match the front page's feel on the signed-in pages (grey pills, Some Time Later headings, words that come out of a blur, grain, the one easing curve). Keep the cards on the dashboard: they group numbers and lists. Not on pitch day.
 
 ### 0a. You: run migration 007 (messages)
 Open https://supabase.com/dashboard/project/qyuleunnfckmudkilcul/sql/new, paste all of `supabase/migrations/007_messages.sql`, click Run. Until then the Messages page says "Messages are not switched on yet".

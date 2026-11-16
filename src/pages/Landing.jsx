@@ -1,105 +1,116 @@
+import '@fontsource-variable/funnel-display'
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
 import gsap from 'gsap'
+import { CustomEase } from 'gsap/CustomEase'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { SplitText } from 'gsap/SplitText'
 import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
-import {
-  ArrowRight,
-  BookOpen,
-  CalendarDays,
-  Lightbulb,
-  MessageCircle,
-  Phone,
-  Rocket,
-  Route,
-  TrendingUp,
-  UserRound,
-  Video,
-  Wrench,
-} from 'lucide-react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { APP_NAME, FOOTER } from '../lib/text.js'
+import { FlowGradient } from '../components/FlowGradient.jsx'
+import { APP_NAME } from '../lib/text.js'
 import { useTitle } from '../lib/useTitle.js'
 import './landing.css'
 
-gsap.registerPlugin(ScrollTrigger)
+// Signed-out front page, rebuilt 16 Nov 2026 after CBE turned down the old one.
+// Layout and motion follow Josh's davidecarusio.it spec (Lorem capture in
+// D:\Lorem\Inspections\davidecarusio.it 2026-11-16 2125). Words and pictures are CBE's own;
+// nothing from that site is used. The header is Josh's two-pill navbar, kept as it was.
+// 1. Loader (first visit in a session): name wipes in, "every idea" → "needs a hub", sheet lifts.
+// 2. Hero: Josh's blue-and-white FlowGradient (flows with the cursor), words right of centre,
+//    the giant name at the bottom.
+//    Dark bars grow over it as you scroll into…
+// 3. Three statements on a dark-to-cream gradient with a dot grid; each one swallows the last.
+// 4. How it works: four rows, picture left, words right. Hover: a blue panel wipes up, an arrow slides in.
+//    Dark bars again into…
+// 5. The four stages: a big list; the picture on the left follows the stage you point at.
+// 6. Questions: one answer open at a time, then a number to call.
+// 7. Footer: three columns and the giant name again.
+// Reduced motion: no loader, no smooth scroll, nothing moves, every word shows at once.
 
-// Signed-out front page. Smooth scrolling with Lenis (computers; off with reduced motion).
-// Header and hero follow butter.video's layout (Josh, 16 Nov 2026): two pills at the top,
-// a light grey hero with open space and one cut-out drawing at the top, one big centred line.
-// 1. Hero: "Every idea needs a hub." (letters sharpen out of a blur), a short line, Get started.
-// 2. A statement with small icons in the sentence; its words light up as you scroll.
-// 3. Two rows of hub names that slide sideways as you scroll.
-// 4. "Turn your [word] into a business." with the buttons.
-// 5. How it works: rows with a circled number, the drawing, one line and a huge word whose
-//    letters flow up with the scroll (brancon.vercel.app style). No cards.
-// 6. The stages: an open timeline; a playhead moves along a ruler as you scroll and
-//    lights up the stage it is on (computers). Phones: a plain list.
-// 7. Inside the hub: big heading left, a typed list of the student's tools right.
-// 8. Ready to start: words and buttons beside a cut-out drawing (no card).
-// The page above the footer ends in rounded corners; the footer is grey with columns and the
-// name huge across the bottom in Some Time Later (Josh's logo font), like butter.video.
-// Headings come in word by word. Ideas for the motion taken from butter.video (Lorem capture,
-// 16 Nov 2026); words, colours and pictures are CBE's own.
-// Reduced motion: everything shows at once, nothing moves.
+const CONTACT = { shown: '+255 627 375 912', tel: '+255627375912' }
+const YEAR = new Date().getFullYear()
+const WORDMARK = 'Incubation Hub'
 
-const WORDS = ['idea', 'side hustle', 'prototype', 'class project', 'first sale']
+const HERO_LINES = ['Turn your idea into a real business.', 'For CBE students who want more than a class project.']
+const HERO_TEXT =
+  'Join one of 22 innovation hubs, work with a mentor in your field and grow your business from idea to first sale, one stage at a time.'
 
-// Hub names for the sliding rows (short names from supabase/schema.sql, " Hub" dropped).
-const HUBS = [
-  'FinTech Innovation',
-  'Artificial Intelligence',
-  'E-Commerce & Digital Marketing',
-  'Agribusiness Innovation',
-  'Smart Logistics',
-  'Software Development',
-  'Startup Ideation & Development',
-  'Tourism & Hospitality Tech',
-  'Business Analytics',
-  'Cybersecurity & Risk',
-  'Accounting Tech',
-  'Data Science & Analytics',
-  'Business Scale-Up',
-  'Tax & RegTech',
-  'E-Procurement',
-  'E-Government Innovation',
-  'Digital Metrology & Quality',
-  'Digital Records & Archives',
-  'HR Tech',
-  'Operations & Productivity',
-  'Event Tech',
-  'Measurement & Automation',
+const STATEMENTS = [
+  'Why does a good idea need a hub?',
+  'Most student ideas never leave the notebook.',
+  'Here, yours gets a mentor, a path and a stage.',
 ]
 
-// How it works: [picture, title, text].
+// How it works. Pictures are CBE's drawings.
 const STEPS = [
-  ['/dashboard/spark-cut.webp', 'Join', 'Sign up with your email. Your CBE details fill in by themselves.'],
-  ['/dashboard/thinking-cut.webp', 'Describe', 'Add your business idea and pick the hub that fits it.'],
-  ['/dashboard/planning-cut.webp', 'Share', 'Post a short video each time your business moves forward.'],
-  ['/dashboard/vision.webp', 'Grow', 'Your mentor approves it, and you move up to the next stage.'],
+  {
+    img: '/dashboard/spark-cut.webp',
+    title: 'Join your hub',
+    text: 'Sign up with the email you gave CBE. Your student details fill in by themselves.',
+    tags: ['Sign up', 'CBE email'],
+  },
+  {
+    img: '/dashboard/thinking-cut.webp',
+    title: 'Describe your idea',
+    text: 'Write your business down in plain words and pick the hub that fits it.',
+    tags: ['22 hubs', 'One idea each'],
+  },
+  {
+    img: '/dashboard/planning-cut.webp',
+    title: 'Share your progress',
+    text: 'Each time your business moves forward, post a short video link for your mentor.',
+    tags: ['Video link', 'Mentor review'],
+  },
+  {
+    img: '/dashboard/vision.webp',
+    title: 'Move up a stage',
+    text: 'When your mentor approves the video, you move to the next stage. Lessons and meetings help you get there.',
+    tags: ['Lessons', 'Meetings'],
+  },
 ]
 
 const STAGES = [
-  [Lightbulb, 'Idea', 'Describe your business and pick the hub that fits it.'],
-  [Wrench, 'Prototype', 'Build a first version with your mentor’s feedback.'],
-  [Rocket, 'Operational', 'Open for customers and post your progress videos.'],
-  [TrendingUp, 'Earning', 'Make your first sales and keep growing.'],
+  { name: 'Idea', img: '/dashboard/idea-bulb-cut.webp', text: 'Describe your business and pick the hub that fits it.' },
+  { name: 'Prototype', img: '/dashboard/idea-carry-cut.webp', text: 'Build a first version with your mentor’s feedback.' },
+  { name: 'Operational', img: '/landing/hub-hero.webp', photo: true, text: 'Open for customers and post your progress videos.' },
+  { name: 'Earning', img: '/dashboard/spark.webp', text: 'Make your first sales and keep growing.' },
 ]
 
-// The statement: plain words, or [Icon] placed inside the sentence.
-const STATEMENT = [
-  'We', 'help', 'CBE', 'students', 'turn', Lightbulb, 'ideas', 'into', 'real', Rocket, 'businesses,',
-  'with', 'a', UserRound, 'mentor', 'in', 'their', 'field', 'and', 'a', 'clear', Route, 'path.',
+const FAQ = [
+  ['Who can join?', 'Any student of the College of Business Education, on any campus.'],
+  [
+    'Which email should I use?',
+    'The one you gave CBE when you registered. When you confirm it, your CBE details fill in by themselves.',
+  ],
+  ['I don’t have an idea yet. Can I still join?', 'Yes. Create your account now and add your idea when you have one.'],
+  [
+    'What is a hub?',
+    'A group for one field, like FinTech, Agribusiness or Tourism. There are 22 hubs, and your mentor comes from yours.',
+  ],
+  [
+    'How do I move up a stage?',
+    'Post a short video link that shows your progress. Your mentor watches it; once it is approved, you move to the next stage.',
+  ],
+  ['Who can see my idea?', 'You, your hub’s mentors and the Incubation Hub administrators. Other students cannot.'],
 ]
-
-// Contact number for questions (Josh, 15 Nov 2026).
-const CONTACT = { shown: '+255 627 375 912', tel: '+255627375912' }
-
-const YEAR = new Date().getFullYear()
 
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+// The loader plays once per browser session, never with reduced motion.
+function shouldPlayLoader() {
+  if (typeof window === 'undefined' || reduced()) return false
+  try {
+    return !window.sessionStorage.getItem('cbe-loader-seen')
+  } catch {
+    return true
+  }
+}
+
 // ---------- Header: two pills (idea from butter.video) ----------
+// Josh's navbar, kept as it was on 16 Nov 2026 (only the 4th link now points at the questions).
 // Left: a grey pill with the logo, the section links and a ⋮ button. Once the page scrolls,
 // its right edge slides in (one CSS variable, --offset), the links fade and ⋮ rides the edge.
 // ⋮ opens a dropdown under the pill that unrolls with rounded corners.
@@ -109,14 +120,14 @@ const MENU = [
   ['#about', 'What we do', 'Our promise in one sentence'],
   ['#how', 'How it works', 'Four steps from sign-up'],
   ['#stages', 'The four stages', 'From idea to income'],
-  ['#inside', 'Inside the hub', 'Your dashboard and your mentor'],
+  ['#faq', 'Questions', 'Answers before you join'],
 ]
 
 const LINKS = [
   ['#about', 'About'],
   ['#how', 'How it works'],
   ['#stages', 'Stages'],
-  ['#inside', 'Inside'],
+  ['#faq', 'FAQ'],
 ]
 
 function Nav() {
@@ -240,666 +251,797 @@ function Nav() {
   )
 }
 
-// ---------- Hero (layout from butter.video): light grey gradient, open space at the top with
-// one cut-out drawing, one big centred line, a short line and one button.
-// The motion lives in the words: letters sharpen out of a blur as the page opens,
-// and the words drift apart at different speeds as you scroll away. ----------
+// ---------- Small parts ----------
 
-// Picture above the headline (background removed). Set to null to leave the space empty.
-const HERO_IMAGE = '/dashboard/idea-bulb-cut.webp'
-
-const HERO_LINE = 'Every idea needs a hub.'
-
-// The headline split into words and letters. Screen readers hear the plain sentence once.
-function Letters({ text }) {
+// Two stacked copies of a label; on hover the letters roll up one after another (CSS only).
+function Swap({ text }) {
+  const row = (extra) => (
+    <span className={`dc-swap__row${extra}`} aria-hidden="true">
+      {[...text].map((c, i) => (
+        <span key={i} style={{ '--i': i }}>
+          {c === ' ' ? '\u00a0' : c}
+        </span>
+      ))}
+    </span>
+  )
   return (
-    <>
+    <span className="dc-swap">
       <span className="visually-hidden">{text}</span>
-      <span aria-hidden="true">
-        {text.split(' ').map((word, i) => (
-          <span key={i}>
-            <span className="b-word">
-              {[...word].map((ch, k) => (
-                <span key={k} className="b-ch">
-                  {ch}
-                </span>
-              ))}
-            </span>{' '}
-          </span>
-        ))}
-      </span>
-    </>
+      {row('')}
+      {row(' dc-swap__row--in')}
+    </span>
   )
 }
 
-function Hero() {
-  const root = useRef(null)
+function Arrow({ up = false }) {
+  return (
+    <svg className="dc-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      {up ? <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /> : <path d="M4.5 11.5l7-7M5.5 4.5h6v6" />}
+    </svg>
+  )
+}
 
+// The site's name in Funnel Display (the display font davidecarusio.it loads), sized to fill
+// the width of its box exactly. Each word is its own piece so the two can drift apart.
+function Wordmark({ className }) {
+  const ref = useRef(null)
   useLayoutEffect(() => {
-    if (reduced()) return undefined
-    const el = root.current
-    const mm = gsap.matchMedia()
-
-    // Blur only where it stays smooth (bigger screens); phones get the same move without it.
-    mm.add({ big: '(min-width: 768px)', small: '(max-width: 767px)' }, (context) => {
-      const blur = (px) => (context.conditions.big ? `blur(${px}px)` : 'blur(0px)')
-      gsap
-        .timeline({ delay: 0.2 })
-        .from('.b-ch', {
-          yPercent: 55,
-          opacity: 0,
-          filter: blur(14),
-          duration: 1.1,
-          ease: 'power3.out',
-          stagger: 0.035,
-          clearProps: 'filter',
-        })
-        .from('.b-hero__img', { opacity: 0, y: 24, duration: 1.4, ease: 'power2.out' }, 0.1)
-        .from('.b-hero__sub', { opacity: 0, filter: blur(8), duration: 1, ease: 'power2.out', clearProps: 'filter' }, 0.7)
-        .from('.b-hero__cta', { opacity: 0, y: 12, duration: 0.8, ease: 'power2.out' }, 0.9)
-
-      // Scrolling away: each word lifts at its own speed, so the line comes apart as it leaves.
-      gsap.to('.b-word', {
-        yPercent: (i) => -40 - i * 35,
-        opacity: 0,
-        ease: 'none',
-        scrollTrigger: { trigger: el, start: 'top top', end: 'bottom 15%', scrub: true },
-      })
-      gsap.to('.b-hero__art', {
-        y: -120,
-        ease: 'none',
-        scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
-      })
-    })
-
-    return () => mm.revert()
+    const text = ref.current
+    const box = text.parentElement
+    const fit = () => {
+      text.style.fontSize = '100px'
+      const w = text.getBoundingClientRect().width
+      if (w) text.style.fontSize = `${(100 * box.clientWidth * 0.995) / w}px`
+    }
+    fit()
+    document.fonts?.ready.then(fit)
+    const ro = new ResizeObserver(fit)
+    ro.observe(box)
+    return () => ro.disconnect()
   }, [])
-
   return (
-    <section className="b-hero" ref={root} aria-labelledby="hero-title">
-      <div className="b-hero__art" aria-hidden="true">
-        {HERO_IMAGE && <img className="b-hero__img" src={HERO_IMAGE} alt="" fetchPriority="high" />}
-      </div>
-      <div className="b-hero__copy">
-        <h1 id="hero-title" className="b-hero__title">
-          <Letters text={HERO_LINE} />
-        </h1>
-        <p className="b-hero__sub">The College of Business Education’s home for student businesses.</p>
-        <Link to="/signup" className="b-hero__cta">
-          Get started
-        </Link>
-      </div>
-    </section>
-  )
-}
-
-// ---------- Below the hero ----------
-
-function Glyph({ icon: Icon }) {
-  return <Icon strokeWidth={1.5} />
-}
-
-// A heading that comes in word by word. Screen readers hear the plain sentence once.
-function Split({ lines }) {
-  return (
-    <>
-      <span className="visually-hidden">{lines.join(' ')}</span>
-      <span aria-hidden="true">
-        {lines.map((line) => (
-          <span key={line} className="h-line">
-            {line.split(' ').map((w, i) => (
-              <span key={i} className="h-wd">
-                {w}{' '}
-              </span>
-            ))}
-          </span>
+    <div className={className} aria-hidden="true">
+      <span ref={ref} className="dc-wordmark">
+        {WORDMARK.split(' ').map((word, i) => (
+          <Fragment key={word}>
+            {i > 0 && ' '}
+            <span className="dc-wordmark__word">{word}</span>
+          </Fragment>
         ))}
       </span>
-    </>
+    </div>
   )
 }
 
-// Smooth scrolling on this page only, driven by GSAP's clock so ScrollTrigger stays in step.
-// Touch screens keep their own scrolling (Lenis leaves touch alone by default).
-function useSmoothScroll() {
+// A small label that follows the pointer over rows marked data-cursor-hover (mouse only).
+function Cursor() {
+  const ref = useRef(null)
   useEffect(() => {
-    if (reduced()) return undefined
-    const lenis = new Lenis({ anchors: true })
-    lenis.on('scroll', ScrollTrigger.update)
-    const tick = (time) => lenis.raf(time * 1000)
-    gsap.ticker.add(tick)
-    gsap.ticker.lagSmoothing(0)
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return undefined
+    const c = ref.current
+    const bubble = c.firstChild
+    const xTo = gsap.quickTo(c, 'x', { duration: 0.4, ease: 'power3.out' })
+    const yTo = gsap.quickTo(c, 'y', { duration: 0.4, ease: 'power3.out' })
+    let raf = 0
+    let x = -100
+    let y = -100
+    const check = () => {
+      raf = 0
+      const under = document.elementFromPoint(x, y)
+      const hit = under?.closest('[data-cursor-hover]')
+      if (!hit) {
+        c.dataset.cursor = ''
+        return
+      }
+      bubble.textContent = hit.dataset.cursorText || ''
+      c.dataset.cursor = x + bubble.offsetWidth + 40 > window.innerWidth ? 'active-edge' : 'active'
+      c.dataset.cursorTheme = under.closest('[data-cursor-image]') ? 'on-image' : 'off-image'
+    }
+    const queue = () => {
+      if (!raf) raf = requestAnimationFrame(check)
+    }
+    const move = (e) => {
+      x = e.clientX
+      y = e.clientY
+      xTo(x)
+      yTo(y)
+      queue()
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    window.addEventListener('scroll', queue, { passive: true })
     return () => {
-      gsap.ticker.remove(tick)
-      gsap.ticker.lagSmoothing(500, 33)
-      lenis.destroy()
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('scroll', queue)
+      cancelAnimationFrame(raf)
+      gsap.killTweensOf(c)
     }
   }, [])
-}
-
-function useBelowMotion(root) {
-  useLayoutEffect(() => {
-    if (reduced()) return undefined
-    const el = root.current
-    const mm = gsap.matchMedia()
-    const ctx = gsap.context(() => {
-      // Statement: words light up one by one as the block scrolls through.
-      gsap.fromTo(
-        '.h-st__w',
-        { opacity: 0.18 },
-        {
-          opacity: 1,
-          ease: 'none',
-          stagger: 0.1,
-          scrollTrigger: { trigger: '.h-statement', start: 'top 75%', end: 'bottom 55%', scrub: 0.4 },
-        },
-      )
-
-      // Rotating word: a new one every 1.4 s.
-      const STEP = 1.4
-      const words = gsap.utils.toArray('.h-word__item')
-      gsap.set(words, { visibility: 'visible', yPercent: (i) => (i ? 110 : 0), opacity: (i) => (i ? 0 : 1) })
-      const loop = gsap.timeline({ repeat: -1, delay: 1 })
-      words.forEach((word, i) => {
-        const next = words[(i + 1) % words.length]
-        loop
-          .to(word, { yPercent: -110, opacity: 0, duration: 0.45, ease: 'power3.inOut' }, i * STEP)
-          .fromTo(next, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.45, ease: 'power3.out' }, i * STEP + 0.1)
-      })
-
-      // Everything marked [data-reveal] rises in once.
-      gsap.utils.toArray('[data-reveal]').forEach((item) =>
-        gsap.from(item, {
-          y: 28,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: item, start: 'top 88%', once: true },
-        }),
-      )
-
-      // Closing drawing drifts a little with the scroll.
-      gsap.fromTo(
-        '.h-final__pic',
-        { y: 40 },
-        { y: -40, ease: 'none', scrollTrigger: { trigger: '.h-final', start: 'top bottom', end: 'bottom top', scrub: true } },
-      )
-
-      // Hub rows: tied to the scroll, one slides left, the other right.
-      const rows = { trigger: '.h-hubs', start: 'top bottom', end: 'bottom top', scrub: true }
-      gsap.fromTo('.h-hubs__row--a', { xPercent: 0 }, { xPercent: -30, ease: 'none', scrollTrigger: rows })
-      gsap.fromTo('.h-hubs__row--b', { xPercent: -30 }, { xPercent: 0, ease: 'none', scrollTrigger: rows })
-
-      // How it works: the heading's second line fills in as you scroll to it.
-      gsap.fromTo(
-        '.h-how__line--fill',
-        { opacity: 0.22 },
-        { opacity: 1, ease: 'none', scrollTrigger: { trigger: '.h-how__title', start: 'top 80%', end: 'top 35%', scrub: true } },
-      )
-
-      // Each row: the big word's letters flow up out of their line one after another, tied to
-      // the scroll (they go back down when you scroll up); number, drawing and line fade in once.
-      gsap.utils.toArray('.h-step').forEach((row) => {
-        gsap.from(row.querySelectorAll('.h-step__ch'), {
-          yPercent: 105,
-          ease: 'power2.out',
-          stagger: 0.08,
-          scrollTrigger: { trigger: row, start: 'top 92%', end: 'top 50%', scrub: 0.6 },
-        })
-        gsap.from(row.querySelectorAll('.h-step__num, .h-step__pic, .h-step__text'), {
-          opacity: 0,
-          y: 16,
-          duration: 0.8,
-          ease: 'power2.out',
-          stagger: 0.08,
-          scrollTrigger: { trigger: row, start: 'top 85%', once: true },
-        })
-      })
-
-      // Inside the hub: the tool rows come in one after another, once.
-      gsap.from('.h-tools__row', {
-        y: 20,
-        opacity: 0,
-        duration: 0.7,
-        ease: 'power2.out',
-        stagger: 0.08,
-        scrollTrigger: { trigger: '.h-tools', start: 'top 80%', once: true },
-      })
-
-      // Footer wordmark rises out of its line as the footer comes up.
-      gsap.from('.h-footer__mark span', {
-        yPercent: 100,
-        ease: 'none',
-        scrollTrigger: { trigger: '.h-footer', start: 'top bottom', end: 'bottom bottom', scrub: true },
-      })
-    }, el)
-
-    // Headings marked [data-split]: words come out of a blur one after another, once (like
-    // butter.video). Phones skip the blur so it stays smooth.
-    mm.add({ big: '(min-width: 768px)', small: '(max-width: 767px)' }, (context) => {
-      gsap.utils.toArray('[data-split]', el).forEach((heading) =>
-        gsap.from(heading.querySelectorAll('.h-wd'), {
-          opacity: 0,
-          yPercent: 25,
-          filter: context.conditions.big ? 'blur(14px)' : 'blur(0px)',
-          duration: 1.2,
-          ease: 'power2.out',
-          stagger: 0.07,
-          clearProps: 'filter',
-          scrollTrigger: { trigger: heading, start: 'top 85%', once: true },
-        }),
-      )
-    })
-
-    // Computers and tablets: the journey panel's playhead follows the scroll.
-    mm.add('(min-width: 760px)', () => {
-      const panel = el.querySelector('.h-tl')
-      const track = panel.querySelector('.h-tl__ruler')
-      const tiles = [...panel.querySelectorAll('.h-tl__tile')]
-      const now = panel.querySelector('.h-tl__now')
-      const plain = now.textContent
-      let at = -1
-      const show = (i) => {
-        if (i === at) return
-        at = i
-        tiles.forEach((tile, k) => {
-          tile.classList.toggle('is-on', k <= i)
-          tile.classList.toggle('is-now', k === i)
-        })
-        now.textContent = `Stage ${i + 1} of 4 · ${STAGES[i][1]}`
-      }
-      panel.classList.add('is-live')
-      show(0)
-      gsap
-        .timeline({
-          onUpdate() {
-            show(Math.min(3, Math.floor(this.progress() * 4)))
-          },
-          scrollTrigger: { trigger: panel, start: 'top 75%', end: 'bottom 30%', scrub: 0.6, invalidateOnRefresh: true },
-        })
-        .fromTo('.h-tl__head', { x: 0 }, { x: () => track.clientWidth, ease: 'none' }, 0)
-        .fromTo('.h-tl__sel', { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0)
-      return () => {
-        panel.classList.remove('is-live')
-        tiles.forEach((tile) => tile.classList.remove('is-on', 'is-now'))
-        now.textContent = plain
-      }
-    })
-
-    // Inside the hub: hovering a tool row shows its clip in a rounded frame that follows the
-    // pointer and tilts a little with the movement. Mouse only; phones and reduced motion skip it.
-    mm.add('(hover: hover) and (pointer: fine)', () => {
-      const list = el.querySelector('.h-tools')
-      const peek = el.querySelector('.h-peek')
-      const clips = [...peek.querySelectorAll('video')]
-      const tag = peek.querySelector('.h-peek__tag')
-      const rows = [...list.querySelectorAll('[data-peek]')]
-      gsap.set(peek, { xPercent: -50, yPercent: -112, scale: 0.6, autoAlpha: 0 })
-      const toX = gsap.quickTo(peek, 'x', { duration: 0.55, ease: 'power3' })
-      const toY = gsap.quickTo(peek, 'y', { duration: 0.55, ease: 'power3' })
-      const toR = gsap.quickTo(peek, 'rotation', { duration: 0.6, ease: 'power3' })
-      let at = -1
-      const show = (i) => {
-        if (i === at) return
-        at = i
-        clips.forEach((clip, k) => {
-          clip.classList.toggle('is-on', k === i)
-          if (k === i) clip.play().catch(() => {})
-          else clip.pause()
-        })
-        tag.textContent = TOOLS[i][1]
-      }
-      const move = (e) => {
-        toX(e.clientX)
-        toY(e.clientY)
-        toR(gsap.utils.clamp(-8, 8, e.movementX * 0.5))
-      }
-      const enter = (e) => {
-        gsap.set(peek, { x: e.clientX, y: e.clientY })
-        gsap.to(peek, { scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power3.out', overwrite: 'auto' })
-        window.addEventListener('pointermove', move)
-      }
-      const leave = () => {
-        window.removeEventListener('pointermove', move)
-        gsap.to(peek, {
-          scale: 0.6,
-          autoAlpha: 0,
-          duration: 0.3,
-          ease: 'power2.in',
-          overwrite: 'auto',
-          onComplete: () => {
-            clips.forEach((clip) => clip.pause())
-            at = -1
-          },
-        })
-      }
-      const over = rows.map((row) => {
-        const onRow = () => show(Number(row.dataset.peek))
-        row.addEventListener('pointerenter', onRow)
-        return () => row.removeEventListener('pointerenter', onRow)
-      })
-      list.addEventListener('pointerenter', enter)
-      list.addEventListener('pointerleave', leave)
-      return () => {
-        list.removeEventListener('pointerenter', enter)
-        list.removeEventListener('pointerleave', leave)
-        window.removeEventListener('pointermove', move)
-        over.forEach((off) => off())
-        clips.forEach((clip) => clip.pause())
-      }
-    })
-
-    return () => {
-      mm.revert()
-      ctx.revert()
-    }
-  }, [root])
-}
-
-function HubRows() {
-  const half = Math.ceil(HUBS.length / 2)
   return (
-    <section className="h-hubs" aria-labelledby="hubs-title">
-      <p id="hubs-title" className="h-hubs__label">
-        {HUBS.length} hubs. One for every kind of idea.
-      </p>
-      <ul className="h-hubs__row h-hubs__row--a">
-        {HUBS.slice(0, half).map((hub) => (
-          <li key={hub}>{hub}</li>
-        ))}
-      </ul>
-      <ul className="h-hubs__row h-hubs__row--b">
-        {HUBS.slice(half).map((hub) => (
-          <li key={hub}>{hub}</li>
-        ))}
-      </ul>
+    <div ref={ref} className="dc-cursor" aria-hidden="true">
+      <span className="dc-cursor__bubble" />
+    </div>
+  )
+}
+
+// Dot grid behind the statements. With a mouse, dots near the pointer grow and turn light blue.
+function Dots() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const cv = ref.current
+    const ctx = cv.getContext('2d')
+    if (!ctx) return undefined
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduced()
+    const state = { hover: 0 }
+    const pointer = { x: -9999, y: -9999 }
+    let w = 0
+    let h = 0
+    let em = 16
+    let down = false
+    let visible = false
+    let raf = 0
+
+    const draw = () => {
+      raf = 0
+      ctx.clearRect(0, 0, w, h)
+      const gap = 3 * em
+      const size = 0.125 * em * 1.6
+      const radius = 10 * em
+      const max = 1.75 * (down ? 1.5 : 1)
+      const ox = (w % gap) / 2
+      const oy = (h % gap) / 2
+      for (let x = ox; x <= w; x += gap) {
+        for (let y = oy; y <= h; y += gap) {
+          const d = Math.hypot(x - pointer.x, y - pointer.y)
+          const k = Math.max(0, 1 - d / radius) * state.hover
+          const s = size * (1 + (max - 1) * k)
+          // white (255,255,255) at 22% → light blue (96,165,250) at full strength
+          const r = Math.round(255 + (96 - 255) * k)
+          const g = Math.round(255 + (165 - 255) * k)
+          const b = Math.round(255 + (250 - 255) * k)
+          ctx.fillStyle = `rgba(${r},${g},${b},${0.22 + 0.78 * k})`
+          ctx.fillRect(x - s / 2, y - s / 2, s, s)
+        }
+      }
+    }
+    const queue = () => {
+      if (!raf && visible) raf = requestAnimationFrame(draw)
+    }
+    const resize = () => {
+      w = cv.clientWidth
+      h = cv.clientHeight
+      cv.width = w
+      cv.height = h
+      em = parseFloat(getComputedStyle(cv).fontSize) || 16
+      queue()
+    }
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting
+      queue()
+    })
+    io.observe(cv)
+    const ro = new ResizeObserver(resize)
+    ro.observe(cv)
+    resize()
+
+    if (!fine) return () => {
+      io.disconnect()
+      ro.disconnect()
+      cancelAnimationFrame(raf)
+    }
+
+    const toHover = (v) => gsap.to(state, { hover: v, duration: 0.9, ease: 'power4.out', overwrite: true, onUpdate: queue })
+    const move = (e) => {
+      const r = cv.getBoundingClientRect()
+      pointer.x = e.clientX - r.left
+      pointer.y = e.clientY - r.top
+      const inside = pointer.x >= 0 && pointer.y >= 0 && pointer.x <= r.width && pointer.y <= r.height
+      if (inside !== state.inside) {
+        state.inside = inside
+        toHover(inside ? 1 : 0)
+      }
+      queue()
+    }
+    const press = (v) => () => {
+      down = v
+      queue()
+    }
+    const onDown = press(true)
+    const onUp = press(false)
+    window.addEventListener('pointermove', move, { passive: true })
+    window.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointerup', onUp)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointerup', onUp)
+      io.disconnect()
+      ro.disconnect()
+      cancelAnimationFrame(raf)
+      gsap.killTweensOf(state)
+    }
+  }, [])
+  return <canvas ref={ref} className="dc-dots" aria-hidden="true" />
+}
+
+// ---------- Sections ----------
+
+function Loader() {
+  return (
+    <div className="dc-loader" aria-hidden="true">
+      <div className="dc-loader__bg">
+        <div className="dc-loader__bar" />
+      </div>
+      <div className="dc-loader__container">
+        <div className="dc-loader__logo">
+          <span className="is-base">{APP_NAME}</span>
+          <span className="is-top">{APP_NAME}</span>
+        </div>
+        <div className="dc-loader__words">
+          <span className="dc-loader__word">every idea</span>
+          <span className="dc-loader__word">needs a hub</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Hero({ coarse }) {
+  return (
+    <section id="top" className="dc-hero" tabIndex={-1} data-shutter data-shutter-start="top top">
+      <div className="dc-hero__bg">
+        <FlowGradient maxDpr={coarse ? 0.5 : 1.25} />
+      </div>
+      <div className="dc-hero__inner dc-container">
+        <div className="dc-hero__copy">
+          <div className="dc-hero__text">
+            <h1 className="dc-hero__lead" data-hero="lines">
+              {HERO_LINES[0]} <span>{HERO_LINES[1]}</span>
+            </h1>
+            <p className="dc-hero__lead dc-hero__sub" data-hero="lines">
+              {HERO_TEXT}
+            </p>
+            <div className="dc-hero__cta" data-hero="cta">
+              <Link to="/signup" className="dc-btn">
+                <Swap text="Create your account" />
+                <Arrow />
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="dc-hero__foot">
+          <p className="dc-mono dc-hero__eyebrow" data-hero="eyebrow">
+            College of Business Education
+          </p>
+          <div className="dc-rule dc-hero__rule" />
+          <Wordmark className="dc-hero__mark" />
+        </div>
+      </div>
     </section>
   )
 }
 
-// How it works, row style from brancon.vercel.app (Josh, 16 Nov 2026): a circled number,
-// the drawing, one short line, and one huge word on the right whose letters flow up with the scroll.
-function HowItWorks() {
+function Statements() {
   return (
-    <section className="h-how" id="how" tabIndex={-1} aria-labelledby="how-title">
-      <div className="h-wrap">
-        <h2 id="how-title" className="h-how__title">
-          <span className="visually-hidden">One place to grow your business.</span>
-          <span aria-hidden="true">
-            <span className="h-how__line">One place to grow</span>
-            <span className="h-how__line h-how__line--fill">your business.</span>
-          </span>
-        </h2>
-        <ol className="h-steps">
-          {STEPS.map(([pic, title, text], i) => (
-            <li key={title} className="h-step">
-              <span className="h-step__num" aria-hidden="true">
-                0{i + 1}
-              </span>
-              <h3 className="h-step__word">
-                <span className="visually-hidden">{title}</span>
-                <span className="h-step__mask" aria-hidden="true">
-                  {[...title].map((ch, k) => (
-                    <span key={k} className="h-step__ch">
-                      {ch}
-                    </span>
-                  ))}
-                </span>
-              </h3>
-              <p className="h-step__text">{text}</p>
-              <img className="h-step__pic" src={pic} alt="" loading="lazy" decoding="async" />
-            </li>
+    <section id="about" className="dc-statements" aria-label="What we do">
+      <div className="dc-statements__inner">
+        <Dots />
+        <div className="dc-statements__stack">
+          {STATEMENTS.map((line) => (
+            <h2 key={line} className="dc-statements__line">
+              {line}
+            </h2>
           ))}
-        </ol>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Label({ children, id }) {
+  return (
+    <div className="dc-label">
+      <h2 id={id} className="dc-label__text">
+        {children}
+      </h2>
+      <div className="dc-rule" />
+    </div>
+  )
+}
+
+// Hover (mouse): a light-blue panel wipes up behind the drawing, the drawing lifts a little
+// and an arrow slides in beside the title. No videos (Josh, 16 Nov 2026).
+function Step({ step, index }) {
+  return (
+    <Link to="/signup" className="dc-step" data-cursor-hover data-cursor-text="Get started">
+      <div className="dc-step__media" data-cursor-image>
+        <div className="dc-step__pic">
+          <img src={step.img} alt="" loading="lazy" decoding="async" data-parallax />
+        </div>
+      </div>
+      <div className="dc-step__body">
+        <span className="dc-mono dc-step__num">{String(index + 1).padStart(2, '0')}</span>
+        <h3 className="dc-step__title">
+          {step.title}
+          <Arrow />
+        </h3>
+        <p className="dc-step__text">{step.text}</p>
+        <ul className="dc-tags" aria-label="Good to know">
+          {step.tags.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      </div>
+    </Link>
+  )
+}
+
+function Steps() {
+  return (
+    <section id="how" className="dc-steps" aria-labelledby="how-title" data-shutter data-shutter-start="top 80%">
+      <div className="dc-container">
+        <Label id="how-title">How it works</Label>
+        <div className="dc-steps__list">
+          {STEPS.map((step, i) => (
+            <Step key={step.title} step={step} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
 function Stages() {
+  const [active, setActive] = useState(0)
   return (
-    <section className="h-stages" id="stages" tabIndex={-1} aria-labelledby="stages-title">
-      <div className="h-wrap">
-        <p className="h-label">The stages</p>
-        <h2 id="stages-title" className="h-title" data-split>
-          <Split lines={['From idea to income,', 'one stage at a time.']} />
-        </h2>
-        <div className="h-tl">
-          <div className="h-tl__top">
-            <span className="h-tl__chip">
-              <Route size={16} aria-hidden="true" /> Your journey
-            </span>
-            <span className="h-tl__now" aria-hidden="true">
-              4 stages
-            </span>
+    <section id="stages" className="dc-stages" aria-labelledby="stages-title">
+      <div className="dc-container">
+        <Label id="stages-title">The four stages</Label>
+        <div className="dc-stages__grid">
+          <div className="dc-stages__side">
+            <div className="dc-stages__media">
+              {STAGES.map((s, i) => (
+                <img
+                  key={s.name}
+                  src={s.img}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className={`${s.photo ? 'is-photo' : ''}${i === active ? ' is-active' : ''}`}
+                />
+              ))}
+            </div>
+            <p className="dc-stages__desc" aria-live="polite">
+              {STAGES[active].text}
+            </p>
           </div>
-          <div className="h-tl__ruler" aria-hidden="true">
-            {STAGES.map((_, i) => (
-              <span key={i} className="h-tl__mark" style={{ left: `${i * 25}%` }}>
-                0{i + 1}
-              </span>
-            ))}
-            <span className="h-tl__sel" />
-            <span className="h-tl__head" />
-          </div>
-          <ol className="h-tl__tiles">
-            {STAGES.map(([Icon, name, text]) => (
-              <li key={name} className="h-tl__tile">
-                <span className="h-tl__icon">
-                  <Icon strokeWidth={1.5} aria-hidden="true" />
-                </span>
-                <div>
-                  <h3>{name}</h3>
-                  <p>{text}</p>
-                </div>
+          <ul className="dc-stages__list">
+            {STAGES.map((s, i) => (
+              <li key={s.name}>
+                <button
+                  type="button"
+                  className={`dc-stages__item${i === active ? ' is-active' : ''}`}
+                  aria-pressed={i === active}
+                  onMouseEnter={() => setActive(i)}
+                  onFocus={() => setActive(i)}
+                  onClick={() => setActive(i)}
+                >
+                  {s.name}
+                </button>
               </li>
             ))}
-          </ol>
+          </ul>
+        </div>
+        <p className="dc-stages__slogan" data-highlight>
+          One hub, one mentor, one clear path. Your idea, your videos and your mentor’s feedback stay together, so you
+          always know what to do next.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function Faq() {
+  const [open, setOpen] = useState(-1)
+  return (
+    <section id="faq" className="dc-faq" aria-labelledby="faq-label">
+      <div className="dc-container">
+        <Label id="faq-label">Questions</Label>
+        <h2 className="dc-faq__title" data-split="lines">
+          Questions students
+          <br />
+          ask us most.
+        </h2>
+        <div className="dc-faq__list">
+          {FAQ.map(([q, a], i) => {
+            const isOpen = open === i
+            return (
+              <div key={q} className={`dc-faq__item${isOpen ? ' is-open' : ''}`}>
+                <h3 className="dc-faq__q">
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-${i}`}
+                    id={`faq-q-${i}`}
+                    onClick={() => setOpen(isOpen ? -1 : i)}
+                  >
+                    <span>{q}</span>
+                    <span className="dc-faq__plus" aria-hidden="true" />
+                  </button>
+                </h3>
+                <div id={`faq-${i}`} role="region" aria-labelledby={`faq-q-${i}`} className="dc-faq__a" inert={!isOpen}>
+                  <div>
+                    <p>{a}</p>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        <div className="dc-faq__more">
+          <p className="dc-faq__more-title">
+            Still have a question?
+            <br />
+            <span>Give us a call.</span>
+          </p>
+          <a href={`tel:${CONTACT.tel}`} className="dc-btn dc-btn--light">
+            <Swap text={`Call ${CONTACT.shown}`} />
+            <Arrow />
+          </a>
         </div>
       </div>
     </section>
   )
 }
 
-// The student's tools, all real parts of the dashboard: [icon, name, what it is, hover clip].
-// Clips: 3.5 s, silent, in public/landing/tools/<clip>.mp4 with a <clip>.webp still (cut from
-// Josh's two videos in design-originals/). Swap a file to change what a row shows.
-const TOOLS = [
-  [Lightbulb, 'Idea', 'Your business, your hub and your stage', 'idea'],
-  [Video, 'Progress', 'Short videos your mentor approves', 'progress'],
-  [BookOpen, 'Lessons', 'Posted by the mentors in your hub', 'lessons'],
-  [UserRound, 'Mentor', 'Someone who knows your field', 'mentor'],
-  [CalendarDays, 'Meetings', 'Hub meetings, joined with one link', 'meetings'],
-  [MessageCircle, 'Messages', 'Write to your mentor directly', 'messages'],
-]
-
-function Inside() {
+function Footer({ toTop }) {
   return (
-    <section className="h-inside" id="inside" tabIndex={-1} aria-labelledby="inside-title">
-      <div className="h-wrap h-inside__grid">
-        <div className="h-inside__head">
-          <h2 id="inside-title" className="h-title" data-split>
-            <Split lines={['Your hub, your mentor', 'and your next step,', 'in one place.']} />
-          </h2>
-          <p className="h-inside__text" data-reveal>
-            Students see their stage, their mentor and what to do next. Mentors see only the students in their hubs,
-            review progress videos and post lessons.
-          </p>
-          <div data-reveal>
-            <Link to="/signup" className="h-btn h-btn--primary">
-              Create your account <ArrowRight size={18} aria-hidden="true" />
-            </Link>
+    <footer className="dc-footer" data-footer-parallax>
+      <div className="dc-footer__inner">
+        <div className="dc-footer__cols">
+          <div>
+            <h2 className="dc-mono dc-footer__label">Explore</h2>
+            <ul className="dc-footer__links">
+              <li>
+                <a href="#how">How it works</a>
+              </li>
+              <li>
+                <a href="#stages">The stages</a>
+              </li>
+              <li>
+                <a href="#faq">Questions</a>
+              </li>
+            </ul>
+            <button type="button" className="dc-footer__top" onClick={toTop}>
+              Back to top <Arrow up />
+            </button>
+          </div>
+          <div>
+            <h2 className="dc-mono dc-footer__label">Your account</h2>
+            <ul className="dc-footer__links">
+              <li>
+                <Link to="/login">Sign in</Link>
+              </li>
+              <li>
+                <Link to="/signup">Create an account</Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h2 className="dc-mono dc-footer__label">Contact</h2>
+            <ul className="dc-footer__links">
+              <li>
+                <a href={`tel:${CONTACT.tel}`}>
+                  Call us <Arrow />
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
-
-        <ul className="h-tools" aria-label="What students get">
-          {TOOLS.map(([Icon, name, note], i) => (
-            <li key={name} className="h-tools__row" data-peek={i}>
-              <Icon className="h-tools__icon" strokeWidth={1.5} aria-hidden="true" />
-              <span className="h-tools__name">{name}</span>
-              <span className="h-tools__note">{note}</span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Hover a row (computer with a mouse): a short clip pops up and follows the pointer. */}
-        <div className="h-peek" aria-hidden="true">
-          {TOOLS.map(([, name, , clip]) => (
-            <video
-              key={name}
-              className="h-peek__clip"
-              src={`/landing/tools/${clip}.mp4`}
-              poster={`/landing/tools/${clip}.webp`}
-              muted
-              loop
-              playsInline
-              preload="none"
-              tabIndex={-1}
-            />
-          ))}
-          <span className="h-peek__tag" />
+        <div className="dc-mono dc-footer__bar">
+          <span>© {YEAR} College of Business Education</span>
+          <span>Incubation Hub</span>
         </div>
+        <Wordmark className="dc-footer__mark" />
       </div>
-    </section>
+      <div className="dc-footer__shade" aria-hidden="true" />
+    </footer>
   )
 }
 
+// ---------- Motion ----------
+// Everything runs inside one gsap.context, so leaving the page removes every trigger and split.
+
+function useMotion(root, withLoader, lenisRef) {
+  useLayoutEffect(() => {
+    const el = root.current
+    const html = document.documentElement
+    html.classList.add('dc-root')
+    if (reduced()) {
+      el.classList.remove('is-pre')
+      return () => html.classList.remove('dc-root')
+    }
+
+    gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase)
+    CustomEase.create('loader', '0.85, 0, 0.15, 1')
+
+    const lenis = new Lenis({ anchors: true })
+    lenisRef.current = lenis
+    lenis.on('scroll', ScrollTrigger.update)
+    const tick = (time) => lenis.raf(time * 1000)
+    gsap.ticker.add(tick)
+    gsap.ticker.lagSmoothing(0)
+    if (withLoader) lenis.stop()
+
+    let dead = false
+    let mm = null
+    const ctx = gsap.context(() => {}, el)
+
+    const build = () => {
+      if (dead) return
+      ctx.add(() => {
+        el.classList.remove('is-pre')
+
+        // Hero on arrival: the words rise one after another out of their lines, the button
+        // comes up, the rule draws, and the big name fades up slowly while its two words ease
+        // outward into place.
+        const heroSplits = gsap.utils
+          .toArray('[data-hero="lines"]')
+          .map((n) => SplitText.create(n, { type: 'lines,words', mask: 'lines', linesClass: 'dc-line' }))
+        const eyebrow = SplitText.create('[data-hero="eyebrow"]', { type: 'lines', mask: 'lines' })
+        const [markFirst, markLast] = gsap.utils.toArray('.dc-hero__mark .dc-wordmark__word')
+        const hero = gsap.timeline({
+          paused: true,
+          onComplete: () => heroSplits.forEach((s) => s.revert()),
+        })
+        hero
+          .from(
+            heroSplits.flatMap((s) => s.words),
+            { yPercent: 110, duration: 1.1, stagger: 0.03, ease: 'expo.out' },
+            0.15,
+          )
+          .from('[data-hero="cta"]', { autoAlpha: 0, y: '1.5em', duration: 1, ease: 'expo.out' }, 0.9)
+          .from(eyebrow.lines, { opacity: 0, y: '1em', duration: 0.6, ease: 'power2.inOut', stagger: 0.1 }, 0.2)
+          .from('.dc-hero__rule', { scaleX: 0, duration: 1.2, ease: 'power2.inOut' }, 0.2)
+          .from('.dc-hero__mark', { autoAlpha: 0, y: 64, duration: 2.6, ease: 'power3.out' }, 0.1)
+          // xPercent here, x on scroll below: GSAP adds the two, so they never fight.
+          .from(markFirst, { xPercent: 4, duration: 2.6, ease: 'power3.out' }, 0.1)
+          .from(markLast, { xPercent: -10, duration: 2.6, ease: 'power3.out' }, 0.1)
+
+        // The big name's two words keep drifting apart as you scroll off the hero
+        // (his site: 4em each way, smoothed 0.8s); the footer's come together as it arrives.
+        gsap
+          .timeline({
+            scrollTrigger: { trigger: '.dc-hero__mark', start: 'clamp(top bottom)', end: 'clamp(bottom top)', scrub: 0.8 },
+          })
+          .fromTo(markFirst, { x: 0 }, { x: '-4rem', ease: 'none' }, 0)
+          .fromTo(markLast, { x: 0 }, { x: '4rem', ease: 'none' }, 0)
+        const [footFirst, footLast] = gsap.utils.toArray('.dc-footer__mark .dc-wordmark__word')
+        gsap
+          .timeline({
+            scrollTrigger: { trigger: '.dc-footer__mark', start: 'top bottom', end: 'bottom bottom', scrub: 0.8 },
+          })
+          .fromTo('.dc-footer__mark .dc-wordmark', { autoAlpha: 0 }, { autoAlpha: 1, ease: 'none', duration: 0.5 }, 0)
+          .fromTo(footFirst, { x: '-4rem' }, { x: 0, ease: 'none', duration: 1 }, 0)
+          .fromTo(footLast, { x: '4rem' }, { x: 0, ease: 'none', duration: 1 }, 0)
+
+        // Loader: bar fills while the name wipes in; two words swap at the bottom; the sheet lifts.
+        if (withLoader) {
+          try {
+            window.sessionStorage.setItem('cbe-loader-seen', '1')
+          } catch {
+            /* private window: the loader just plays again next time */
+          }
+          const words = gsap.utils
+            .toArray('.dc-loader__word')
+            .map((n) => SplitText.create(n, { type: 'lines,chars', mask: 'lines' }))
+          gsap.set(
+            words.flatMap((w) => w.chars),
+            { autoAlpha: 0, yPercent: 125 },
+          )
+          const tl = gsap.timeline({ defaults: { ease: 'loader', duration: 3 }, onComplete: () => lenis.start() })
+          tl.to('.dc-loader__bar', { scaleX: 1 })
+            .to('.dc-loader__logo .is-top', { clipPath: 'inset(0% 0% 0% 0%)' }, '<')
+            .to('.dc-loader__container', { autoAlpha: 0, duration: 0.5 })
+            .to('.dc-loader__bar', { scaleX: 0, transformOrigin: 'right center', duration: 0.5 }, '<')
+            .add('hide', '<')
+            .to('.dc-loader__bg', { yPercent: -101, duration: 1 }, 'hide')
+            .call(() => hero.play(), [], 'hide+=0.5')
+            .set('.dc-loader', { display: 'none' })
+          const [first, second] = words
+          tl.to(first.chars, { autoAlpha: 1, yPercent: 0, duration: 0.6, stagger: { each: 0.02 } }, 0)
+            .to(first.chars, { autoAlpha: 0, yPercent: -125, duration: 0.4, stagger: { each: 0.02 } }, '>+=0.4')
+            .to(second.chars, { autoAlpha: 1, yPercent: 0, duration: 0.6, stagger: { each: 0.02 } }, '<')
+            .to(second.chars, { autoAlpha: 0, yPercent: -125, duration: 0.4, stagger: { each: 0.02 } }, '>+=0.4')
+        } else {
+          hero.play()
+        }
+
+        // Hero drifts down as you scroll off it.
+        gsap.fromTo(
+          '.dc-hero__inner',
+          { yPercent: 0 },
+          {
+            yPercent: 40,
+            ease: 'none',
+            scrollTrigger: { trigger: '.dc-hero', start: 'clamp(top top)', end: 'clamp(bottom top)', scrub: true },
+          },
+        )
+
+        // Headings rise line by line out of a mask as they come into view.
+        gsap.utils.toArray('[data-split]').forEach((heading) => {
+          SplitText.create(heading, {
+            type: 'lines',
+            mask: 'lines',
+            autoSplit: true,
+            linesClass: 'dc-line',
+            onSplit: (s) =>
+              gsap.from(s.lines, {
+                yPercent: 110,
+                duration: 0.8,
+                stagger: 0.08,
+                ease: 'expo.out',
+                scrollTrigger: { trigger: heading, start: 'clamp(top 80%)', once: true },
+              }),
+          })
+        })
+
+        // Letters light up one by one as you scroll through the line.
+        gsap.utils.toArray('[data-highlight]').forEach((line) => {
+          SplitText.create(line, {
+            type: 'words, chars',
+            autoSplit: true,
+            onSplit: (s) =>
+              gsap.from(s.chars, {
+                opacity: 0.2,
+                stagger: 0.1,
+                ease: 'none',
+                scrollTrigger: { trigger: line, start: 'top 90%', end: 'center 40%', scrub: true },
+              }),
+          })
+        })
+
+        // Statements: each line fades in letter by letter, then is swallowed from its end as the
+        // next one arrives; the words turn navy as the background turns white.
+        const wrap = el.querySelector('.dc-statements')
+        const lines = gsap.utils.toArray('.dc-statements__line')
+        const master = gsap.timeline({
+          scrollTrigger: { trigger: wrap, start: 'top 40%', end: 'bottom bottom', scrub: true },
+        })
+        lines.forEach((line, i) => {
+          const s = SplitText.create(line, { type: 'words,chars' })
+          const t = gsap.timeline()
+          t.from(s.chars, { autoAlpha: 0, stagger: { amount: 0.7, from: 'start' }, duration: 0.7 })
+          if (i < lines.length - 1) t.to(s.chars, { autoAlpha: 0, stagger: { amount: 0.7, from: 'end' }, duration: 0.7 })
+          if (i === 0) master.add(t)
+          else master.add(t, '-=0.15')
+        })
+        const ink = getComputedStyle(el).getPropertyValue('--dc-ink').trim()
+        master.to(
+          '.dc-statements__stack',
+          { color: ink, ease: 'none', duration: master.duration() * 0.3 },
+          master.duration() * 0.5,
+        )
+
+        // Pictures in the rows drift inside their frames (not on phones).
+        mm = gsap.matchMedia()
+        mm.add('(min-width: 768px)', () => {
+          gsap.utils.toArray('[data-parallax]').forEach((img) => {
+            gsap.fromTo(
+              img,
+              { yPercent: 8 },
+              {
+                yPercent: -8,
+                ease: 'none',
+                scrollTrigger: { trigger: img.parentElement, start: 'clamp(top bottom)', end: 'clamp(bottom top)', scrub: true },
+              },
+            )
+          })
+        })
+
+        // Dark bars grow up over a light section as the dark one below arrives.
+        mm.add(
+          { desk: '(min-width: 992px)', tab: '(min-width: 768px) and (max-width: 991px)', phone: '(max-width: 767px)' },
+          (c) => {
+            const count = c.conditions.desk ? 16 : c.conditions.tab ? 10 : 6
+            const panels = gsap.utils.toArray('[data-shutter]').map((section) => {
+              const panel = document.createElement('div')
+              panel.className = 'dc-shutter'
+              panel.setAttribute('aria-hidden', 'true')
+              for (let i = 0; i < count; i += 1) panel.append(document.createElement('div'))
+              section.append(panel)
+              gsap.set(panel.children, { scaleY: 0, transformOrigin: 'center bottom' })
+              gsap.timeline({
+                scrollTrigger: {
+                  trigger: panel,
+                  start: section.dataset.shutterStart || 'top top',
+                  end: 'bottom top',
+                  scrub: true,
+                },
+              }).to(panel.children, { scaleY: 1, duration: 0.1, stagger: { each: 0.01, from: 'end' }, ease: 'none' })
+              return panel
+            })
+            return () => panels.forEach((p) => p.remove())
+          },
+        )
+
+        // Footer slides up from under the page above, lightening as it comes.
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: '.dc-footer',
+              start: 'clamp(top bottom)',
+              end: 'clamp(top top)',
+              scrub: true,
+            },
+          })
+          .from('.dc-footer__inner', { yPercent: -25, ease: 'none' })
+          .from('.dc-footer__shade', { opacity: 0.5, ease: 'none' }, '<')
+
+        ScrollTrigger.refresh()
+      })
+    }
+
+    // Split only once the fonts are in, so the lines break where they will stay
+    // (gives up waiting after 2 seconds on a slow connection).
+    const fonts = document.fonts
+      ? Promise.all([
+          document.fonts.load('600 16px "Geist Variable"'),
+          document.fonts.load('600 16px "Geist Mono Variable"'),
+          document.fonts.load('800 16px "Funnel Display Variable"'),
+        ])
+      : Promise.resolve()
+    Promise.race([fonts, new Promise((r) => setTimeout(r, 2000))])
+      .catch(() => {})
+      .then(build)
+
+    return () => {
+      dead = true
+      mm?.revert()
+      ctx.revert()
+      gsap.ticker.remove(tick)
+      gsap.ticker.lagSmoothing(500, 33)
+      lenis.destroy()
+      lenisRef.current = null
+      html.classList.remove('dc-root')
+    }
+  }, [root, withLoader, lenisRef])
+}
+
+// ---------- Page ----------
+
 export function Landing() {
-  useTitle('Welcome')
+  useTitle('')
   const root = useRef(null)
-  useSmoothScroll()
-  useBelowMotion(root)
+  const lenis = useRef(null)
+  const [withLoader] = useState(shouldPlayLoader)
+  const [motion] = useState(() => typeof window !== 'undefined' && !reduced())
+  const [coarse] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(hover: none), (pointer: coarse)').matches,
+  )
+  useMotion(root, withLoader, lenis)
+
+  const toTop = () => {
+    if (lenis.current) lenis.current.scrollTo(0, { lerp: 0.1 })
+    else window.scrollTo({ top: 0 })
+    document.getElementById('top')?.focus({ preventScroll: true })
+  }
 
   return (
-    <div className="home" ref={root}>
+    <div ref={root} className={`home dc${motion ? ' is-pre' : ''}`}>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
+      {withLoader && <Loader />}
+      <Cursor />
       <Nav />
-
       <main id="main" tabIndex={-1}>
-        <Hero />
-
-        <section className="h-statement" id="about" tabIndex={-1} aria-label="What we do">
-          <p className="h-statement__text">
-            {STATEMENT.map((part, i) =>
-              typeof part === 'string' ? (
-                <span key={i} className="h-st__w">
-                  {part}{' '}
-                </span>
-              ) : (
-                <span key={i} className="h-st__w h-st__icon" aria-hidden="true">
-                  <Glyph icon={part} />{' '}
-                </span>
-              ),
-            )}
-          </p>
-        </section>
-
-        <HubRows />
-
-        <section className="h-start">
-          <div className="h-wrap">
-            <h2 className="h-start__title" data-reveal>
-              <span className="visually-hidden">Turn your idea into a business.</span>
-              <span aria-hidden="true">
-                Turn your{' '}
-                <span className="h-word">
-                  {WORDS.map((w) => (
-                    <span key={w} className="h-word__item">
-                      {w}
-                    </span>
-                  ))}
-                </span>
-                <br />
-                into a business.
-              </span>
-            </h2>
-            <div className="h-start__body" data-reveal>
-              <p>
-                Join an innovation hub at the College of Business Education, get a mentor in your field, and grow your
-                business one stage at a time.
-              </p>
-              <div className="h-start__ctas">
-                <Link to="/signup" className="h-btn h-btn--primary">
-                  Create your account <ArrowRight size={18} aria-hidden="true" />
-                </Link>
-                <Link to="/login" className="h-btn h-btn--ghost">
-                  Sign in
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <HowItWorks />
+        <Hero coarse={coarse} />
+        <Statements />
+        <Steps />
         <Stages />
-        <Inside />
-
-        <section className="h-final" aria-labelledby="final-title">
-          <div className="h-wrap h-final__grid">
-            <div>
-              <h2 id="final-title" className="h-final__title" data-split>
-                <Split lines={['Ready to start', 'your business?']} />
-              </h2>
-              <p className="h-final__text" data-reveal>
-                It takes one minute to create your account.
-              </p>
-              <div className="h-start__ctas" data-reveal>
-                <Link to="/signup" className="h-btn h-btn--primary">
-                  Create your account <ArrowRight size={18} aria-hidden="true" />
-                </Link>
-                <Link to="/login" className="h-btn h-btn--ghost">
-                  Sign in
-                </Link>
-              </div>
-            </div>
-            <img className="h-final__pic" src="/dashboard/idea-carry-cut.webp" alt="" loading="lazy" decoding="async" />
-          </div>
-        </section>
+        <Faq />
       </main>
-
-      {/* Footer (layout from butter.video): grey, columns with small labels and big links,
-          and the name huge across the bottom in Josh's logo font. */}
-      <footer className="h-footer">
-        <div className="h-wrap">
-          <div className="h-footer__cols">
-            <div className="h-footer__brand">
-              <p className="h-footer__logo">
-                <span className="h-nav__mark" aria-hidden="true">
-                  CBE
-                </span>
-                <span className="h-footer__name">Incubation Hub</span>
-              </p>
-              <p className="h-footer__line">Every idea needs a hub.</p>
-            </div>
-            <nav className="h-footer__col" aria-label="Explore">
-              <p className="h-footer__head">Explore</p>
-              <a href="#about">What we do</a>
-              <a href="#how">How it works</a>
-              <a href="#stages">The four stages</a>
-              <a href="#inside">Inside the hub</a>
-            </nav>
-            <nav className="h-footer__col" aria-label="Your account">
-              <p className="h-footer__head">Your account</p>
-              <Link to="/signup">Create your account</Link>
-              <Link to="/login">Sign in</Link>
-            </nav>
-            <div className="h-footer__col">
-              <p className="h-footer__head">Questions</p>
-              <a href={`tel:${CONTACT.tel}`}>
-                <Phone size={18} aria-hidden="true" /> {CONTACT.shown}
-              </a>
-            </div>
-          </div>
-          <p className="h-footer__small">
-            © {YEAR} {FOOTER}
-          </p>
-        </div>
-        <p className="h-footer__mark" aria-hidden="true">
-          <span>Incubation Hub</span>
-        </p>
-      </footer>
+      <Footer toTop={toTop} />
     </div>
   )
 }

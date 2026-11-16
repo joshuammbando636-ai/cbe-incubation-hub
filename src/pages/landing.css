@@ -1,150 +1,1251 @@
-/* Front page only (Landing.jsx). One font, Inter Tight, for everything; big
-   lines are weight 500 with tight negative tracking (butter.video hierarchy:
-   huge headline, medium line, normal button). Colours: navy on off-white. */
+/* Front page only (Landing.jsx), rebuilt 16 Nov 2026 to Josh's davidecarusio.it layout.
+   Geist for everything (weight 600, tight -0.04em tracking), Geist Mono for small labels.
+   Colours: blue and white (Josh, 16 Nov 2026), one bright blue for tags, hovers and the dot grid.
+   The header is Josh's two-pill navbar, kept exactly as it was: its styles are at the
+   bottom of this file and use its own navy colours and Inter Tight. */
+
+/* On computers the whole page scales as one: 1rem = 16px at 1440px wide (14.2px below
+   1280px, 21.3px at 1920px). Tablets and phones keep 1rem = 16px.
+   Only while the front page is open (Landing.jsx adds the class to <html>). */
+html.dc-root {
+  background: #f7f9fd;
+}
+
+@media (min-width: 992px) {
+  html.dc-root {
+    --size-unit: 16;
+    --size-container-ideal: 1440;
+    --size-container-min: 1280px;
+    --size-container-max: 1920px;
+    --size-container: clamp(var(--size-container-min), 100vw, var(--size-container-max));
+    --size-font: calc(var(--size-container) / (var(--size-container-ideal) / var(--size-unit)));
+    font-size: var(--size-font);
+  }
+}
+
+.dc {
+  /* Blue and white (Josh, 16 Nov 2026). Light sections: white with navy words.
+     Dark sections: deep blue with white words. One bright blue for tags, hovers and dots. */
+  --dc-light: #f7f9fd;
+  --dc-white: #ffffff;
+  --dc-ink: #0b1a33;
+  --dc-dark: #0a2463;
+  --dc-muted: #4b5a78;
+  --dc-mono: #3f4b66;
+  --dc-panel: #e8eefb;
+  --dc-wipe: #c7d8fd;
+  --dc-tag: #1d4ed8;
+  --dc-tag-text: #ffffff;
+  --dc-divider: #d3dbeb;
+  --dc-line-dark: rgb(255 255 255 / 0.18);
+  --dc-soft-dark: rgb(255 255 255 / 0.72);
+  /* expo.out: the one easing curve for every transition */
+  --dc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dc-sans: 'Geist Variable', 'Helvetica Neue', Arial, sans-serif;
+  --dc-mono-font: 'Geist Mono Variable', ui-monospace, monospace;
+
+  background: var(--dc-light);
+  color: var(--dc-ink);
+  font-family: var(--dc-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.04em;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Undo the app's global heading, paragraph and link styles inside the page. */
+.dc :where(h1, h2, h3, p, ul) {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.dc :where(a) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dc ::selection {
+  background: var(--dc-tag);
+  color: var(--dc-white);
+}
+
+.dc :focus-visible {
+  outline: 2px solid var(--dc-tag);
+  outline-offset: 3px;
+}
+
+.dc main:focus,
+.dc .dc-hero:focus {
+  outline: none;
+}
+
+/* Film grain over everything: a still tiled noise, nothing moves. */
+.dc::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.04 0 0 0 0 0.1 0 0 0 0 0.2 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px auto;
+}
+
+/* Until the fonts are in and the words are split, the moving words stay hidden. */
+.dc.is-pre [data-hero],
+.dc.is-pre [data-split],
+.dc.is-pre .dc-statements__line,
+.dc.is-pre .dc-loader__word {
+  visibility: hidden;
+}
+
+.dc-container {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.dc-mono {
+  font-family: var(--dc-mono-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--dc-mono);
+}
+
+.dc-rule {
+  height: 1px;
+  background: var(--dc-divider);
+  transform-origin: left center;
+}
+
+/* ---------- Letters that roll up on hover (buttons) ---------- */
+
+.dc-swap {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.dc-swap__row {
+  display: block;
+  white-space: nowrap;
+}
+
+.dc-swap__row--in {
+  position: absolute;
+  left: 0;
+  top: 100%;
+}
+
+.dc-swap__row > span {
+  display: inline-block;
+  transition: transform 0.4s var(--dc-ease);
+  transition-delay: calc(var(--i) * 0.02s);
+}
+
+@media (hover: hover) {
+  .dc a:hover .dc-swap__row > span,
+  .dc button:hover .dc-swap__row > span {
+    transform: translateY(-100%);
+  }
+}
+
+.dc-arrow {
+  width: 0.8em;
+  height: 0.8em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: square;
+}
+
+/* ---------- Button: dark, square corners, orange slides up on hover ---------- */
+
+.dc-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.55rem;
+  border-radius: 2px;
+  background: var(--dc-dark);
+  color: var(--dc-light);
+  font-size: 1rem;
+  line-height: 1.22;
+  transition:
+    color 0.525s var(--dc-ease),
+    transform 0.1s ease;
+}
+
+.dc-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--dc-tag);
+  transform: translateY(101%);
+  transition: transform 0.525s var(--dc-ease);
+}
+
+.dc-btn--light {
+  background: var(--dc-light);
+  color: var(--dc-dark);
+}
+
+@media (hover: hover) {
+  .dc-btn:hover {
+    color: var(--dc-white);
+  }
+
+  .dc-btn:hover::before {
+    transform: none;
+  }
+}
+
+.dc-btn:active {
+  transform: scale(0.97);
+}
+
+@media (pointer: coarse) {
+  .dc-btn {
+    min-height: 44px;
+    padding-inline: 0.85rem;
+  }
+}
+
+/* ---------- Pointer label ("Get started" over the rows), mouse only ---------- */
+
+.dc-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 998;
+  pointer-events: none;
+}
+
+.dc-cursor__bubble {
+  position: absolute;
+  left: 0.9rem;
+  top: 0.9rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 2px;
+  background: var(--dc-dark);
+  color: var(--dc-light);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  transform: scale(0);
+  transform-origin: 0 0;
+  transition:
+    transform 0.35s var(--dc-ease),
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.dc-cursor[data-cursor='active'] .dc-cursor__bubble {
+  transform: scale(1);
+}
+
+.dc-cursor[data-cursor='active-edge'] .dc-cursor__bubble {
+  left: auto;
+  right: 0.9rem;
+  transform-origin: 100% 0;
+  transform: scale(1);
+}
+
+.dc-cursor[data-cursor-theme='on-image'] .dc-cursor__bubble {
+  background: var(--dc-light);
+  color: var(--dc-dark);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .dc-cursor {
+    display: none;
+  }
+}
+
+/* ---------- Loader (first visit in a session) ---------- */
+
+.dc-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  color: var(--dc-light);
+}
+
+.dc-loader__bg {
+  position: absolute;
+  inset: 0;
+  background: var(--dc-dark);
+}
+
+.dc-loader__bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0.5rem;
+  background: var(--dc-light);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.dc-loader__container {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.dc-loader__logo {
+  display: grid;
+  font-size: 2.25rem;
+  letter-spacing: -0.04em;
+}
+
+.dc-loader__logo span {
+  grid-area: 1 / 1;
+}
+
+.dc-loader__logo .is-base {
+  opacity: 0.25;
+}
+
+.dc-loader__logo .is-top {
+  clip-path: inset(0% 100% 0% 0%);
+}
+
+.dc-loader__words {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2.75rem;
+  display: grid;
+  justify-items: center;
+  font-family: var(--dc-mono-font);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.dc-loader__word {
+  grid-area: 1 / 1;
+}
+
+/* ---------- 1. Hero ---------- */
+
+.dc-hero {
+  position: relative;
+  height: 100svh;
+  min-height: 36rem;
+  overflow: hidden;
+}
+
+.dc-hero__bg {
+  position: absolute;
+  inset: 0;
+}
+
+.dc-hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: 5.5rem;
+}
+
+.dc-hero__copy {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 0;
+}
+
+.dc-hero__text {
+  grid-column: 2;
+  max-width: 32rem;
+  padding-bottom: 3rem;
+}
+
+.dc-hero__lead {
+  font-size: 1.23rem;
+  line-height: 1.2;
+}
+
+.dc-hero__lead span {
+  display: block;
+}
+
+.dc-hero__sub {
+  margin-top: 1.2em;
+}
+
+.dc-hero__cta {
+  margin-top: 2rem;
+}
+
+.dc-hero__foot {
+  padding-bottom: 1.2rem;
+}
+
+.dc-hero__rule {
+  margin: 0.9rem 0 1.4rem;
+}
+
+.dc-hero__mark,
+.dc-footer__mark {
+  white-space: nowrap;
+}
+
+/* The big name: Funnel Display ExtraBold (free, Google Fonts / npm @fontsource-variable/funnel-display). */
+.dc-wordmark {
+  display: inline-block;
+  font-family: 'Funnel Display Variable', var(--dc-sans);
+  font-size: 100px;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.dc-wordmark__word {
+  display: inline-block;
+}
+
+/* ---------- Dark bars that cover a light section (made by Landing.jsx) ---------- */
+
+.dc-shutter {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.dc-shutter > div {
+  flex: 1;
+  margin-bottom: -1px;
+  background: var(--dc-dark);
+  transform: scaleY(0);
+}
+
+/* Below How it works, the bars only fill the last part of the section. */
+.dc-steps > .dc-shutter {
+  top: auto;
+  height: 60svh;
+}
+
+/* ---------- 2. Statements: dark fading to cream, a dot grid, lines that swallow each other ---------- */
+
+.dc-statements {
+  position: relative;
+  height: 350vh;
+  background-image: linear-gradient(var(--dc-dark) 18%, var(--dc-light) 91%);
+  color: var(--dc-light);
+}
+
+.dc-statements__inner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.dc-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 1rem;
+}
+
+.dc-statements__stack {
+  position: relative;
+  display: grid;
+  width: min(64rem, calc(100% - 4rem));
+  text-align: center;
+}
+
+.dc-statements__line {
+  grid-area: 1 / 1;
+  align-self: center;
+  font-size: 4rem;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+/* ---------- Section label: words, then a thin line ---------- */
+
+.dc-label__text {
+  font-size: 1.23rem;
+  line-height: 1.2;
+}
+
+.dc-label .dc-rule {
+  margin-top: 1.8rem;
+}
+
+.dc-stages .dc-rule,
+.dc-faq .dc-rule {
+  background: var(--dc-line-dark);
+}
+
+/* ---------- 3. How it works: picture left, words right, thin lines between ---------- */
+
+.dc-steps {
+  position: relative;
+  padding: 5.5rem 0 8rem;
+  background: var(--dc-light);
+}
+
+/* Pictures kept small (Josh, 16 Nov 2026: the big panels looked like oversized cards). */
+.dc-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 14.375rem 26rem minmax(0, 1fr);
+  column-gap: 3rem;
+  align-items: start;
+  padding: 2.5rem 0;
+}
+
+.dc-step::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 14.375rem;
+  right: 0;
+  height: 1px;
+  background: var(--dc-divider);
+}
+
+.dc-step:first-child::before {
+  display: none;
+}
+
+.dc-step__media {
+  grid-column: 2;
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--dc-panel);
+}
+
+/* Hover: a light-blue panel wipes up from the bottom behind the drawing. */
+.dc-step__media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--dc-wipe);
+  transform: translateY(101%);
+  transition: transform 0.6s var(--dc-ease);
+}
+
+/* The drawing lifts on hover; the picture inside drifts with the scroll (Landing.jsx). */
+.dc-step__pic {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.6s var(--dc-ease);
+}
+
+.dc-step__pic img {
+  position: absolute;
+  left: 0;
+  top: -10%;
+  width: 100%;
+  height: 120%;
+  padding: 10% 14%;
+  object-fit: contain;
+}
+
+/* An arrow slides in beside the title on hover; always shown on touch screens. */
+.dc-step__title .dc-arrow {
+  width: 0.55em;
+  height: 0.55em;
+  margin-left: 0.3em;
+  color: var(--dc-tag);
+  vertical-align: 0.05em;
+  opacity: 0;
+  transform: translate(-0.3em, 0.3em);
+  transition:
+    opacity 0.3s ease,
+    transform 0.5s var(--dc-ease);
+}
+
+@media (hover: hover) {
+  .dc-step:hover .dc-step__media::before {
+    transform: none;
+  }
+
+  .dc-step:hover .dc-step__pic {
+    transform: translateY(-3%) scale(1.04);
+  }
+
+  .dc-step:hover .dc-step__title .dc-arrow {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (hover: none) {
+  .dc-step__title .dc-arrow {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.dc-step__body {
+  grid-column: 3;
+}
+
+.dc-step__num {
+  display: block;
+}
+
+.dc-step__title {
+  margin-top: 1.6rem;
+  font-size: 2.05rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.dc-step__text {
+  max-width: 23rem;
+  margin-top: 1.6rem;
+  color: var(--dc-muted);
+}
+
+.dc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 3rem;
+  padding: 0;
+  list-style: none;
+}
+
+.dc-tags li {
+  padding: 0.35rem 0.4rem;
+  border-radius: 2px;
+  background: var(--dc-tag);
+  color: var(--dc-tag-text);
+  font-size: 0.82rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- 4. The four stages (dark): picture left, big list right ---------- */
+
+.dc-stages {
+  position: relative;
+  padding: 5.5rem 0 4rem;
+  background: var(--dc-dark);
+  color: var(--dc-light);
+}
+
+.dc-stages__grid {
+  display: grid;
+  grid-template-columns: 21.25rem minmax(0, 1fr);
+  column-gap: 7.2rem;
+  align-items: start;
+  margin-top: 2.5rem;
+}
+
+.dc-stages__media {
+  position: relative;
+  aspect-ratio: 0.8;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--dc-light);
+}
+
+.dc-stages__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 12%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.dc-stages__media img.is-photo {
+  padding: 0;
+  object-fit: cover;
+}
+
+.dc-stages__media img.is-active {
+  opacity: 1;
+}
+
+.dc-stages__desc {
+  max-width: 21rem;
+  margin-top: 1rem;
+  color: var(--dc-soft-dark);
+}
+
+.dc-stages__list {
+  padding: 0;
+  list-style: none;
+}
+
+.dc-stages__item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 4.5rem;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  text-align: left;
+  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity 0.3s ease-out;
+}
+
+.dc-stages__item::after {
+  content: '';
+  width: 0.2em;
+  height: 0.2em;
+  margin-left: 0.35em;
+  border-radius: 50%;
+  background: currentColor;
+  transform: scale(0);
+  transition: transform 0.3s var(--dc-ease);
+}
+
+.dc-stages__item.is-active {
+  opacity: 1;
+}
+
+.dc-stages__item.is-active::after {
+  transform: scale(1);
+}
+
+.dc-stages__slogan {
+  width: min(36rem, 100%);
+  margin: 9rem 0 4rem auto;
+  font-size: 1.6rem;
+  line-height: 1.3;
+}
+
+/* ---------- 5. Questions (dark) ---------- */
+
+.dc-faq {
+  padding: 4rem 0 5rem;
+  background: var(--dc-dark);
+  color: var(--dc-light);
+}
+
+.dc-faq__title {
+  margin: 3rem 0 6rem 14.25rem;
+  font-size: 4.5rem;
+  line-height: 1;
+}
+
+.dc-faq__list {
+  margin-left: 21.25rem;
+}
+
+.dc-faq__item {
+  border-bottom: 1px solid var(--dc-line-dark);
+}
+
+.dc-faq__q button {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  width: 100%;
+  padding: 1.6rem 1.25rem 1.6rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.23rem;
+  letter-spacing: -0.04em;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Hover (as on his site): a lighter band fills the row and the question slides right. */
+.dc-faq__q button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(255 255 255 / 0.08);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.dc-faq__q button > span:first-child {
+  transition: transform 0.45s var(--dc-ease);
+}
+
+@media (hover: hover) {
+  .dc-faq__q button:hover::before {
+    opacity: 1;
+  }
+
+  .dc-faq__q button:hover > span:first-child {
+    transform: translateX(1.25rem);
+  }
+}
+
+.dc-faq__q button:focus-visible::before {
+  opacity: 1;
+}
+
+.dc-faq__q button:focus-visible > span:first-child {
+  transform: translateX(1.25rem);
+}
+
+.dc-faq__plus {
+  position: relative;
+  width: 1.4rem;
+  height: 1.4rem;
+  flex: none;
+  transition: transform 0.4s var(--dc-ease);
+}
+
+.dc-faq__plus::before,
+.dc-faq__plus::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: currentColor;
+}
+
+.dc-faq__plus::after {
+  transform: rotate(90deg);
+}
+
+.dc-faq__item.is-open .dc-faq__plus {
+  transform: rotate(45deg);
+}
+
+.dc-faq__a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s var(--dc-ease);
+}
+
+.dc-faq__a > div {
+  overflow: hidden;
+}
+
+.dc-faq__item.is-open .dc-faq__a {
+  grid-template-rows: 1fr;
+}
+
+.dc-faq__a p {
+  max-width: 42rem;
+  padding-bottom: 1.6rem;
+  color: var(--dc-soft-dark);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.dc-faq__more {
+  margin: 6rem 0 0 21.25rem;
+}
+
+.dc-faq__more-title {
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.dc-faq__more-title span {
+  color: rgb(255 255 255 / 0.6);
+}
+
+.dc-faq__more .dc-btn {
+  margin-top: 2rem;
+}
+
+/* ---------- 6. Footer: three columns, then the giant name ---------- */
+
+.dc-footer {
+  position: relative;
+  overflow: hidden;
+  background: var(--dc-light);
+}
+
+.dc-footer__inner {
+  padding: 3rem 2.5rem 0;
+}
+
+.dc-footer__cols,
+.dc-footer__bar {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+}
+
+.dc-footer__label {
+  margin-bottom: 3.4rem;
+}
+
+.dc-footer__links {
+  padding: 0;
+  list-style: none;
+}
+
+.dc-footer__links a,
+.dc-footer__top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  color: var(--dc-ink);
+  font-size: 2.05rem;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  text-underline-offset: 0.12em;
+}
+
+.dc-footer__top {
+  margin-top: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+
+.dc-footer__links a:hover,
+.dc-footer__top:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.dc-footer__bar {
+  margin-top: 7rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--dc-divider);
+}
+
+.dc-footer__bar span:last-child {
+  text-align: right;
+}
+
+.dc-footer__mark {
+  padding-top: 2.6rem;
+}
+
+.dc-footer__shade {
+  position: absolute;
+  inset: 0;
+  background: var(--dc-dark);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Tablets ---------- */
+
+@media (max-width: 991px) {
+  .dc-step {
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    column-gap: 2rem;
+  }
+
+  .dc-step__media {
+    grid-column: 1;
+  }
+
+  .dc-step__body {
+    grid-column: 2;
+  }
+
+  .dc-step::before {
+    left: 0;
+  }
+
+  .dc-stages__grid {
+    grid-template-columns: 16rem minmax(0, 1fr);
+    column-gap: 3rem;
+  }
+
+  .dc-faq__title {
+    margin-left: 0;
+  }
+
+  .dc-faq__list,
+  .dc-faq__more {
+    margin-left: 0;
+  }
+}
+
+/* ---------- Phones ---------- */
+
+@media (max-width: 767px) {
+  .dc-container {
+    padding: 0 1rem;
+  }
+
+  .dc-hero__copy {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-hero__text {
+    grid-column: 1;
+    max-width: 22rem;
+    margin: 0 auto;
+    padding-bottom: 0;
+    text-align: center;
+  }
+
+  .dc-hero__lead {
+    font-size: 1.15rem;
+  }
+
+  .dc-hero__foot {
+    padding-bottom: 1rem;
+  }
+
+  .dc-hero__rule {
+    margin: 0.6rem 0 0.9rem;
+  }
+
+  .dc-statements__stack {
+    width: calc(100% - 2rem);
+  }
+
+  .dc-statements__line {
+    font-size: 2.4rem;
+    line-height: 1.05;
+  }
+
+  .dc-steps {
+    padding: 4rem 0 5rem;
+  }
+
+  .dc-step {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1.5rem;
+    padding: 2rem 0;
+  }
+
+  .dc-step__media,
+  .dc-step__body {
+    grid-column: 1;
+  }
+
+  .dc-step__title {
+    margin-top: 1rem;
+    font-size: 1.8rem;
+  }
+
+  .dc-step__text {
+    margin-top: 1rem;
+  }
+
+  .dc-tags {
+    margin-top: 1.5rem;
+  }
+
+  .dc-stages__grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2rem;
+  }
+
+  .dc-stages__media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .dc-stages__item {
+    min-height: 44px;
+    font-size: 2.9rem;
+  }
+
+  .dc-stages__slogan {
+    margin: 5rem 0 2rem;
+    font-size: 1.3rem;
+  }
+
+  .dc-faq__title {
+    margin: 2.5rem 0 3rem;
+    font-size: 2.6rem;
+  }
+
+  .dc-faq__q button {
+    padding: 1.2rem 0;
+    font-size: 1.1rem;
+  }
+
+  .dc-faq__more {
+    margin-top: 4rem;
+  }
+
+  .dc-faq__more-title {
+    font-size: 1.6rem;
+  }
+
+  .dc-footer__inner {
+    padding: 3rem 1rem 0;
+  }
+
+  .dc-footer__cols,
+  .dc-footer__bar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dc-footer__cols {
+    gap: 2.5rem;
+  }
+
+  .dc-footer__label {
+    margin-bottom: 1.2rem;
+  }
+
+  .dc-footer__links a,
+  .dc-footer__top {
+    font-size: 1.8rem;
+  }
+
+  .dc-footer__bar {
+    gap: 0.6rem;
+    margin-top: 4rem;
+  }
+
+  .dc-footer__bar span:last-child {
+    text-align: left;
+  }
+
+  .dc-footer__mark {
+    padding-top: 1.6rem;
+  }
+}
+
+/* ---------- Reduced motion: the statements become a plain list, nothing slides ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-statements {
+    height: auto;
+    background: var(--dc-dark);
+  }
+
+  .dc-statements__inner {
+    position: static;
+    height: auto;
+    padding: 8rem 0;
+  }
+
+  .dc-statements__stack {
+    gap: 3rem;
+  }
+
+  .dc-statements__line {
+    grid-area: auto;
+  }
+
+  .dc-dots {
+    display: none;
+  }
+
+  .dc-swap__row > span,
+  .dc-btn,
+  .dc-btn::before,
+  .dc-step__media::before,
+  .dc-step__pic,
+  .dc-step__title .dc-arrow,
+  .dc-stages__item,
+  .dc-stages__item::after,
+  .dc-stages__media img,
+  .dc-faq__a,
+  .dc-faq__plus,
+  .dc-cursor__bubble {
+    transition: none;
+  }
+
+  .dc a:hover .dc-swap__row > span,
+  .dc button:hover .dc-swap__row > span {
+    transform: none;
+  }
+}
+
+/* ======================================================================
+   Header: Josh's two-pill navbar (butter.video layout), unchanged from
+   16 Nov 2026. Its own colours (navy pills) and font (Inter Tight).
+   ====================================================================== */
 
 .home {
-  /* Two colours: deep blue and off-white. Soft text, lines and tints are the
-     deep blue at lower strength, so no third colour appears. */
   --h-ink: #0b1a33;
   --h-off: #f8f8f6;
   --h-soft: rgb(11 26 51 / 0.72);
   --h-line: rgb(11 26 51 / 0.12);
-  --h-tint: rgb(11 26 51 / 0.06);
-  --h-max: 1200px;
+  /* Pills and menu: the same white as the page (Josh, 16 Nov 2026), with a hairline edge. */
+  --h-pill: #f7f9fd;
   --h-head: var(--sans);
-  /* Pill grey and hero grey: the navy mixed into the off-white (still two colours). */
-  --h-pill: color-mix(in srgb, var(--h-ink) 7%, var(--h-off));
-  --h-grey: color-mix(in srgb, var(--h-ink) 14%, var(--h-off));
-  /* One easing curve for every transition (butter.video's). */
   --ease: cubic-bezier(0.2, 0.715, 0.205, 0.99);
+}
 
-  background: var(--h-off);
-  color: var(--h-ink);
+/* The page around it uses Geist at 600 with tight tracking; the navbar keeps its own type. */
+.b-nav {
   font-family: var(--sans);
-  overflow-x: clip;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
 }
 
-/* Fine grain over the whole page (a still texture, nothing moves). */
-.home::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  pointer-events: none;
-  opacity: 0.07;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.04 0 0 0 0 0.1 0 0 0 0 0.2 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-.home main:focus,
-.home [tabindex='-1']:focus {
-  outline: none;
-}
-
-.home :focus-visible {
+.b-nav :focus-visible {
   outline: 2px solid var(--h-ink);
   outline-offset: 3px;
 }
 
-.home ::selection {
-  background: var(--h-ink);
-  color: var(--h-off);
+.b-nav__name {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
-.home h1,
-.home h2,
-.home h3 {
-  font-family: var(--h-head);
-  letter-spacing: -0.02em;
-}
-
-.h-wrap {
-  width: 100%;
-  max-width: var(--h-max);
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  html:has(.home):not(.lenis) {
-    scroll-behavior: smooth;
-  }
-}
-
-/* ---------- Buttons ---------- */
-
-.h-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 52px;
-  padding: 0 26px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-weight: 700;
-  text-decoration: none;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-.h-btn:active {
-  transform: scale(0.97);
-}
-
-.h-btn--primary,
-.h-btn--white,
 .b-nav__join {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
 
-.h-btn--primary::before,
-.h-btn--white::before,
-.b-nav__join::before,
-.b-hero__cta::before {
+.b-nav__join::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: rgb(11 26 51 / 0.1);
+  background: rgb(248 248 246 / 0.16);
   transform: scaleY(0);
   transform-origin: top center;
   transition: transform 0.4s var(--ease);
 }
 
-.h-btn--primary::before,
-.b-nav__join::before,
-.b-hero__cta::before {
-  background: rgb(248 248 246 / 0.16);
-}
-
-.h-btn--primary:hover::before,
-.h-btn--white:hover::before,
-.b-nav__join:hover::before,
-.b-hero__cta:hover::before {
+.b-nav__join:hover::before {
   transform: scaleY(1);
-}
-
-.h-btn--primary {
-  background: var(--h-ink);
-  color: var(--h-off);
-}
-
-.h-btn--ghost {
-  border-color: var(--h-line);
-  color: var(--h-ink);
-}
-
-.h-btn--ghost:hover {
-  border-color: var(--h-ink);
-}
-
-.h-btn--white {
-  background: var(--h-off);
-  color: var(--h-ink);
 }
 
 /* ---------- Header: two pills (layout from butter.video) ---------- */
@@ -221,7 +1322,7 @@
   background: var(--h-ink);
   color: var(--h-off);
   font-family: var(--display);
-  font-size: 0.8rem;
+  font-size: 12.8px;
   letter-spacing: 0.04em;
 }
 
@@ -236,7 +1337,7 @@
   padding: 10px 12px;
   border-radius: 10px;
   color: var(--h-ink);
-  font-size: 1.0625rem;
+  font-size: 17px;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -366,13 +1467,13 @@
 
 .b-nav__item-name {
   font-family: var(--h-head);
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 
 .b-nav__item-note {
-  font-size: 0.9375rem;
+  font-size: 15px;
   color: var(--h-soft);
 }
 
@@ -394,7 +1495,7 @@
   padding: 0 12px;
   border-radius: 12px;
   color: var(--h-ink);
-  font-size: 1.0625rem;
+  font-size: 17px;
   text-decoration: none;
 }
 
@@ -407,7 +1508,7 @@
   border-radius: 12px;
   background: var(--h-ink);
   color: var(--h-off);
-  font-size: 1.0625rem;
+  font-size: 17px;
   font-weight: 600;
   text-decoration: none;
 }
@@ -452,909 +1553,8 @@
   }
 }
 
-/* ---------- 1. Hero (layout from butter.video) ----------
-   Light grey to off-white, charms hanging from the top edge, one big centred line. */
-
-.b-hero {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: 100svh;
-  padding: 0 20px 14svh;
-  overflow: hidden;
-  background: linear-gradient(var(--h-grey) 0%, var(--h-off) 100%);
-}
-
-/* One cut-out drawing right above the headline. The headline is pulled up a
-   little so the tops of the tall letters tuck into the foot of the drawing
-   (like the keychain on butter.video); the text sits in front. */
-.b-hero__art {
-  display: flex;
-  justify-content: center;
-  height: clamp(180px, 34svh, 340px);
-  margin-bottom: calc(-0.34 * clamp(3rem, 8vw, 9rem));
-  pointer-events: none;
-}
-
-.b-hero__img {
-  display: block;
-  width: auto;
-  height: 100%;
-  object-fit: contain;
-}
-
-.b-hero__copy {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.b-word,
-.b-ch {
-  display: inline-block;
-}
-
-.b-word {
-  white-space: nowrap;
-}
-
-.b-hero__title {
-  margin: 0 0 24px;
-  font-size: clamp(3rem, 8vw, 9rem);
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-}
-
-.b-hero__sub {
-  max-width: 48ch;
-  margin: 0 0 36px;
-  font-size: clamp(1.125rem, 1.7vw, 2rem);
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-}
-
-.b-hero__cta {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  min-height: 60px;
-  padding: 0 36px;
-  border-radius: 18px;
-  background: var(--h-ink);
-  color: var(--h-off);
-  font-size: 1.1875rem;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.b-hero__cta:active {
-  transform: scale(0.97);
-}
-
-@media (max-width: 639px) {
-  .b-hero {
-    padding-bottom: 12svh;
-  }
-}
-
-/* ---------- 2. Statement with icons ---------- */
-
-.h-statement {
-  padding: 96px 20px 120px;
-  background: var(--h-off);
-}
-
-.h-statement__text {
-  max-width: 22ch;
-  margin: 0 auto;
-  font-family: var(--h-head);
-  font-size: clamp(2rem, 5.2vw, 4.25rem);
-  font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
-  text-align: center;
-  text-wrap: balance;
-}
-
-.h-st__icon svg {
-  display: inline-block;
-  width: 0.9em;
-  height: 0.9em;
-  vertical-align: -0.1em;
-  color: var(--h-ink);
-}
-
-/* ---------- 3. Turn your idea into a business ---------- */
-
-.h-start {
-  padding: 112px 0;
-}
-
-.h-start__title {
-  margin: 0 0 40px;
-  font-size: clamp(2.6rem, 7.5vw, 6rem);
-  font-weight: 600;
-  line-height: 1.02;
-}
-
-.h-word {
-  display: inline-grid;
-  overflow: hidden;
-  vertical-align: bottom;
-  color: var(--h-ink);
-}
-
-.h-word__item {
-  grid-area: 1 / 1;
-  white-space: nowrap;
-  font-family: var(--display); /* Some Time Later, like the logo */
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  padding-bottom: 0.08em;
-  text-decoration: underline;
-  text-decoration-thickness: 0.06em;
-  text-underline-offset: 0.12em;
-}
-
-.h-word__item:not(:first-child) {
-  visibility: hidden;
-}
-
-.h-start__body {
-  max-width: 560px;
-}
-
-.h-start__body p {
-  margin: 0 0 28px;
-  font-size: 1.1875rem;
-  line-height: 1.55;
-  color: var(--h-soft);
-}
-
-.h-start__ctas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-@media (min-width: 900px) {
-  .h-start__body {
-    margin-left: 22%;
-  }
-}
-
-/* ---------- Shared: small label above a heading, word-by-word headings ---------- */
-
-.h-label {
-  margin: 0 0 18px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--h-soft);
-}
-
-.h-title {
-  margin: 0 0 48px;
-  font-size: clamp(2.2rem, 5vw, 3.75rem);
-  font-weight: 600;
-  line-height: 1.05;
-}
-
-.h-line {
-  display: block;
-}
-
-.h-wd {
-  display: inline-block;
-  white-space: pre;
-}
-
-/* ---------- 3. Hub names sliding sideways ---------- */
-
-.h-hubs {
-  padding: 8px 0 104px;
-  overflow: hidden;
-}
-
-.h-hubs__label {
-  margin: 0 0 32px;
-  padding: 0 20px;
-  font-size: 1.125rem;
-  color: var(--h-soft);
-  text-align: center;
-}
-
-.h-hubs__row {
-  display: flex;
-  width: max-content;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  white-space: nowrap;
-  will-change: transform;
-}
-
-.h-hubs__row li {
-  display: flex;
-  align-items: center;
-  padding: 6px 0;
-  font-family: var(--h-head);
-  font-size: clamp(1.75rem, 4vw, 3.25rem);
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-/* A small rounded square between names. */
-.h-hubs__row li::after {
-  content: '';
-  width: 0.3em;
-  height: 0.3em;
-  margin: 0 0.7em;
-  border-radius: 30%;
-  background: var(--h-ink);
-  opacity: 0.25;
-}
-
-.h-hubs__row--b li {
-  color: rgb(11 26 51 / 0.55);
-}
-
-/* ---------- 5. How it works: brancon-style rows, no cards ----------
-   Number in a circle, the drawing, one short line, and a huge word on the right.
-   Phones: number + drawing, then the word, then the line. */
-
-.h-how {
-  padding: 112px 0 72px;
-}
-
-.h-how__title {
-  margin: 0 0 64px;
-  font-family: var(--display);
-  font-size: clamp(2.4rem, 6.5vw, 5.75rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  text-align: center;
-}
-
-.h-how__line {
-  display: block;
-}
-
-.h-steps {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-bottom: 1px solid var(--h-line);
-}
-
-.h-step {
-  display: grid;
-  grid-template-columns: 48px 1fr 120px;
-  grid-template-areas:
-    'num . pic'
-    'word word word'
-    'text text text';
-  align-items: center;
-  gap: 14px;
-  padding: 28px 0;
-  border-top: 1px solid var(--h-line);
-}
-
-.h-step__num {
-  grid-area: num;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid rgb(11 26 51 / 0.25);
-  border-radius: 50%;
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--h-soft);
-}
-
-.h-step__pic {
-  grid-area: pic;
-  display: block;
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  justify-self: end;
-  transition: transform 0.5s var(--ease);
-}
-
-.h-step:hover .h-step__pic {
-  transform: scale(1.08) rotate(-3deg);
-}
-
-.h-step__text {
-  grid-area: text;
-  max-width: 36ch;
-  margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.55;
-  color: var(--h-soft);
-}
-
-.h-step__word {
-  grid-area: word;
-  margin: 0;
-  font-family: var(--display);
-  font-size: clamp(3.25rem, 8vw, 8rem);
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.01em;
-}
-
-/* The letters rise out of this line, so it hides what is below it. */
-.h-step__mask {
-  display: inline-block;
-  overflow: hidden;
-  padding-bottom: 0.08em;
-  vertical-align: top;
-  white-space: nowrap;
-}
-
-.h-step__ch {
-  display: inline-block;
-}
-
-@media (min-width: 900px) {
-  .h-step {
-    grid-template-columns: 56px 160px minmax(0, 1fr) auto;
-    grid-template-areas: 'num pic text word';
-    column-gap: 32px;
-    padding: 40px 0;
-  }
-
-  .h-step__num {
-    width: 52px;
-    height: 52px;
-  }
-
-  .h-step__pic {
-    width: 160px;
-    height: 160px;
-    justify-self: start;
-  }
-
-  .h-step__word {
-    justify-self: end;
-    text-align: right;
-  }
-}
-
-/* ---------- 6. The stages: an open timeline, no panel ----------
-   Without motion (and on phones): a plain list, every stage shown.
-   With motion on 760px+ (.is-live): a playhead moves along the ruler with the scroll;
-   stages it has reached light up, the current one gets a line under its name. */
-
-.h-stages {
-  padding: 88px 0 112px;
-}
-
-.h-tl__top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.h-tl__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--h-soft);
-}
-
-.h-tl__now {
-  font-family: var(--h-head);
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.h-tl__ruler {
-  display: none;
-}
-
-.h-tl__tiles {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.h-tl__tile {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 16px;
-  padding: 22px 0;
-  border-top: 1px solid var(--h-line);
-}
-
-.h-tl__icon {
-  display: block;
-  color: var(--h-ink);
-}
-
-.h-tl__icon svg {
-  width: 32px;
-  height: 32px;
-}
-
-.h-tl__tile h3 {
-  position: relative;
-  display: inline-block;
-  margin: 0 0 6px;
-  font-size: clamp(1.5rem, 2.6vw, 2.25rem);
-  font-weight: 600;
-  line-height: 1.1;
-}
-
-.h-tl__tile p {
-  max-width: 30ch;
-  margin: 0;
-  line-height: 1.5;
-  color: var(--h-soft);
-}
-
-@media (min-width: 760px) {
-  /* Ruler: a tick every 1/24, a number at the start of each stage. */
-  .h-tl__ruler {
-    position: relative;
-    display: block;
-    height: 44px;
-    margin: 0 0 36px;
-    background: repeating-linear-gradient(
-        to right,
-        rgb(11 26 51 / 0.3) 0 1px,
-        transparent 1px calc(100% / 24)
-      )
-      0 100% / 100% 12px no-repeat;
-    border-bottom: 1px solid rgb(11 26 51 / 0.3);
-  }
-
-  .h-tl__mark {
-    position: absolute;
-    top: 0;
-    padding-left: 8px;
-    border-left: 1px solid var(--h-ink);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 18px;
-    color: var(--h-ink);
-  }
-
-  .h-tl__sel,
-  .h-tl__head {
-    display: none;
-  }
-
-  .h-tl__tiles {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
-  }
-
-  .h-tl__tile {
-    grid-template-columns: 1fr;
-    align-content: start;
-    gap: 18px;
-    padding: 0;
-    border-top: 0;
-  }
-
-  .h-tl__icon svg {
-    width: 40px;
-    height: 40px;
-  }
-
-  .h-tl.is-live .h-tl__sel {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: block;
-    background: rgb(11 26 51 / 0.06);
-    transform-origin: left center;
-  }
-
-  .h-tl.is-live .h-tl__head {
-    position: absolute;
-    top: -6px;
-    bottom: -6px;
-    left: -1px;
-    display: block;
-    width: 2px;
-    background: var(--h-ink);
-  }
-
-  /* A small round knob on top of the playhead line. */
-  .h-tl.is-live .h-tl__head::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: -5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--h-ink);
-  }
-
-  .h-tl.is-live .h-tl__tile {
-    opacity: 0.25;
-    transition: opacity 0.4s ease;
-  }
-
-  .h-tl.is-live .h-tl__tile.is-on {
-    opacity: 1;
-  }
-
-  .h-tl.is-live .h-tl__tile h3::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -6px;
-    height: 3px;
-    background: var(--h-ink);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.6s var(--ease);
-  }
-
-  .h-tl.is-live .h-tl__tile.is-now h3::after {
-    transform: scaleX(1);
-  }
-}
-
-/* ---------- 7. Inside the hub: words left, dashboard preview right ---------- */
-
-.h-inside {
-  padding: 104px 0;
-}
-
-.h-inside__grid {
-  display: grid;
-  gap: 56px;
-}
-
-.h-inside .h-title {
-  margin-bottom: 24px;
-}
-
-.h-inside__text {
-  max-width: 46ch;
-  margin: 0 0 28px;
-  font-size: 1.125rem;
-  line-height: 1.6;
-  color: var(--h-soft);
-}
-
-/* The student's tools as a typed list: thin lines between rows, no boxes. */
-.h-tools {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-bottom: 1px solid var(--h-line);
-}
-
-.h-tools__row {
-  display: grid;
-  grid-template-columns: 36px 1fr;
-  align-items: center;
-  column-gap: 18px;
-  padding: 20px 0;
-  border-top: 1px solid var(--h-line);
-}
-
-.h-tools__icon {
-  width: 30px;
-  height: 30px;
-  color: var(--h-ink);
-  transition: transform 0.4s var(--ease);
-}
-
-.h-tools__name {
-  font-family: var(--h-head);
-  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
-  font-weight: 600;
-  line-height: 1.05;
-  transition: transform 0.4s var(--ease);
-}
-
-.h-tools__note {
-  grid-column: 2;
-  margin-top: 4px;
-  color: var(--h-soft);
-}
-
-.h-tools__row:hover .h-tools__icon,
-.h-tools__row:hover .h-tools__name {
-  transform: translateX(8px);
-}
-
-.h-tools__row {
-  cursor: default;
-}
-
-/* The hover clip: a rounded frame that follows the pointer (moved by Landing.jsx). */
-.h-peek {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 40;
-  width: 300px;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: 20px;
-  background: var(--h-ink);
-  box-shadow: 0 30px 60px -24px rgb(11 26 51 / 0.5);
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.h-peek__clip {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.h-peek__clip.is-on {
-  opacity: 1;
-}
-
-.h-peek__tag {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--h-off);
-  color: var(--h-ink);
-  font-size: 0.8125rem;
-  font-weight: 700;
-}
-
-.h-peek__tag:empty {
-  display: none;
-}
-
-/* No hover on touch screens: no clip. */
-@media not ((hover: hover) and (pointer: fine)) {
-  .h-peek {
-    display: none;
-  }
-}
-
-@media (min-width: 640px) {
-  .h-tools__row {
-    grid-template-columns: 40px auto 1fr;
-  }
-
-  .h-tools__note {
-    grid-column: 3;
-    margin: 0;
-    text-align: right;
-  }
-}
-
-@media (min-width: 960px) {
-  .h-inside__grid {
-    grid-template-columns: 36fr 58fr;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6%;
-  }
-}
-
-/* ---------- 8. Call to action ---------- */
-
-.h-final {
-  padding: 72px 0 120px;
-}
-
-.h-final__grid {
-  display: grid;
-  gap: 40px;
-  align-items: center;
-}
-
-.h-final__title {
-  margin: 0 0 16px;
-  font-size: clamp(2.6rem, 6.5vw, 5.5rem);
-  font-weight: 600;
-  line-height: 1;
-}
-
-.h-final__text {
-  margin: 0 0 28px;
-  font-size: 1.1875rem;
-  color: var(--h-soft);
-}
-
-.h-final__pic {
-  display: block;
-  width: min(100%, 460px);
-  height: auto;
-  justify-self: center;
-}
-
-@media (min-width: 900px) {
-  .h-final__grid {
-    grid-template-columns: 1.2fr 1fr;
-  }
-
-  .h-final__pic {
-    justify-self: end;
-  }
-}
-
-/* ---------- Footer (layout from butter.video) ----------
-   The page sits on the grey like a sheet: its bottom corners are rounded, the footer
-   shows underneath. Columns with small labels and big links; the name huge at the bottom
-   in Some Time Later (Josh's logo font), cut by the bottom edge. */
-
-.home {
-  background: var(--h-pill);
-}
-
-.home main {
-  position: relative;
-  z-index: 1;
-  background: var(--h-off);
-  border-radius: 0 0 clamp(28px, 4vw, 56px) clamp(28px, 4vw, 56px);
-}
-
-.h-footer {
-  position: relative;
-  overflow: hidden;
-  padding: 96px 0 0;
-  background: var(--h-pill);
-  color: var(--h-ink);
-}
-
-.h-footer p {
-  margin: 0;
-}
-
-.h-footer :focus-visible {
-  outline-color: var(--h-ink);
-}
-
-.h-footer__cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px 24px;
-  padding-bottom: 64px;
-}
-
-.h-footer__brand {
-  grid-column: 1 / -1;
-}
-
-.h-footer__logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.h-footer__name,
-.b-nav__name {
-  font-family: var(--display);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-
-.h-footer__name {
-  font-size: 1.375rem;
-}
-
-.h-footer__line {
-  margin-top: 14px !important;
-  font-family: var(--h-head);
-  font-size: 1.5rem;
-}
-
-.h-footer__col {
-  display: grid;
-  align-content: start;
-  justify-items: start;
-  gap: 6px;
-}
-
-.h-footer__head {
-  margin-bottom: 18px !important;
-  font-size: 0.8125rem;
-  letter-spacing: 0.14em;
-  color: var(--h-soft);
-}
-
-.h-footer__col a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 0;
-  color: var(--h-ink);
-  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
-  text-decoration: none;
-}
-
-.h-footer__col a:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
-
-.h-footer__small {
-  font-size: 0.875rem;
-  color: var(--h-soft);
-}
-
-/* Huge name along the bottom edge; its letters rise out of the edge as the footer comes up. */
-.h-footer__mark {
-  margin: 40px 0 -0.2em !important;
-  font-family: var(--display);
-  font-size: 15.2vw;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  text-align: center;
-  color: var(--h-ink);
-}
-
-.h-footer__mark span {
-  display: inline-block;
-}
-
-@media (min-width: 900px) {
-  .h-footer__cols {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr;
-  }
-
-  .h-footer__brand {
-    grid-column: auto;
-  }
-}
-
-/* ---------- Reduced motion ---------- */
-
 @media (prefers-reduced-motion: reduce) {
-  .h-hubs__row {
-    flex-wrap: wrap;
-    justify-content: center;
-    width: auto;
-    padding: 0 20px;
-    white-space: normal;
-  }
-
-  .h-btn,
-  .h-btn::before,
   .b-nav__join::before,
-  .b-hero__cta::before,
-  .h-tools__icon,
-  .h-tools__name,
-  .h-step__pic,
-  .h-tl__tile h3::after,
   .b-nav__links,
   .b-nav__links a::before,
   .b-nav__signin::before,
@@ -1364,10 +1564,26 @@
   .b-nav__toggle span {
     transition: none;
   }
+}
 
-  .h-tools__row:hover .h-tools__icon,
-  .h-tools__row:hover .h-tools__name,
-  .h-step:hover .h-step__pic {
-    transform: none;
+/* White pills (16 Nov 2026): a hairline edge so they still read over white sections,
+   and the hover pill behind a link is light blue instead of white. */
+.b-nav__inner::before,
+.b-nav__right,
+.b-nav__drop {
+  box-shadow: 0 0 0 1px rgb(11 26 51 / 0.08);
+}
+
+.b-nav__links a::before,
+.b-nav__signin::before,
+.b-nav__item::before {
+  background: #e8eefb;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-faq__q button::before,
+  .dc-faq__q button > span:first-child {
+    transition: none;
   }
 }

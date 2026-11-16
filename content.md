@@ -11,7 +11,7 @@ Made once. Do not change them mid-build.
 - **Two colours across the whole site** (Josh, 16 Nov 2026; replaces the bright blue + gradient): deep navy #0b1a33 and off-white #f8f8f6, the same as the front page. Greys, lines and soft backgrounds are navy mixed into the off-white, never a third colour. One exception Josh wants kept: the sign-in / sign-up left panel uses the original blue gradient over the office photo (`hub-hero.webp`). Amber and red only for waiting/error status.
 - Two signals besides the accent: amber for "waiting / to confirm", red for errors and "not accepted". Both appear as a small dot or a thin left rule, never as a filled block.
 - Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages follow Josh's Pitch.io reference (16 Nov 2026): a white **left sidebar** (logo, one big action button, menu, help card, Sign out; the current tab joins the page beside it), a top bar with the page name, date, notices bell and your name (opens Profile), and on student Dashboard a soft-blue welcome banner, four blue overview tiles and one row per area. The sidebar has icons (on phones: a bottom bar for the main pages, and "More" opens the full menu as a drawer).
-- Landing page header and hero follow **butter.video**'s layout (Josh, 16 Nov 2026): two grey pills at the top, a grey hero with open space and one cut-out drawing at the top, one big centred line whose letters sharpen out of a blur, and one button. No decorative "charms" or card-like motion in the hero (Josh: too AI-looking). **No cards anywhere on the front page** (Josh, 16 Nov 2026): drawings sit straight on the page, lists use thin lines. Motion uses **GSAP** + **Lenis** smooth scrolling, one easing curve `cubic-bezier(0.2, 0.715, 0.205, 0.99)`: the hero is scroll-linked, headings come in word by word, hub names slide sideways with the scroll, a playhead walks the four stages, a dashboard preview follows the mouse. Off when the device asks for reduced motion.
+- **Front page rebuilt 16 Nov 2026** (CBE turned the old one down): davidecarusio.it layout and motion with CBE's words, blue and white, Geist / Geist Mono. See "Front page (v3)" at the end of this file. The header stays Josh's two-pill navbar (butter.video layout), unchanged. Sign-in, sign-up and the dashboards keep the navy + off-white look below until Josh says otherwise.
 - Two typefaces (16 Nov 2026, Josh's butter.video reference): **Inter Tight** for all text and headings across the site (self-hosted from npm `@fontsource-variable/inter-tight`): tight letters, big lines weight 500 with negative tracking (hero: huge headline, medium line, normal button). **Some Time Later** (SIL Open Font Licence, 34 KB in `src/assets/fonts`) only for the logo and the big line on the sign-in / sign-up picture.
 - Type scale with big jumps: 14 / 16 / 20 / 32 / 56 / 96 px. Headings are large, tight and left-aligned.
 - Everything hangs left. Nothing is centred except the loading spinner.
@@ -504,86 +504,44 @@ After saving: Saved.
 
 ---
 
-## Landing page v2
+## Front page (v3, 16 Nov 2026)
 
-**Simple front page (16 Nov 2026, replaces everything below in this section):** Header: How it works · Hubs · Sign in · Join. Hero: eyebrow "College of Business Education"; **Turn your [idea / side hustle / prototype / class project / first sale] into a business.** (Aptos); line "Join an innovation hub, get a mentor in your field, and grow your business one stage at a time."; buttons Create your account · Sign in; facts {hubs} hubs · 4 stages · 1 mentor for you; video card with badge "A mentor in your field". **From idea to income, one stage at a time.** Idea (Describe your business and pick the hub that fits it.) · Prototype (Build a first version with your mentor's feedback.) · Operational (Open for customers and post your progress videos.) · Earning (Make your first sales and keep growing.). **Find the hub that fits your idea.** Each hub groups students in one field with a mentor who knows it. + live hub list. **Ready to start your business?** It takes one minute to create your account. Footer: Questions? Call +255 627 375 912.
+CBE turned down the earlier front pages, so the page at `/` was rebuilt to Josh's **davidecarusio.it** layout and motion (Lorem capture `D:\Lorem\Inspections\davidecarusio.it 2026-11-16 2125`). Words and pictures are CBE's own; nothing from that site is used. Code: `src/pages/Landing.jsx`, `src/pages/landing.css`, `src/components/FlowGradient.jsx`.
 
-The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and white, motion inspired by loopsii.com. Fonts: Some Time Later for headings, Plus Jakarta Sans for text; the small handwritten notes use the heading font, slanted, in blue. Items marked **[confirm with CBE]** need CBE's answer before going live; **(draft)** means wording Claude wrote because the brief gave none.
+**Look**: Geist (weight 600, tight -0.04em tracking) for everything, Geist Mono for small uppercase labels. **Blue and white** (Josh, 16 Nov 2026): near-white #F7F9FD, navy words #0B1A33, deep blue #0A2463 for the dark sections, muted #4B5A78, lines #D3DBEB, one bright blue #1D4ED8 for tags, button hovers and the dot grid (light blue #60A5FA near the mouse). Square-ish corners (2px), thin lines between blocks, fine grain over the page. On computers the whole page scales with the window (1rem = 16px at 1440px wide).
 
-**Intro** (once per browser visit, never with reduced motion): blue sheet, thin lines, round CBE badge, slides up.
+**Header**: Josh's two-pill navbar, kept exactly as before (Josh, 16 Nov 2026: "don't change my navbar"): About · How it works · Stages · FAQ · ⋮ menu (What we do, How it works, The four stages, Questions, Call us) · Sign in · **Join**. Only the 4th link changed, from "Inside" to "FAQ", because that section is gone. Pills and menu are now the page's white (#F7F9FD) with a hairline edge; the hover pill behind a link is light blue (Josh, 16 Nov 2026).
 
-**Header**: logo · How it works · Stages · Hubs · FAQ · Sign in · **Join**
+**Loader** (first visit in a browser session, never with reduced motion): dark sheet, "CBE Incubation Hub" wipes in, "every idea" → "needs a hub" at the bottom, bar fills, sheet lifts.
 
-**Hero**
+**Hero**: Josh's FlowGradient in blue and white (white base, light blue #BFD3FF flowing, a touch of #1D4ED8), it drifts with the cursor; right of centre:
+- **Turn your idea into a real business.** For CBE students who want more than a class project.
+- Join one of 22 innovation hubs, work with a mentor in your field and grow your business from idea to first sale, one stage at a time.
+- Button: **Create your account ↗**
+- On arrival the words rise one after another out of their lines and the button comes up.
+- Bottom: COLLEGE OF BUSINESS EDUCATION, a line, then **Incubation Hub** huge across the width in **Funnel Display** ExtraBold (free on Google Fonts; the display font davidecarusio.it loads). It fades up slowly while its two words ease outward, and as you scroll the words keep drifting apart (4rem each way). No campus names anywhere on the front page (Josh, 16 Nov 2026).
+- Scrolling down, dark bars grow over the hero.
 
-- Headline: **Turn your [idea / prototype / side hustle / class project / first sale] into a business.** (screen readers hear "Turn your idea into a business.")
-- Line: Join an innovation hub, get a mentor in your field, and grow your business one stage at a time.
-- Buttons: **Create your account** · Sign in
+**Statements** (`#about`, deep blue fading to white, dot grid that turns light blue near the mouse): Why does a good idea need a hub? → Most student ideas never leave the notebook. → Here, yours gets a mentor, a path and a stage.
 
-**Every idea needs a hub** (added 16 Nov 2026; motion borrowed from compasspathways.com's opening)
+**How it works** (`#how`): four rows, a small drawing left (26rem wide, 4:3), words right. Mouse-over: a light-blue panel wipes up behind the drawing, the drawing lifts, an arrow ↗ slides in beside the title and a "Get started" label follows the mouse (no videos, Josh 16 Nov 2026). On touch screens the arrow is always shown.
+1. Join your hub: Sign up with the email you gave CBE. Your student details fill in by themselves. Tags: Sign up · CBE email
+2. Describe your idea: Write your business down in plain words and pick the hub that fits it. Tags: 22 hubs · One idea each
+3. Share your progress: Each time your business moves forward, post a short video link for your mentor. Tags: Video link · Mentor review
+4. Move up a stage: When your mentor approves the video, you move to the next stage. Lessons and meetings help you get there. Tags: Lessons · Meetings
 
-- Big words around a tall pill with a short muted video (`public/landing/hub-video.mp4`, 14 s, 284 KB, still picture `hub-video.webp`): **Every idea** · **needs a** · **hub.** (screen readers hear "Every idea needs a hub.")
-- Line (draft): Your hub brings together students with ideas in the same field, and a mentor who knows it.
-- Round button on the pill: Pause video / Play video. The video plays only while on screen; never by itself with reduced motion or Data Saver.
-- Computers: tied to the scroll, the pill rises, the video zooms out and the words slide in from the sides. Phones: each part rises in once.
-- The video and the drawings in `public/dashboard` are downloads from Pinterest/stock sites **[confirm licence or swap before going live]**.
+**The four stages** (`#stages`, dark): big list Idea · Prototype · Operational · Earning; the picture and line on the left follow the one you point at (tap on phones). Idea: Describe your business and pick the hub that fits it. · Prototype: Build a first version with your mentor's feedback. · Operational: Open for customers and post your progress videos. · Earning: Make your first sales and keep growing. Then, lighting up letter by letter: One hub, one mentor, one clear path. Your idea, your videos and your mentor's feedback stay together, so you always know what to do next.
 
-**What is the Hub**
+**Questions** (`#faq`, dark): **Questions students ask us most.** One answer open at a time. Mouse-over a question: a lighter band fills the row and the question slides right.
+- Who can join? Any student of the College of Business Education, on any campus.
+- Which email should I use? The one you gave CBE when you registered. When you confirm it, your CBE details fill in by themselves.
+- I don't have an idea yet. Can I still join? Yes. Create your account now and add your idea when you have one.
+- What is a hub? A group for one field, like FinTech, Agribusiness or Tourism. There are 22 hubs, and your mentor comes from yours.
+- How do I move up a stage? Post a short video link that shows your progress. Your mentor watches it; once it is approved, you move to the next stage.
+- Who can see my idea? You, your hub's mentors and the Incubation Hub administrators. Other students cannot.
+- Then: Still have a question? Give us a call. · **Call +255 627 375 912 ↗**
+- "Does it cost anything?" stays off the page until CBE answers it.
 
-- Note: What is the Hub
-- The CBE Incubation Hub helps students turn ideas into real businesses, with a mentor, short lessons and a clear path from idea to income.
-- Every business grows in loops: try, learn, show your progress, get feedback. The Hub keeps the loop going, so you always know what to do next.
+**Footer**: EXPLORE (How it works, The stages, Questions, Back to top ↑) · YOUR ACCOUNT (Sign in, Create an account) · CONTACT (Call us ↗) · © {year} College of Business Education · Incubation Hub · **Incubation Hub** huge across the bottom; its two words slide together as the footer comes up.
 
-**Dark section**
-
-- So many questions pulling you away · from building your business
-- Questions: Which hub fits my idea? · Who is my mentor? · Did my mentor see my video? · When is the next meeting? · Where was that lesson link? · What stage am I at? · Is my idea good enough? · Where do I even start? · Lost in the WhatsApp group · Paper forms. Again.
-- Background: a blurred student picture under a 55% dark-blue shade. For now it is a drawn stand-in (`public/landing/student-blur.jpg`) **[confirm with CBE]**: swap in a real photo with the same name.
-- As it leaves, the dark card shrinks back into a rounded card over ice blue.
-
-**That's why CBE Incubation Hub exists**: on ice blue, with big soft tiles that fade in as you scroll; the dashboard picture comes up right under the line. No button here (Josh, 15 Nov: follow Loopsii's pattern, don't overdo it).
-
-**Dashboard picture** (sample, not real data): Good morning, Amina **[confirm with CBE: sample name]** · Your stage (the four stages) · Next meeting: Hub check-in, Wed, 14:00 (draft) · Progress video: Operational, Waiting for review → Verified ✓ · Lessons: Know your customer · Price your product · Pitch in two minutes (draft) · Floating cards: Mentor verified ✓ · Video posted
-
-**Where your startup lives today**
-
-- Note: the scattered problem
-- Title: Your startup shouldn't live in six places
-- WhatsApp groups (Lost messages) · Paper forms (Filled in again and again) · Email threads (Hard to find later) · Notebooks (Easy to lose) · Video links (Shared, then forgotten) · Excel files (Out of date) **[confirm with CBE]**
-- Numbers: 6 places · 1 hub
-
-**Everything you need at every stage** (`#how`)
-
-- START · Get set up in a day: Create your account (Sign up with your email. Takes a minute.) · Your details filled in (Registered with CBE? We fill them in for you.) · Pick your hub (Choose the innovation hub that fits your idea.)
-- BUILD · Shape your idea: Describe your idea (Your business, its sector and its stage.) · Video lessons (Short lessons you can watch on your phone.) · Meetings and notices (Everything from your hub in one place.)
-- PROVE · Show your progress: Post a progress video (A short video when you move forward.) · Mentor review (Your mentor watches it and gives feedback.) · Move up a stage (Approved? You move to the next stage.)
-- GROW · Get the help you need: A mentor in your field (Someone who knows your industry.) · Ask for support (Choose from the {n} kinds of support the Hub offers. n comes from the Support types list) · Your record (A clear history of how far you've come.)
-
-**Your Hub at a glance** (`#stages`) — one-liners and ticks are drafts **[confirm with CBE]**
-
-1. See where you stand: Your stage, your hub and your mentor, on one screen. Ticks: Four clear stages · Your hub and your mentor · What to do next · Only a mentor moves your stage
-2. Show your progress: Post a short video. Your mentor watches it and replies. Ticks: Upload to YouTube as Unlisted · Paste the link · Feedback from your mentor · Move up when it is approved
-3. Learn on your phone: Short video lessons from your mentors. Ticks: Works on any phone · For your hub or for everyone · Tick each one when you finish · See how many you have done
-4. Never miss a meeting: Meetings and news from your hub, in one place. Ticks: Your next meeting and its link · Notices from your mentors · New ones are marked · Nothing lost in a group chat
-
-**Hubs** (`#hubs`, live from the database)
-
-- Find the hub that fits your idea (one chip per hub)
-- Support you can ask for (one line per support type)
-- Numbers: Innovation hubs (count) · Campuses 3 · Business stages 4 · Kinds of support (count)
-
-**FAQ** (`#faq`, title "FAQ" is a draft)
-
-- Who can join? Students of the College of Business Education with a business idea, at any stage. **[confirm with CBE]**
-- Does it cost anything? **[confirm with CBE]** — hidden on the page until CBE answers.
-- Do I need a laptop? No. The site works on any phone. Lessons are short videos.
-- How do I choose a hub? Pick the innovation hub closest to your idea when you complete your profile. Each hub has its own mentors.
-- Who can see my idea? Only the mentors of your hub and the Hub's admins.
-- How do I move up a stage? Post a short video showing your progress. Your mentor checks it and moves you up.
-- I'm already registered with CBE. Do I fill everything in again? No. When you confirm your email, we fill in the details CBE already has.
-
-**Final call**: Ready to start your business? · It takes one minute to create your account. · **Create your account**
-
-**Closing line**: Idea. Prototype. Running. Earning.
-
-**Footer**: CBE Incubation Hub · How it works · Hubs · FAQ · Sign in · Questions? Call +255 627 375 912 (tap to call; changed 16 Nov 2026) · College of Business Education · Incubation Hub
+Pictures: drawings in `public/dashboard`, the office photo `public/landing/hub-hero.webp`. The clips in `public/landing/tools` are no longer used by any page. Change which picture a row uses in the `STEPS` / `STAGES` lists at the top of `Landing.jsx`.
