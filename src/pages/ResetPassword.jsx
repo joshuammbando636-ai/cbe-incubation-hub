@@ -47,14 +47,18 @@ export function ResetPassword() {
         <Notice kind="error">
           <p>This reset link has expired. Ask for a new one.</p>
           <p>
-            <Link to="/forgot-password">Send a new link</Link>
+            <Link to="/forgot-password" className="link-btn">
+              Send a new link
+            </Link>
           </p>
         </Notice>
       ) : done ? (
         <>
           <Notice kind="ok">Password changed.</Notice>
           <p>
-            <Link to="/">Go to the start page</Link>
+            <Link to="/" className="link-btn">
+              Go to the start page
+            </Link>
           </p>
         </>
       ) : (

@@ -1,9 +1,10 @@
 import { ClipboardCheck, Lightbulb, Users, Video } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/context.js'
 import { LoadError, Spinner } from '../../components/ui.jsx'
 import { useLoad } from '../../lib/data.js'
-import { firstName } from '../../lib/labels.js'
+import { ROLE_TITLE, staffGreeting } from '../../lib/greeting.js'
 import { summarize } from '../../lib/staff.js'
 import { loadStaffPage, staffPageKey } from '../../lib/staffData.js'
 import { useTitle } from '../../lib/useTitle.js'
@@ -21,6 +22,7 @@ export function Overview() {
   useTitle('Overview')
   const { profile } = useAuth()
   const page = useLoad(() => loadStaffPage(profile), [profile.id], staffPageKey(profile))
+  const [now] = useState(() => new Date())
 
   if (page.loading) return <Spinner />
   if (page.error) return <LoadError error={page.error} onRetry={page.reload} />
@@ -37,11 +39,11 @@ export function Overview() {
 
   const s = summarize(rows, hubs, lists.campuses)
   const most = Math.max(1, ...s.byStage.map((g) => g.students))
-  const name = firstName(profile.full_name)
   return (
     <>
       <section className="welcome">
-        <h1>{name ? `Welcome back, ${name}.` : 'Overview'}</h1>
+        <p className="welcome-role">{ROLE_TITLE[profile.role]} · CBE Incubation Hub</p>
+        <h1>{staffGreeting(profile, now)}</h1>
         <p>{isAdmin ? 'You are seeing every hub.' : `Your hubs: ${hubs.map((h) => h.name).join(', ')}.`}</p>
       </section>
 

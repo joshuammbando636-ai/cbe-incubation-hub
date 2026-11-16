@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { AuthShell } from '../components/layouts.jsx'
 import { Button, Field, Notice } from '../components/ui.jsx'
 import { authRedirect, supabase } from '../lib/supabase.js'
-import { APP_NAME, MSG, errorMessage, required } from '../lib/text.js'
+import { MSG, errorMessage, required } from '../lib/text.js'
 import { useTitle } from '../lib/useTitle.js'
 import { checkEmail, cleanEmail, firstError } from '../lib/validate.js'
 
@@ -45,24 +46,11 @@ export function Login() {
   }
 
   return (
-    <div className="page">
-      <main className="split">
-        <section className="split-intro">
-          <p className="wordmark">{APP_NAME}</p>
-          <h1 className="display">Turn your idea into a business.</h1>
-          <p className="lede">
-            Register your idea, join an innovation hub and get a mentor at the College of Business Education.
-          </p>
-          <ol className="steps">
-            <li>Create your account</li>
-            <li>Tell us your idea</li>
-            <li>Show your progress</li>
-          </ol>
-        </section>
-
-        <section className="split-form" aria-labelledby="signin-title">
-          <h2 id="signin-title">Sign in</h2>
-
+    <AuthShell
+      title="Welcome back"
+      sub="Sign in to see your idea, your mentor and what to do next."
+      line="Turn your idea into a business."
+    >
           {problem === 'unconfirmed' ? (
             <Notice kind="wait">
               <p>Confirm your email first. We sent you a link when you signed up.</p>
@@ -106,14 +94,10 @@ export function Login() {
             </Button>
           </form>
 
-          <p>
+          <p className="auth-links">
+            <Link to="/signup">New here? Create an account</Link>
             <Link to="/forgot-password">Forgot your password?</Link>
           </p>
-          <p>
-            New here? <Link to="/signup">Create an account</Link>
-          </p>
-        </section>
-      </main>
-    </div>
+    </AuthShell>
   )
 }

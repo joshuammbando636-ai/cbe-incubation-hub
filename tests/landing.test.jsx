@@ -24,7 +24,7 @@ const render = () =>
     </MemoryRouter>,
   )
 
-describe('landing page v2', () => {
+describe('front page', () => {
   it('has one h1 that reads as one sentence', () => {
     const html = render()
     expect(html.match(/<h1/g)).toHaveLength(1)
@@ -35,13 +35,12 @@ describe('landing page v2', () => {
     const html = render()
     const order = [
       'Every idea needs a hub.',
-      'Beyond the idea',
-      'Open new doors for your business.',
-      'We all have a why.',
-      'Everything you need at every stage',
-      'Your Hub at a glance',
-      'Find the hub that fits your idea',
-      'id="faq"',
+      'help',
+      'hubs. One for every kind of idea.',
+      'into a business.',
+      'One place to grow your business.',
+      'From idea to income,',
+      'Your hub, your mentor and your next step, in one place.',
       'Ready to start your business?',
     ]
     const at = order.map((t) => html.indexOf(t))
@@ -53,13 +52,21 @@ describe('landing page v2', () => {
     const html = render()
     expect(html).toContain('href="/signup"')
     expect(html).toContain('href="/login"')
-    expect(html).toContain('aria-label="Create your account"')
+    expect(html).toContain('Create your account')
+  })
+
+  it('names all 22 hubs once in the sliding rows', () => {
+    const html = render()
+    expect(html.match(/<ul class="h-hubs__row/g)).toHaveLength(2)
+    expect(html).toContain('<li>FinTech Innovation</li>')
+    expect(html).toContain('<li>Measurement &amp; Automation</li>')
+    expect(html.match(/<li>[^<]+<\/li>/g).length).toBeGreaterThanOrEqual(22)
   })
 
   it('gives a number to call with questions', () => {
     const html = render()
-    expect(html).toContain('href="tel:+255777561651"')
-    expect(html).toContain('0777 561 651')
+    expect(html).toContain('href="tel:+255627375912"')
+    expect(html).toContain('+255 627 375 912')
   })
 
   it('never shows placeholder text', () => {

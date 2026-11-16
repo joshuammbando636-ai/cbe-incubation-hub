@@ -1,11 +1,14 @@
-/* Design decisions live in content.md. Blue and white: one blue accent, light
-   blue surfaces, a deep-blue gradient for the big moments. Amber = waiting,
-   red = error. 1px rules, 8px radius. Light theme only. */
+/* Design decisions live in content.md. Two colours across the whole site, the
+   same as the front page: deep navy #0b1a33 and off-white #f8f8f6. Greys and
+   tints are the navy mixed into the off-white, never a third colour. Amber =
+   waiting, red = error (status only). 1px rules, 8px radius. Light theme only. */
 
 /* Fonts chosen by Josh:
-   - Plus Jakarta Sans (self-hosted from npm) for all text and headings.
-   - Some Time Later (SIL Open Font Licence, Latin only, 34 KB) only for the big
-     moments: the landing page and the sign-in panel. Those set --serif to it. */
+   - Inter Tight (self-hosted from npm) for all text and headings: a tight,
+     Helvetica-like grotesk with no loose letter spacing (Josh's butter.video
+     reference, 16 Nov 2026). Big lines get extra negative tracking.
+   - Some Time Later (SIL Open Font Licence, Latin only, 34 KB) only for the
+     logo and the big line on the sign-in / sign-up picture. */
 @font-face {
   font-family: 'Some Time Later';
   src: url('./assets/fonts/some-time-later.woff2') format('woff2');
@@ -16,30 +19,28 @@
 
 :root {
   font-synthesis-weight: none;
-  --paper: #ffffff;
-  --surface: #f4f7fe;
+  /* Solid mixes of navy into off-white (5%, 72%, 12%, 50%, 8%). */
+  --paper: #f8f8f6;
+  --surface: #ecedec;
   --field: #ffffff;
   --ink: #0b1a33;
-  --ink-soft: #4a5873;
-  --rule: #dbe3f1;
-  --rule-strong: #8492ad;
-  --accent: #1d4ed8;
-  --accent-dark: #1e3a8a;
-  --accent-soft: #e6eeff;
-  --on-accent: #ffffff;
-  --grad: linear-gradient(135deg, #0a2463 0%, #1d4ed8 55%, #3b82f6 100%);
+  --ink-soft: #4d586a;
+  --rule: #dcdddf;
+  --rule-strong: #828995;
+  --accent: #0b1a33;
+  --accent-dark: #0b1a33;
+  --accent-soft: #e5e6e6;
+  --on-accent: #f8f8f6;
+  --grad: #0b1a33;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --amber: #9a6200;
   --red: #b3261e;
 
-  --sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --sans: 'Inter Tight Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --display: 'Some Time Later', 'Arial Black', Impact, sans-serif;
-  /* Front page only: a bold formal face for headings, and Office's Aptos for the hero line. */
-  --formal: 'Plus Jakarta Sans Variable', system-ui, 'Segoe UI', Arial, sans-serif;
-  --office: Aptos, Calibri, 'Segoe UI', Arial, sans-serif;
-  /* Heading font. Plain in the app; the landing page and sign-in panel switch it. */
+  /* Heading font: the same grotesk, tighter. */
   --serif: var(--sans);
-  --head-track: -0.02em;
+  --head-track: -0.03em;
 
   --t14: 0.875rem;
   --t16: 1rem;
@@ -92,7 +93,7 @@ h1,
 h2,
 h3 {
   font-family: var(--serif);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.15;
   letter-spacing: var(--head-track);
   margin: 0 0 var(--s4);
@@ -119,6 +120,76 @@ a {
 
 a:hover {
   text-decoration-thickness: 2px;
+}
+
+/* A link that is an action on its own (Add your idea, Back to sign in…):
+   a rounded button, soft blue, solid blue on hover. Links inside sentences
+   and tables stay plain. */
+a.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  vertical-align: middle;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+a.link-btn:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+a.link-btn:active {
+  transform: scale(0.98);
+}
+
+/* Quieter: outline only (Forgot your password?). */
+a.link-btn--quiet {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--ink);
+}
+
+a.link-btn--quiet:hover {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+a.link-btn--small {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: var(--t14);
+}
+
+/* Arrow marks: back, and "opens in a new tab". Read as nothing by screen readers. */
+a.link-btn--back::before {
+  content: '←' / '';
+}
+
+a.link-btn--out::after {
+  content: '↗' / '';
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.link-btn {
+    transition: none;
+  }
+
+  a.link-btn:active {
+    transform: none;
+  }
 }
 
 :focus-visible {
@@ -238,91 +309,6 @@ strong {
 .small {
   font-size: var(--t14);
   color: var(--ink-soft);
-}
-
-/* ---------- Sign-in split ---------- */
-
-.split {
-  flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  animation: rise 240ms ease-out both;
-}
-
-.split-intro,
-.split-form {
-  padding: var(--s6) var(--s4);
-}
-
-.split-intro {
-  border-bottom: 1px solid var(--rule);
-}
-
-.split-intro .wordmark {
-  margin-bottom: var(--s7);
-}
-
-.display {
-  font-size: var(--t56);
-  line-height: 0.98;
-  letter-spacing: 0.01em;
-  font-weight: 600;
-  margin-bottom: var(--s5);
-  max-width: 12ch;
-}
-
-.steps {
-  list-style: none;
-  counter-reset: step;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s2) var(--s5);
-  font-size: var(--t14);
-  color: var(--ink-soft);
-}
-
-.steps li {
-  counter-increment: step;
-}
-
-.steps li::before {
-  content: counter(step) '. ';
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.split-form {
-  max-width: calc(var(--measure) + 2 * var(--s4));
-}
-
-@media (min-width: 900px) {
-  .split {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  }
-
-  .split-intro {
-    border-bottom: 0;
-    border-right: 1px solid var(--rule);
-    padding: var(--s7) var(--s7) var(--s8);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .split-intro .wordmark {
-    margin-bottom: auto;
-    padding-bottom: var(--s8);
-  }
-
-  .display {
-    font-size: var(--t96);
-  }
-
-  .split-form {
-    padding: var(--s8) var(--s7);
-    align-self: center;
-  }
 }
 
 @media (min-width: 768px) {
@@ -454,7 +440,7 @@ textarea[aria-invalid='true'] {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-dark);
+  background: rgb(11 26 51 / 0.85);
 }
 
 .btn-secondary {
@@ -1568,44 +1554,206 @@ legend {
   flex: none;
 }
 
-/* ---------- Sign-in: the left panel is the blue gradient ---------- */
+/* ---------- Sign in / sign up (AuthShell in layouts.jsx) ----------
+   Form on the left, a big rounded picture card on the right. Phones: logo,
+   a short picture strip, then the form. */
 
-/* Front page: headings in a bold, formal face; the hero line in Office's own font. */
-.landing {
-  --serif: var(--formal);
-  --display: var(--formal);
-  --head-track: -0.01em;
+.auth {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'top' 'art' 'main';
+  grid-template-rows: auto auto 1fr;
+  background: var(--paper);
 }
 
-/* The sign-in panel keeps the display font. */
-.split-intro {
-  --serif: var(--display);
-  --head-track: 0.01em;
+.auth-top {
+  grid-area: top;
+  padding: var(--s3) var(--s4) 0;
 }
 
-.split-intro {
-  background: var(--grad);
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 44px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--t20);
+  text-decoration: none;
+}
+
+.auth-logo .brand-mark {
+  width: 36px;
+  height: 36px;
+}
+
+.auth-main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  padding: var(--s6) var(--s4) var(--s7);
+}
+
+.auth-main:focus {
+  outline: none;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+  animation: rise 240ms ease-out both;
+}
+
+.auth-box h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--s2);
+}
+
+.auth-sub {
+  color: var(--ink-soft);
+  margin: 0 auto var(--s6);
+  max-width: 36ch;
+}
+
+.auth .notice {
+  text-align: left;
+}
+
+.auth .form {
+  align-items: stretch;
+  gap: var(--s4);
+  max-width: none;
+  margin-bottom: var(--s5);
+  text-align: left;
+}
+
+.auth .field label {
+  font-size: var(--t14);
+}
+
+/* Soft, tall, rounded inputs. */
+.auth input {
+  min-height: 56px;
+  padding: 0 var(--s4);
+  border-radius: 14px;
+  background: var(--field);
+}
+
+.auth .password-wrap input {
+  padding-right: 72px;
+}
+
+.auth .password-toggle {
+  right: var(--s4);
+}
+
+/* One big dark button across the form. */
+.auth .btn-primary {
+  width: 100%;
+  min-height: 60px;
+  margin-top: var(--s2);
+  border-radius: 14px;
+  font-size: 1.125rem;
+}
+
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  margin: 0;
+  font-size: var(--t14);
+}
+
+.auth-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--ink-soft);
+  text-underline-offset: 4px;
+}
+
+.auth-links a:hover {
+  color: var(--ink);
+}
+
+/* The picture card: front page office photo under Josh's blue gradient (the one
+   place the bright gradient stays), with a fine dot texture on top. */
+.auth-art {
+  grid-area: art;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s5);
+  min-height: 170px;
+  margin: var(--s3) var(--s3) 0;
+  padding: var(--s5);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgb(10 36 99 / 0.92) 0%, rgb(29 78 216 / 0.8) 55%, rgb(59 130 246 / 0.72) 100%),
+    url('/landing/hub-hero.webp') center / cover no-repeat,
+    #0a2463;
   color: #ffffff;
-  border: 0;
 }
 
-.split-intro .wordmark,
-.split-intro .steps li::before {
-  color: #ffffff;
+.auth-art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1.6px) 0 0 / 7px 7px;
+  pointer-events: none;
 }
 
-.split-intro .lede,
-.split-intro .steps {
-  color: rgb(255 255 255 / 0.85);
+.auth-art > * {
+  position: relative;
 }
 
-.split-intro :focus-visible {
-  outline-color: #ffffff;
+.auth-art-line {
+  font-family: var(--display);
+  font-size: 2.25rem;
+  line-height: 1;
+  max-width: 11ch;
+  margin: 0;
 }
 
 @media (min-width: 900px) {
-  .split-intro {
-    border-right: 0;
+  .auth {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'top art' 'main art';
+  }
+
+  .auth-top {
+    padding: var(--s5) var(--s7) 0;
+  }
+
+  .auth-main {
+    padding: var(--s6) var(--s7) var(--s7);
+  }
+
+  /* Short forms sit in the middle; long ones scroll while the card stays. */
+  .auth-box {
+    margin: auto;
+  }
+
+  .auth-art {
+    position: sticky;
+    top: var(--s5);
+    align-self: start;
+    height: calc(100dvh - 2 * var(--s5));
+    margin: var(--s5) var(--s5) var(--s5) 0;
+    padding: var(--s7);
+    border-radius: 28px;
+  }
+
+  .auth-art-line {
+    font-size: clamp(3rem, 5.5vw, 5.5rem);
   }
 }
 

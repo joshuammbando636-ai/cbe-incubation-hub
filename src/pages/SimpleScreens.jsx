@@ -9,7 +9,9 @@ export function NotFound() {
       <h1>Page not found</h1>
       <p className="lede">This page does not exist or has moved.</p>
       <p>
-        <Link to="/">Go to the start page</Link>
+        <Link to="/" className="link-btn">
+          Go to the start page
+        </Link>
       </p>
     </SimplePage>
   )

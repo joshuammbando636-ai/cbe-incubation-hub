@@ -75,7 +75,7 @@ function MeetingsBody({ data, userId }) {
           {formatDateTime(m.starts_at)} · {meetingAudience(m, allHubs, students)}
         </p>
       </div>
-      <a href={m.link} target="_blank" rel="noopener noreferrer">
+      <a href={m.link} target="_blank" rel="noopener noreferrer" className="link-btn link-btn--small link-btn--out">
         Join<span className="visually-hidden"> {m.title} (opens in a new tab)</span>
       </a>
       <button

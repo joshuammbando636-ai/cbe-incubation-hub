@@ -49,7 +49,9 @@ export function CheckEmail() {
       )}
 
       <p>
-        <Link to="/login">Back to sign in</Link>
+        <Link to="/login" className="link-btn link-btn--back">
+          Back to sign in
+        </Link>
       </p>
     </SimplePage>
   )

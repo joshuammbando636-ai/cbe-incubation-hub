@@ -289,7 +289,7 @@ export function VideoLink({ url, label = 'Watch video' }) {
   const kind = linkKind(url)
   if (kind === 'bad') return <span className="small">{MSG.badSavedLink}</span>
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer">
+    <a href={url} target="_blank" rel="noopener noreferrer" className="link-btn link-btn--small link-btn--out">
       {kind === 'youtube' ? label : 'Watch video (opens in a new tab)'}
     </a>
   )

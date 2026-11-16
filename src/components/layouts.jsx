@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../auth/context.js'
 import { ADMIN_MENU, STAFF_ACTION, STAFF_MENU, STUDENT_ACTION, TAB_COUNT } from '../lib/menus.js'
+import { unreadCount } from '../lib/messages.js'
 import { APP_NAME, FOOTER } from '../lib/text.js'
 import { Avatar } from './Avatar.jsx'
 import { Notifications } from './Notifications.jsx'
@@ -55,6 +56,41 @@ export function SimplePage({ children }) {
   )
 }
 
+// Sign in / sign up: logo top-left (goes home), the form centred on the left,
+// a big rounded picture card on the right (on phones: a short strip above the form).
+export function AuthShell({ title, sub, line, children }) {
+  return (
+    <div className="auth">
+      <SkipLink />
+      <header className="auth-top">
+        <Link to="/" className="auth-logo" aria-label={`${APP_NAME}, home`}>
+          <span className="brand-mark" aria-hidden="true">
+            CBE
+          </span>
+          <span aria-hidden="true">Incubation Hub</span>
+        </Link>
+      </header>
+      <AuthArt line={line} />
+      <main id="main" tabIndex={-1} className="auth-main">
+        <div className="auth-box">
+          <h1>{title}</h1>
+          <p className="auth-sub">{sub}</p>
+          {children}
+        </div>
+      </main>
+    </div>
+  )
+}
+
+// Decoration only: the photo under the blue gradient and one big line.
+function AuthArt({ line }) {
+  return (
+    <aside className="auth-art" aria-hidden="true">
+      <p className="auth-art-line">{line}</p>
+    </aside>
+  )
+}
+
 const ROLE_NAME = { student: 'Student', mentor: 'Mentor', admin: 'Admin' }
 
 // Computers only: the sidebar can shrink to icons. Remembered on this browser.
@@ -90,11 +126,44 @@ function pageFor(menu, pathname) {
 const WEEKDAY = new Intl.DateTimeFormat('en-GB', { weekday: 'long' })
 const DAY = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
-function SideLink({ to, end, label, icon: Icon, collapsed }) {
+// Messages waiting for this person, checked every 30 seconds while the tab is visible
+// and again whenever the page changes (so reading a chat clears the count soon).
+function useUnread(userId, pathname) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    let stale = false
+    const check = () => {
+      if (document.visibilityState !== 'visible') return
+      unreadCount(userId).then((n) => !stale && setCount(n))
+    }
+    check()
+    const id = setInterval(check, 30000)
+    return () => {
+      stale = true
+      clearInterval(id)
+    }
+  }, [userId, pathname])
+  return count
+}
+
+const isMessages = (to) => to.endsWith('/messages')
+
+function Badge({ count }) {
+  if (!count) return null
+  return (
+    <span className="menu-badge">
+      {count > 99 ? '99+' : count}
+      <span className="visually-hidden"> unread</span>
+    </span>
+  )
+}
+
+function SideLink({ to, end, label, icon: Icon, collapsed, badge }) {
   return (
     <NavLink to={to} end={end} title={collapsed ? label : undefined}>
       {Icon && <Icon aria-hidden="true" size={20} strokeWidth={1.75} />}
       <span className="sidebar-label">{label}</span>
+      <Badge count={badge} />
     </NavLink>
   )
 }
@@ -123,6 +192,7 @@ export function AppShell({ menu = [] }) {
   const ActionIcon = action.icon
   const page = pageFor(menu, pathname)
   const [now] = useState(() => new Date())
+  const unread = useUnread(profile.id, pathname)
 
   // Escape closes the drawer and puts focus back on the menu button.
   useEffect(() => {
@@ -178,7 +248,7 @@ export function AppShell({ menu = [] }) {
             <ul>
               {mainItems.map((item) => (
                 <li key={item.to}>
-                  <SideLink {...item} collapsed={collapsed} />
+                  <SideLink {...item} collapsed={collapsed} badge={isMessages(item.to) ? unread : 0} />
                 </li>
               ))}
             </ul>
@@ -191,7 +261,9 @@ export function AppShell({ menu = [] }) {
               <Megaphone size={22} strokeWidth={1.75} />
             </span>
             <p>Meetings and news from your hub are in Notices.</p>
-            <Link to={`${base}/notices`}>Open notices</Link>
+            <Link to={`${base}/notices`} className="link-btn link-btn--small">
+              Open notices
+            </Link>
           </div>
           <button type="button" className="signout" onClick={signOut} title={collapsed ? 'Sign out' : undefined}>
             <LogOut aria-hidden="true" size={18} strokeWidth={1.75} />
@@ -242,6 +314,7 @@ export function AppShell({ menu = [] }) {
             <NavLink key={to} to={to} end={end}>
               {Icon && <Icon aria-hidden="true" size={22} strokeWidth={1.75} />}
               <span>{short ?? label}</span>
+              {isMessages(to) && <Badge count={unread} />}
             </NavLink>
           ))}
           <button

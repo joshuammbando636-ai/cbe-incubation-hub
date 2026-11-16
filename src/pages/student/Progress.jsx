@@ -46,7 +46,9 @@ export function Progress() {
           <h2>Add your business idea first</h2>
           <p>Progress videos belong to an idea.</p>
           <p>
-            <Link to="/student/idea">Add your idea</Link>
+            <Link to="/student/idea" className="link-btn">
+              Add your idea
+            </Link>
           </p>
         </section>
       </div>

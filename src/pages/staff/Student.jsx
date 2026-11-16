@@ -52,7 +52,12 @@ export function Student() {
   return (
     <div className="narrow-content">
       <p>
-        <Link to={`/staff/students${back}`}>{isAdmin ? 'All people' : 'All students'}</Link>
+        <Link to={`/staff/students${back}`} className="link-btn link-btn--back">
+          {isAdmin ? 'All people' : 'All students'}
+        </Link>{' '}
+        <Link to={`/staff/messages?with=${id}`} className="link-btn">
+          Message
+        </Link>
       </p>
       {page.loading ? (
         <Spinner />

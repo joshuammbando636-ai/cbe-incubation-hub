@@ -607,3 +607,54 @@ describe('profile photos', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('messages', () => {
+  const send = (from, to, body = 'Hello', kind = 'general') =>
+    as(from, `insert into messages (sender_id, recipient_id, body, kind) values ($1, $2, $3, $4)`, [from, to, body, kind])
+
+  it('a student and a mentor of their hub write both ways', async () => {
+    await send(ids.student, ids.mentor, 'Can you look at my video?')
+    await send(ids.mentor, ids.student, 'Good start. Show your price next time.', 'correction')
+  })
+
+  it('a mentor cannot write to a student outside their hubs; students cannot write to each other', async () => {
+    await expect(send(ids.mentor, ids.other)).rejects.toThrow()
+    await expect(send(ids.other, ids.mentor)).rejects.toThrow()
+    await expect(send(ids.student, ids.other)).rejects.toThrow()
+  })
+
+  it('an admin and anyone write both ways', async () => {
+    await send(ids.admin, ids.mentor)
+    await send(ids.mentor, ids.admin)
+    await send(ids.admin, ids.other)
+    await send(ids.other, ids.admin)
+  })
+
+  it('only staff tag messages; nobody sends as someone else or sends an empty one', async () => {
+    await expect(send(ids.student, ids.mentor, 'x', 'correction')).rejects.toThrow()
+    await expect(
+      as(ids.student, `insert into messages (sender_id, recipient_id, body) values ($1, $2, 'x')`, [ids.mentor, ids.student]),
+    ).rejects.toThrow()
+    await expect(send(ids.student, ids.mentor, '   ')).rejects.toThrow()
+  })
+
+  it('you read only messages you sent or received', async () => {
+    const { rows } = await as(ids.other, `select id from messages where $1 in (sender_id, recipient_id)`, [ids.student])
+    expect(rows).toHaveLength(0)
+  })
+
+  it('the recipient marks them read; nobody edits or deletes them', async () => {
+    const unread = async () =>
+      (await as(ids.student, `select unread from my_conversations() where other_id = $1`, [ids.mentor])).rows[0].unread
+    expect(await unread()).toBe(1)
+    await as(ids.student, `select mark_messages_read($1)`, [ids.mentor])
+    expect(await unread()).toBe(0)
+    await expect(as(ids.mentor, `update messages set body = 'changed'`)).rejects.toThrow()
+    await expect(as(ids.mentor, `delete from messages`)).rejects.toThrow()
+  })
+
+  it('contacts: a student sees their hub mentor and the admins only', async () => {
+    const { rows } = await as(ids.student, `select id from message_contacts()`)
+    expect(rows.map((r) => r.id).sort()).toEqual([ids.mentor, ids.admin].sort())
+  })
+})

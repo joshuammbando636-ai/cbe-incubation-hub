@@ -36,6 +36,7 @@ const StaffNotices = page(() => import('./pages/staff/Notices.jsx'), 'StaffNotic
 const StaffProfile = page(() => import('./pages/staff/Profile.jsx'), 'StaffProfile')
 
 const Lists = page(() => import('./pages/admin/Lists.jsx'), 'Lists')
+const Messages = page(() => import('./pages/Messages.jsx'), 'Messages')
 
 export default function App() {
   if (!supabase) return <SetupNeeded />
@@ -63,6 +64,7 @@ export default function App() {
               <Route path="/student/progress" element={<Progress />} />
               <Route path="/student/lessons" element={<Lessons />} />
               <Route path="/student/notices" element={<StudentNotices />} />
+              <Route path="/student/messages" element={<Messages />} />
             </Route>
           </Route>
 
@@ -75,6 +77,7 @@ export default function App() {
               <Route path="/staff/lessons" element={<StaffLessons />} />
               <Route path="/staff/meetings" element={<Meetings />} />
               <Route path="/staff/notices" element={<StaffNotices />} />
+              <Route path="/staff/messages" element={<Messages />} />
               <Route path="/staff/profile" element={<StaffProfile />} />
             </Route>
           </Route>

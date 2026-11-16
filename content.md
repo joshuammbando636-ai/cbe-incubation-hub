@@ -8,11 +8,11 @@ Voice: plain English, short sentences, "you". Many students read this on a small
 
 Made once. Do not change them mid-build.
 
-- **Blue and white** (Josh, 15 Nov 2026; replaces the old paper + green). White pages, light-blue surfaces (`--surface`), navy text, ONE blue accent (`--accent` #1d4ed8). A deep-blue gradient (`--grad`) is kept for the big moments only: the landing hero, the sign-in panel, the final call to action, the logo mark.
+- **Two colours across the whole site** (Josh, 16 Nov 2026; replaces the bright blue + gradient): deep navy #0b1a33 and off-white #f8f8f6, the same as the front page. Greys, lines and soft backgrounds are navy mixed into the off-white, never a third colour. One exception Josh wants kept: the sign-in / sign-up left panel uses the original blue gradient over the office photo (`hub-hero.webp`). Amber and red only for waiting/error status.
 - Two signals besides the accent: amber for "waiting / to confirm", red for errors and "not accepted". Both appear as a small dot or a thin left rule, never as a filled block.
 - Visitors who are signed out land on a **landing page** at `/` (hero, numbers, how it works, stages, who it is for, hubs, about, call to action). Signed-in pages follow Josh's Pitch.io reference (16 Nov 2026): a white **left sidebar** (logo, one big action button, menu, help card, Sign out; the current tab joins the page beside it), a top bar with the page name, date, notices bell and your name (opens Profile), and on student Dashboard a soft-blue welcome banner, four blue overview tiles and one row per area. The sidebar has icons (on phones: a bottom bar for the main pages, and "More" opens the full menu as a drawer).
-- Landing-page motion uses **GSAP**: the hero plays once, sections rise in on scroll. Off when the device asks for reduced motion.
-- Two typefaces (16 Nov 2026): **Plus Jakarta Sans** for all text and dashboard headings (self-hosted from npm `@fontsource-variable/plus-jakarta-sans`), and **Some Time Later** (SIL Open Font Licence, 34 KB in `src/assets/fonts`) only for the logo, the landing page and the sign-in panel.
+- Landing page header and hero follow **butter.video**'s layout (Josh, 16 Nov 2026): two grey pills at the top, a grey hero with open space and one cut-out drawing at the top, one big centred line whose letters sharpen out of a blur, and one button. No decorative "charms" or card-like motion in the hero (Josh: too AI-looking). **No cards anywhere on the front page** (Josh, 16 Nov 2026): drawings sit straight on the page, lists use thin lines. Motion uses **GSAP** + **Lenis** smooth scrolling, one easing curve `cubic-bezier(0.2, 0.715, 0.205, 0.99)`: the hero is scroll-linked, headings come in word by word, hub names slide sideways with the scroll, a playhead walks the four stages, a dashboard preview follows the mouse. Off when the device asks for reduced motion.
+- Two typefaces (16 Nov 2026, Josh's butter.video reference): **Inter Tight** for all text and headings across the site (self-hosted from npm `@fontsource-variable/inter-tight`): tight letters, big lines weight 500 with negative tracking (hero: huge headline, medium line, normal button). **Some Time Later** (SIL Open Font Licence, 34 KB in `src/assets/fonts`) only for the logo and the big line on the sign-in / sign-up picture.
 - Type scale with big jumps: 14 / 16 / 20 / 32 / 56 / 96 px. Headings are large, tight and left-aligned.
 - Everything hangs left. Nothing is centred except the loading spinner.
 - Thin 1px rules and borders, no shadows. One radius everywhere: 8px.
@@ -310,6 +310,15 @@ List, titled **Your videos**, newest first. Each row:
 
 ---
 
+### Messages (`/student/messages`, `/staff/messages`)
+
+- Title: Messages. Button: **New message** (search: "Search by name or hub"; Cancel).
+- Empty list: student "No messages yet. Write to your mentor with New message." / staff "No conversations yet. Start one with New message."
+- Empty chat: "No messages yet. Say hello." Nothing open: "Choose a conversation, or start one with New message."
+- Box: "Write a message…", button **Send** (Ctrl+Enter also sends). Staff choose a type first: Message · Support · Instruction · Correction.
+- Not allowed: "You cannot write to this person." Not set up yet: "Messages are not switched on yet. Please try again later."
+- Who can write to whom: a student and the mentors of their hub; an admin and anyone; both ways.
+
 ## Staff screens (mentors and admins)
 
 A mentor sees only the students in the hubs an admin gave them. An admin sees every hub. The screens are the same; the database decides what each person gets.
@@ -317,6 +326,8 @@ A mentor sees only the students in the hubs an admin gave them. An admin sees ev
 Menu: Overview · Students · Reviews · Lessons · Meetings · Notices. Admins also get: People · Lists.
 
 ### Overview (`/staff`)
+
+- Greeting: small line "Administrator · CBE Incubation Hub" (or Mentor), then **Good morning / Good afternoon / Good evening, Mr./Ms. Surname.** (full name when no gender is set).
 
 - Title: **Overview**
 - Line for a mentor: Your hubs: {hub, hub}. Line for an admin: All hubs.
@@ -495,7 +506,7 @@ After saving: Saved.
 
 ## Landing page v2
 
-**Front page rebuilt 16 Nov 2026 to the Compass-style prompt** (`src/pages/landing/Journey.jsx`, `Beyond.jsx`, `Dimensions.jsx`, `Why.jsx`, styles in `landing/front.css`). Headings: Plus Jakarta Sans bold. Hero line: Aptos. Colours: blue and white. The copy below is older: the sections it describes (What is the Hub, Questions, Tiles, Scattered) were removed; the wording for Hubs, How it works, Stages, FAQ and the closing panel still applies.
+**Simple front page (16 Nov 2026, replaces everything below in this section):** Header: How it works · Hubs · Sign in · Join. Hero: eyebrow "College of Business Education"; **Turn your [idea / side hustle / prototype / class project / first sale] into a business.** (Aptos); line "Join an innovation hub, get a mentor in your field, and grow your business one stage at a time."; buttons Create your account · Sign in; facts {hubs} hubs · 4 stages · 1 mentor for you; video card with badge "A mentor in your field". **From idea to income, one stage at a time.** Idea (Describe your business and pick the hub that fits it.) · Prototype (Build a first version with your mentor's feedback.) · Operational (Open for customers and post your progress videos.) · Earning (Make your first sales and keep growing.). **Find the hub that fits your idea.** Each hub groups students in one field with a mentor who knows it. + live hub list. **Ready to start your business?** It takes one minute to create your account. Footer: Questions? Call +255 627 375 912.
 
 The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and white, motion inspired by loopsii.com. Fonts: Some Time Later for headings, Plus Jakarta Sans for text; the small handwritten notes use the heading font, slanted, in blue. Items marked **[confirm with CBE]** need CBE's answer before going live; **(draft)** means wording Claude wrote because the brief gave none.
 
@@ -575,4 +586,4 @@ The signed-out page at `/` (built 15 Nov 2026, branch `landing-v2`). Blue and wh
 
 **Closing line**: Idea. Prototype. Running. Earning.
 
-**Footer**: CBE Incubation Hub · How it works · Hubs · FAQ · Sign in · Questions? Call 0777 561 651 (tap to call; Josh's number, 15 Nov 2026) · College of Business Education · Incubation Hub
+**Footer**: CBE Incubation Hub · How it works · Hubs · FAQ · Sign in · Questions? Call +255 627 375 912 (tap to call; changed 16 Nov 2026) · College of Business Education · Incubation Hub

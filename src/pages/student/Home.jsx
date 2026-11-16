@@ -77,7 +77,9 @@ export function StudentHome() {
               'A mentor has asked you to confirm your details. Open your profile and check that everything is correct.'}
           </p>
           <p>
-            <Link to="/student/profile">Open your profile</Link>
+            <Link to="/student/profile" className="link-btn">
+              Open your profile
+            </Link>
           </p>
         </Notice>
       )}

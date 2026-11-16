@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
-import '@fontsource-variable/plus-jakarta-sans'
+import '@fontsource-variable/inter-tight'
 import './index.css'
 import './dashboard.css'
 import App from './App.jsx'

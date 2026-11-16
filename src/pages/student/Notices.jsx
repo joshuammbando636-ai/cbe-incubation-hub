@@ -41,7 +41,7 @@ export function StudentNotices() {
                 <p className="row-meta">{formatDateTime(m.starts_at)}</p>
                 {m.note && <p className="notice-body">{m.note}</p>}
                 <p>
-                  <a href={m.link} target="_blank" rel="noopener noreferrer">
+                  <a href={m.link} target="_blank" rel="noopener noreferrer" className="link-btn link-btn--out">
                     Join meeting<span className="visually-hidden"> (opens in a new tab)</span>
                   </a>
                 </p>
@@ -72,7 +72,7 @@ export function StudentNotices() {
                 <p className="notice-body">{n.body}</p>
                 {n.link && isWebLink(n.link) && (
                   <p>
-                    <a href={n.link} target="_blank" rel="noopener noreferrer">
+                    <a href={n.link} target="_blank" rel="noopener noreferrer" className="link-btn link-btn--out">
                       Open link<span className="visually-hidden"> (opens in a new tab)</span>
                     </a>
                   </p>

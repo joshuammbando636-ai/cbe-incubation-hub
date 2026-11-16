@@ -1,18 +1,30 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { SimplePage } from '../components/layouts.jsx'
+import { AuthShell } from '../components/layouts.jsx'
 import { Button, Field, Notice } from '../components/ui.jsx'
 import { authRedirect, supabase } from '../lib/supabase.js'
 import { MSG, errorMessage } from '../lib/text.js'
 import { useTitle } from '../lib/useTitle.js'
-import { checkEmail, checkFullName, checkNewPassword, checkSamePassword, cleanEmail, firstError } from '../lib/validate.js'
+import {
+  checkEmail,
+  checkFullName,
+  checkNewPassword,
+  checkSamePassword,
+  cleanEmail,
+  firstError,
+} from '../lib/validate.js'
 
 const TAKEN = 'taken'
 
 export function Signup() {
   useTitle('Create your account')
   const navigate = useNavigate()
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '' })
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirm: '',
+  })
   const [errors, setErrors] = useState({})
   const [problem, setProblem] = useState('')
   const [busy, setBusy] = useState(false)
@@ -58,69 +70,70 @@ export function Signup() {
   }
 
   return (
-    <SimplePage>
-      <h1>Create your account</h1>
-      <p className="lede">It takes one minute. You fill in your details after you confirm your email.</p>
+    <AuthShell
+      title="Create your account"
+      sub="It takes one minute. You fill in your details after you confirm your email."
+      line="Every idea needs a hub."
+    >
+          {problem === TAKEN ? (
+            <Notice kind="error">
+              <p>
+                This email already has an account. <Link to="/login">Sign in</Link>, or{' '}
+                <Link to="/forgot-password">reset your password</Link>.
+              </p>
+            </Notice>
+          ) : (
+            problem && <Notice kind="error">{problem}</Notice>
+          )}
 
-      {problem === TAKEN ? (
-        <Notice kind="error">
-          <p>
-            This email already has an account. <Link to="/login">Sign in</Link>, or{' '}
-            <Link to="/forgot-password">reset your password</Link>.
+          <form onSubmit={submit} noValidate className="form">
+            <Field
+              id="fullName"
+              label="Full name"
+              hint="Your real first and last name, as on your CBE registration. Mentors use it to find you."
+              autoComplete="name"
+              value={form.fullName}
+              onChange={set('fullName')}
+              error={errors.fullName}
+            />
+            <Field
+              id="email"
+              label="Email"
+              hint="Already registered with CBE's incubation programme? Use the same email and we will fill in your details for you."
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              value={form.email}
+              onChange={set('email')}
+              error={errors.email}
+            />
+            <Field
+              id="password"
+              label="Password"
+              hint="At least 8 characters."
+              type="password"
+              autoComplete="new-password"
+              value={form.password}
+              onChange={set('password')}
+              error={errors.password}
+            />
+            <Field
+              id="confirm"
+              label="Confirm password"
+              type="password"
+              autoComplete="new-password"
+              value={form.confirm}
+              onChange={set('confirm')}
+              error={errors.confirm}
+            />
+            <Button type="submit" busy={busy}>
+              Create account
+            </Button>
+          </form>
+
+          <p className="auth-links">
+            <Link to="/login">Already have an account? Sign in</Link>
           </p>
-        </Notice>
-      ) : (
-        problem && <Notice kind="error">{problem}</Notice>
-      )}
-
-      <form onSubmit={submit} noValidate className="form">
-        <Field
-          id="fullName"
-          label="Full name"
-          hint="Your real first and last name, as on your CBE registration. Mentors use it to find you."
-          autoComplete="name"
-          value={form.fullName}
-          onChange={set('fullName')}
-          error={errors.fullName}
-        />
-        <Field
-          id="email"
-          label="Email"
-          hint="Already registered with CBE's incubation programme? Use the same email and we will fill in your details for you."
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          value={form.email}
-          onChange={set('email')}
-          error={errors.email}
-        />
-        <Field
-          id="password"
-          label="Password"
-          hint="At least 8 characters."
-          type="password"
-          autoComplete="new-password"
-          value={form.password}
-          onChange={set('password')}
-          error={errors.password}
-        />
-        <Field
-          id="confirm"
-          label="Confirm password"
-          type="password"
-          autoComplete="new-password"
-          value={form.confirm}
-          onChange={set('confirm')}
-          error={errors.confirm}
-        />
-        <Button type="submit" busy={busy}>
-          Create account
-        </Button>
-      </form>
-
-      <p>
-        Already have an account? <Link to="/login">Sign in</Link>
-      </p>
-    </SimplePage>
+    </AuthShell>
   )
 }

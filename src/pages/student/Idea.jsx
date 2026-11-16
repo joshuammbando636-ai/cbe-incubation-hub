@@ -100,7 +100,9 @@ function IdeaForm({ ownerId, lists, initial, onConflict }) {
           </p>
           <p>Only a mentor can change the stage. To move up, post a progress video.</p>
           <p>
-            <Link to="/student/progress">Post a progress video</Link>
+            <Link to="/student/progress" className="link-btn">
+              Post a progress video
+            </Link>
           </p>
         </section>
       )}
